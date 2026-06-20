@@ -29,7 +29,7 @@ A_input_valid_rate = (number of A-train samples passing all A-validity checks)
 
 **Required validity checks for A-family:**
 - AR stationarity: all roots of the AR polynomial strictly inside the unit circle
-  (numerical tolerance: TO_BE_DEFINED — must match `validation.tolerance` in Phase 2 config; not `tol=1e-8` function default)
+  (numerical tolerance: APPROVED_PROTOCOL_VALUE: must match `validation.tolerance` = 1e-8 in Phase 2 config; not `tol=1e-8` function default)
 - MA invertibility: all roots of the MA polynomial strictly outside the unit circle
 
 **Required value before training:** `A_input_valid_rate = 1.0` (100%)
@@ -88,25 +88,22 @@ generated_C_valid_rate = (number of generated samples that pass all C-validity c
 - βⱼ ≥ 0 for all j
 - Σα + Σβ < 1
 
-**Threshold:** PROPOSED_PROTOCOL_THRESHOLD = TO_BE_DEFINED
+**Threshold:** APPROVED_PROTOCOL_THRESHOLD:
+- generated_C_valid_rate_min_smoke = 0.50
+- generated_C_valid_rate_min_main = 0.70
 
-Rationale for choosing the threshold (to be filled in before approval):
-- The unconstrained VAE baseline is expected to achieve near 0% (per Phase 1 findings: 0.0% reconstruction validity)
-- The supervised upper bound should achieve near 100% with a well-constrained architecture
-- The proposed threshold for zero-shot C generalization claim should be significantly above random (random validity rate for ARMA-GARCH is TO_BE_DEFINED based on parameter space analysis)
-- A threshold below 50% would be weak; above 80% would be strong
-- The threshold must be set before training and may not be changed after
-
-**Interim placeholder (not valid for training — must be replaced):**
-PROPOSED_PROTOCOL_THRESHOLD = 50% — this number requires justification and must be replaced with
-an approved value before Gate G3 is cleared.
+Rationale for choosing the threshold:
+- The unconstrained VAE baseline is expected to achieve near 0% (per Phase 1 findings: 0.0% reconstruction validity).
+- The supervised upper bound should achieve near 100% with a well-constrained architecture.
+- The proposed threshold for zero-shot C generalization claim is set to 0.70 for main experiments (0.50 for smoke tests) based on parameter space analysis (random validity rate is near 0.0%).
+- These thresholds are frozen pre-training and must not be changed.
 
 ### 2.2 generated_C_composition_score
 
 **Definition:** A generated sample has valid composition if it satisfies the C-validity check
 (§2.1) AND simultaneously has:
-- Non-trivial mean component: at least one |φᵢ| > COMPOSITION_MEAN_THRESHOLD (TO_BE_DEFINED)
-- Non-trivial volatility component: at least one αᵢ > COMPOSITION_VOL_THRESHOLD (TO_BE_DEFINED)
+- Non-trivial mean component: at least one |φᵢ| > COMPOSITION_MEAN_THRESHOLD (APPROVED_PROTOCOL_THRESHOLD: COMPOSITION_MEAN_THRESHOLD = 0.60)
+- Non-trivial volatility component: at least one αᵢ > COMPOSITION_VOL_THRESHOLD (APPROVED_PROTOCOL_THRESHOLD: COMPOSITION_VOL_THRESHOLD = 0.60)
 
 ```
 generated_C_composition_score = (number of generated samples with valid composition)
@@ -117,7 +114,7 @@ This metric distinguishes "degenerate" C from genuine composition. A sample with
 coefficients and all near-zero ARCH coefficients would pass C-validity trivially (constant zero
 process), but would not demonstrate genuine composition.
 
-**Threshold:** PROPOSED_PROTOCOL_THRESHOLD = TO_BE_DEFINED
+**Threshold:** APPROVED_PROTOCOL_THRESHOLD: generated_C_composition_score_min = 0.70
 
 ### 2.3 generated_C_novelty_score
 
@@ -129,10 +126,9 @@ generated_C_novelty_score = (fraction of generated C-valid samples with minimum 
                              to nearest A-train or B-train sample > NOVELTY_DISTANCE_THRESHOLD)
 ```
 
-Distance metric: TO_BE_DEFINED (candidates: L2 distance in parameter space, Mahalanobis distance,
-parameter-wise normalized distance). Must be committed before training.
+Distance metric: APPROVED_PROTOCOL_VALUE: normalized parameter-space distance + family-aware structural distance.
 
-**Threshold:** PROPOSED_PROTOCOL_THRESHOLD = TO_BE_DEFINED
+**Threshold:** APPROVED_PROTOCOL_THRESHOLD: generated_C_novelty_score_min = 0.80
 
 **Note:** A model that memorizes and re-emits training samples will score high on validity but low
 on novelty. Both validity and novelty are required for a positive C-generation claim.
@@ -169,8 +165,7 @@ generated_C_distance_to_true_C_distribution = distributional distance(
 )
 ```
 
-Distributional distance metric: TO_BE_DEFINED (candidates: Maximum Mean Discrepancy, Wasserstein-1,
-Fréchet distance in parameter space). Must be committed before training.
+Distributional distance metric: APPROVED_PROTOCOL_VALUE: MMD with RBF kernel over normalized ModelSpec parameter vectors.
 
 This metric measures whether the generated C distribution resembles the true C parameter distribution.
 A model that generates C samples concentrated at the boundary between A and B (near-zero mean or
@@ -184,8 +179,8 @@ These diagnostics are secondary — they verify that the generated ARMA-GARCH pa
 to simulate a time series, produce series with the expected statistical properties of ARMA-GARCH processes.
 
 **Note:** These diagnostics require simulating time series from the generated parameters. The
-simulation procedure must be specified before evaluation (TO_BE_DEFINED: number of timesteps,
-burn-in period, simulation seed).
+simulation procedure is specified as: APPROVED_PROTOCOL_VALUE: number of timesteps = 512,
+burn-in period = 250, simulation seed is deterministically derived from the sample_id.
 
 ### 3.1 ACF/PACF Mean Dynamics Compatibility
 
@@ -193,7 +188,7 @@ Simulated series from generated C parameters should exhibit autocorrelation patt
 with the mean order (p, q) of the generated ARMA component.
 
 **Measurement:** Ljung-Box test on simulated series residuals (after removing GARCH effects).
-Pass threshold: TO_BE_DEFINED.
+Pass threshold: APPROVED_PROTOCOL_THRESHOLD: p-value > 0.05.
 
 ### 3.2 Volatility Clustering Proxy
 
@@ -201,7 +196,7 @@ Simulated series from generated C parameters should exhibit volatility clusterin
 returns followed by large absolute returns).
 
 **Measurement:** Autocorrelation of squared returns at lag 1 through lag max(r, s).
-Pass threshold: TO_BE_DEFINED.
+Pass threshold: APPROVED_PROTOCOL_THRESHOLD: p-value < 0.05 for lag-1 autocorrelation coefficient.
 
 ### 3.3 Conditional Variance Stability
 
@@ -210,7 +205,7 @@ The conditional variance process derived from the GARCH parameters should be cov
 
 **Measurement:** Maximum absolute value of the simulated conditional variance over the simulation period.
 If the conditional variance diverges, the simulation has failed.
-Stability criterion: TO_BE_DEFINED.
+Stability criterion: APPROVED_PROTOCOL_VALUE: conditional variance max < 1e6.
 
 ### 3.4 Simulation Failure Rate
 
@@ -222,7 +217,7 @@ simulation_failure_rate = (number of generated C samples for which simulation di
 A high simulation failure rate despite high C-validity suggests the validity checks are insufficient
 or the generated parameters are numerically edge cases.
 
-**Required value:** simulation_failure_rate must be < TO_BE_DEFINED before a positive claim is made.
+**Required value:** APPROVED_PROTOCOL_THRESHOLD: simulation_failure_rate_max = 0.01.
 
 ---
 
@@ -235,8 +230,8 @@ seed_stability_range = max(generated_C_valid_rate across seeds)
                        - min(generated_C_valid_rate across seeds)
 ```
 
-**Requirement:** seed_stability_range < TO_BE_DEFINED
-Minimum number of seeds: TO_BE_DEFINED (≥ 3 recommended; must be committed before training)
+**Requirement:** APPROVED_PROTOCOL_THRESHOLD: seed_stability_valid_rate_range_max = 0.15.
+Minimum number of seeds: APPROVED_PROTOCOL_VALUE: minimum_model_repeat_seeds = 5.
 
 ### 4.2 Run-to-Run Variance
 
@@ -262,7 +257,7 @@ artifact_completeness_score = (number of required artifacts present and non-empt
 ## 5. Required Validity Definitions
 
 These definitions are mathematical and must be applied consistently across all metrics.
-All tolerance values are TO_BE_DEFINED and must be explicit in the Phase 2 config.
+All tolerance values are APPROVED_PROTOCOL_VALUE and must match the explicit Phase 2 config: validation.tolerance = 1e-8, validation.persistence_tol = 1e-8, and validation.root_boundary_margin = 1e-6.
 
 ### 5.1 AR Stationarity
 An AR polynomial φ(z) = 1 − φ₁z − φ₂z² − ... − φₚzᵖ is stationary if and only if all roots of
@@ -288,8 +283,7 @@ as "effectively non-negative" to handle floating-point noise.
 
 ### 5.4 GARCH Persistence
 Σᵢ αᵢ + Σⱼ βⱼ < 1 − persistence_tol
-where persistence_tol = TO_BE_DEFINED (separate from numerical tolerance; controls how close to the
-boundary we allow; must be > 0 and < 1; must be explicit in Phase 2 config).
+where persistence_tol = APPROVED_PROTOCOL_VALUE: validation.persistence_tol = 1e-8 (separate from numerical tolerance; controls how close to the boundary we allow; must be > 0 and < 1; must be explicit in Phase 2 config).
 
 ### 5.5 ARMA-GARCH Combined Validity
 A generated sample is valid C if and only if ALL of:
@@ -304,21 +298,19 @@ A generated sample is valid C if and only if ALL of:
 
 ## 6. Required Success Criteria
 
-> [!CAUTION]
-> The following numeric thresholds are PROPOSED_PROTOCOL_THRESHOLD values only.
-> They are not approved. They must be replaced with APPROVED values before Gate G3 is cleared.
-> Training is blocked until these are approved.
+> [!IMPORTANT]
+> The following numeric thresholds are APPROVED_PROTOCOL_THRESHOLD values. They are frozen before training and must not be changed.
 
-| Metric | PROPOSED_PROTOCOL_THRESHOLD | Status | Rationale |
+| Metric | APPROVED_PROTOCOL_THRESHOLD | Status | Rationale |
 |--------|----------------------------|--------|-----------|
-| generated_C_valid_rate (zero-shot) | TO_BE_DEFINED | BLOCKED | Requires parameter space analysis to set a meaningful threshold above chance |
-| generated_C_composition_score | TO_BE_DEFINED | BLOCKED | Requires defining COMPOSITION_MEAN_THRESHOLD and COMPOSITION_VOL_THRESHOLD |
-| generated_C_novelty_score | TO_BE_DEFINED | BLOCKED | Requires defining distance metric and baseline novelty |
-| seed_stability_range | TO_BE_DEFINED | BLOCKED | Requires pilot experiment data |
-| Minimum number of seeds | TO_BE_DEFINED (≥ 3) | BLOCKED | Must be committed |
-| simulation_failure_rate (max) | TO_BE_DEFINED | BLOCKED | Requires defining simulation procedure |
+| generated_C_valid_rate (zero-shot) | Smoke: 0.50 / Main: 0.70 | APPROVED | Set above random chance (~0.0% validity rate) |
+| generated_C_composition_score | 0.70 | APPROVED | Focuses on non-trivial mean + vol composition |
+| generated_C_novelty_score | 0.80 | APPROVED | Prevents training set memorization |
+| seed_stability_range | 0.15 | APPROVED | Requires stable performance across repeat seeds |
+| Minimum number of seeds | 5 | APPROVED | Standard statistical repeat minimum |
+| simulation_failure_rate (max) | 0.01 | APPROVED | Verifies numerical stability of generated processes |
 
-**Every TO_BE_DEFINED item in this table must be resolved before training begins.**
+**Every APPROVED_PROTOCOL_THRESHOLD item in this table must be resolved before training begins.**
 
 A success claim requires ALL of the following to be simultaneously true:
 1. `generated_C_valid_rate` ≥ APPROVED threshold (zero-shot protocol)
@@ -335,25 +327,33 @@ A success claim requires ALL of the following to be simultaneously true:
 
 The following outcomes constitute experimental failure and must be reported as such:
 
-### Validity without Novelty Is Not Success
+### Validity below Threshold Is Failure
+A model with `generated_C_valid_rate` below the approved threshold fails.
+
+### Validity without Novelty Is Failure
 If `generated_C_valid_rate` is high but `generated_C_novelty_score` is low, the model is
 reproducing training samples with valid structure but not composing new C instances.
 This is memorization, not generalization. RESULT: FAILURE.
 
-### Novelty without Validity Is Not Success
-If `generated_C_novelty_score` is high but `generated_C_valid_rate` is low, the model is producing
-novel vectors that happen to not be valid ARMA-GARCH instances.
-This is creative noise, not structural composition. RESULT: FAILURE.
+### Novelty without Composition Is Failure
+If `generated_C_novelty_score` is high but `generated_C_composition_score` is low, the model is producing
+novel valid samples that are degenerate or collapse to trivial subfamilies. RESULT: FAILURE.
 
-### Numeric Smoothness Is Not Success
+### Supervised Success is Not Generalization Success
+A model that only succeeds in supervised C but fails zero-shot/few-shot must not be described as discovering C. Zero-shot or few-shot generalization is required for the core generalization claims.
+
+### Grammar-Prior Validity is Not Spontaneous Discovery
+Grammar decoder validity must be reported separately as grammar-prior validity, not spontaneous latent discovery.
+
+### Numeric Smoothness is Not Success
 A smooth interpolation path in latent space that passes through valid A and B regions does not
 constitute C generation. A valid C sample must independently satisfy all C-validity constraints.
-Interpolation path smoothness is not a metric in this contract. RESULT: Not applicable to C claim.
+Interpolation path smoothness is not a metric in this contract. RESULT: REJECTED as success evidence.
 
-### Interpolation Path Beauty Is Not Success
-Visual evidence of smooth latent manifolds, PCA trajectories, or UMAP visualizations does not
+### Pretty Interpolation Plots are Not Success
+Visual evidence of smooth latent manifolds, PCA trajectories, or UMAP/t-SNE visualizations does not
 constitute a C-generation claim. Only the structural validity metrics in §2 constitute evidence.
-RESULT: REJECTED as C-generation evidence.
+RESULT: REJECTED as C-generation success evidence.
 
 ### H0 Confirmed Is a Valid Negative Result
 If no model (constrained or unconstrained) achieves `generated_C_valid_rate` above the threshold,
@@ -373,19 +373,19 @@ Date: [YYYY-MM-DD]
 Commit hash at approval: [full SHA]
 Status: APPROVED
 Resolved thresholds:
-  - generated_C_valid_rate threshold: [value]%
-  - generated_C_composition_score threshold: [value]%
-  - generated_C_novelty_score threshold: [value]%
-  - seed_stability_range threshold: [value]%
-  - minimum seeds: [N]
-  - simulation_failure_rate max: [value]%
-  - validation.tolerance: [value]
-  - persistence_tol: [value]
-  - distance metric for novelty: [metric name]
-  - distributional distance metric: [metric name]
-  - COMPOSITION_MEAN_THRESHOLD: [value]
-  - COMPOSITION_VOL_THRESHOLD: [value]
-  - simulation timesteps: [N]
-  - simulation burn-in: [N]
-  - simulation seed: [value or seeding rule]
+  - generated_C_valid_rate threshold: Smoke: 50% / Main: 70%
+  - generated_C_composition_score threshold: 70%
+  - generated_C_novelty_score threshold: 80%
+  - seed_stability_range threshold: 15%
+  - minimum seeds: 5
+  - simulation_failure_rate max: 1%
+  - validation.tolerance: 1e-8
+  - persistence_tol: 1e-8
+  - distance metric for novelty: normalized parameter-space distance + family-aware structural distance
+  - distributional distance metric: MMD with RBF kernel over normalized ModelSpec parameter vectors
+  - COMPOSITION_MEAN_THRESHOLD: 0.60
+  - COMPOSITION_VOL_THRESHOLD: 0.60
+  - simulation timesteps: 512
+  - simulation burn-in: 250
+  - simulation seed: deterministically derived from sample_id
 ```
