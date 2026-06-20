@@ -33,3 +33,12 @@ These files are NOT part of the clean reproduction pipeline defined in
 - **Orphan Artifacts**: All archived artifacts are historical only and should not be used as active evidence.
 - **No Lint/Test Guarantees**: Legacy code in the archive is not active and may not pass linting or pytest suites.
 - **Local-Only Binary Policy (Policy B)**: To prevent repository bloat, large binary legacy artifacts (`.npy`, `.csv`, `.png`, `.pth`) in `archive/` are local-only and excluded from public git tracking via the root `.gitignore`. Only code and markdown files in the archive are committed to public source control.
+
+Large generated visualization files from invalidated legacy runs are not
+committed. The archive preserves source code and documentation, not bulky
+generated visual outputs.
+
+`latent_space_visualization_notes.md` was moved here from
+`docs/# Візуалізація латентного простору VAE.md` during publication cleanup
+(the `#` in the original filename caused shell hazards).
+

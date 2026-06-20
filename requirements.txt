@@ -26,7 +26,8 @@ matplotlib>=3.6
 scikit-learn>=1.2
 umap-learn>=0.5
 
-# Time-series econometrics (used in backtest module)
+# Time-series econometrics
+# Used for legacy-compatible model-family diagnostics and empirical stress-test utilities.
 statsmodels>=0.14
 arch>=5.6
 

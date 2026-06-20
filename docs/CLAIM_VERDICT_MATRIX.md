@@ -95,9 +95,15 @@ To achieve final scientific proof, the following future work is required (Phase 
 
 ## Recommendation
 
-* **Is final README safe now?** No. The public README should not be updated with final claims until Stage 6 (empirical stress test) is run or Stage 5.5/7 verdicts are fully checked.
+### Public README Status
+
+Earlier audit phases marked the README as unsafe before Stage 7 and the final
+publication audit were complete. After Phase 1R and the publication polish pass,
+the public README is considered safe as a bounded summary of the final verdict,
+provided that it preserves `COMPLETED_WITH_LIMITATIONS`, `INVALIDATED`, and
+`NEEDS_REAL_DATA` language.
+
 * **Is Stage 6 still needed?** Yes, to verify the empirical backtesting claims under clean provenance.
-* **Should Stage 6 run before README finalization?** Yes, running Stage 6 is highly recommended to complete the full reproduction runner before public release.
 * **Which old claims must never be repeated?**
   1. That VAE reconstructions are structurally valid or have high valid rates.
   2. That linear interpolation produces valid ARMA-only transition structures.

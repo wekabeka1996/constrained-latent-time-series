@@ -49,7 +49,7 @@ If a required artifact, checkpoint, or market data file is missing:
 ## 3. Honest Limitations
 
 * **Legacy Compatibility:** The original training grammar contained a boundary bug where GARCH persistence could exceed 1.0 due to inverted uniform bounds. This behavior is preserved *explicitly* in `legacy_compatible` generation mode to ensure compatibility with existing `vae_beta*.pth` checkpoints. It must not be presented as mathematically clean generation.
-* **Geometry Validity:** During Phase 1D, the legacy Fisher information metric computation was found to be mathematically invalid (incorrect Jacobian formulation). Old geometry artifacts and derived claims are classified as `INVALID_DO_NOT_CLAIM`. See [GEOMETRY_VALIDITY_STATUS.md](file:///c:/Users/user/Videos/Архів/ДОСЛІДЖЕННЯ ЛАТЕНТОГО ПРОСТОРО ТА ІНТЕРПОЛЯЦІЇ РУХУ В НЬОМУ/docs/GEOMETRY_VALIDITY_STATUS.md) for details. All future claims must use the canonical implementation in `src/geometry.py`.
+* **Geometry Validity:** During Phase 1D, the legacy Fisher information metric computation was found to be mathematically invalid (incorrect Jacobian formulation). Old geometry artifacts and derived claims are classified as `INVALID_DO_NOT_CLAIM`. See [GEOMETRY_VALIDITY_STATUS.md](GEOMETRY_VALIDITY_STATUS.md) for details. All future claims must use the canonical implementation in `src/geometry.py`.
 * **Negative Results:** If backtests perform poorly or generated models are invalid, these negative results must be preserved honestly. They inform the boundaries of the VAE's capability. No result should be massaged to make the repo look better.
 
 ---

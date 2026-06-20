@@ -1,0 +1,26 @@
+{
+  "project": "constrained-latent-time-series",
+  "final_reproduction_status": "COMPLETED_WITH_LIMITATIONS",
+  "public_demo_checkpoint": "models/vae_beta50.pth",
+  "claim_status": {
+    "CLAIM_01": "PARTIALLY_CONFIRMED",
+    "CLAIM_02": "INVALIDATED",
+    "CLAIM_03": "INVALIDATED",
+    "CLAIM_04": "INVALIDATED",
+    "CLAIM_05": "INVALIDATED",
+    "CLAIM_06": "NEEDS_REAL_DATA",
+    "CLAIM_07": "CHANGED_DUE_TO_BUGFIX"
+  },
+  "key_metrics": {
+    "stage_1_input_validity": "125/200 = 62.5%",
+    "stage_4_reconstruction_validity": "0/200 = 0.0%",
+    "stage_4_reconstruction_failure": "LEGACY_LAYOUT_COLLISION",
+    "stage_5_geometry_scope": "valid Stage 1 input latents only",
+    "stage_6_empirical_status": "NEEDS_REAL_DATA"
+  },
+  "public_notes": [
+    "Full reproduction outputs are generated locally and are not committed.",
+    "Legacy Fisher/geodesic claims are invalidated and must not be cited.",
+    "This project is not a trading system."
+  ]
+}

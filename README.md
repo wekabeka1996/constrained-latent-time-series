@@ -6,6 +6,23 @@
 
 ---
 
+## TL;DR
+
+This is not a trading system and not a success-claim VAE demo. It is a
+reproducibility and research-integrity study. The clean reproduction invalidates
+several original claims, keeps the negative results visible, and provides a
+7-stage runner that regenerates the evidence locally.
+
+Quick commands:
+
+```bash
+pip install -r requirements.txt
+python -m pytest tests -q -rs
+python -m src.reproduce --config configs/demo.yaml --stages 1,2,3,4,5,6,7
+```
+
+---
+
 ## What this project is
 
 This repository documents a research experiment that asked:
@@ -57,7 +74,7 @@ pending real market data (CLAIM_06).
 
 | Claim | Status | Finding |
 |---|---|---|
-| CLAIM_01: Encoder separates AR/GARCH latent regions | **PARTIALLY_CONFIRMED** | Encoder clusters are visible; quantitative metrics pending |
+| CLAIM_01: Encoder separates AR/GARCH latent regions | **PARTIALLY_CONFIRMED** | Encoder-side separation is qualitatively supported; quantitative clustering metrics pending |
 | CLAIM_02: Decoder produces structurally valid outputs | **INVALIDATED** | 0/200 reconstructions valid; 100% `LEGACY_LAYOUT_COLLISION` |
 | CLAIM_03: Interpolation produces valid ARMA transitions | **INVALIDATED** | Collision persists along trajectories |
 | CLAIM_04: Fisher metrics characterise latent manifold | **INVALIDATED** | Legacy Jacobian was mathematically incorrect (P0 bug) |
@@ -126,10 +143,20 @@ returns `NEEDS_REAL_DATA` (expected behaviour, not a failure).
 **Run tests:**
 
 ```bash
-python -m pytest tests -q
+python -m pytest tests -q -rs
 ```
 
-Expected: **210 tests pass**.
+Expected public cleanup result: all active tests pass.
+
+The current public cleanup build reports:
+
+```text
+200 passed, 4 expected skips
+```
+
+The skipped tests reference legacy root artifacts (`Z_train.npy`,
+`train_labels.npy`, and `generated_valid_thetas.npy`) that are intentionally
+excluded from the active public repository after archive cleanup.
 
 ---
 
@@ -158,7 +185,7 @@ Expected: **210 tests pass**.
 │   ├── vae.py                ← VAE architecture
 │   ├── validation.py         ← Structural validation
 │   └── vector_schema.py      ← Parameter layout schema
-└── tests/                    ← 210 tests across all modules
+└── tests/                    ← 200+ active tests across all modules
 ```
 
 Legacy code and invalidated results are in `archive/` (see
@@ -241,10 +268,20 @@ retained in `archive/original_research/` for reference, but should not be cited
 without the caveat that multiple claims were invalidated by the clean
 reproduction.
 
-The latest canonical reproduction anchor is:
+Reproduction outputs are intentionally not committed to the repository. The
+canonical audit run used during publication generated:
 
 ```
 results/reproduction_20260620_085314/reports/final_claim_verdict.json
 ```
+
+Users can regenerate equivalent timestamped evidence locally with:
+
+```bash
+python -m src.reproduce --config configs/demo.yaml --stages 1,2,3,4,5,6,7
+```
+
+A small public evidence summary is available in
+[`docs/evidence/`](docs/evidence/) when committed.
 
 All public claims should trace back to the outputs of that run.

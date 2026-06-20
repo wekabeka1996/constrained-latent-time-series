@@ -28,7 +28,7 @@ Verdict from Phase 1B.5 Audit:
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Tuple
 
 import numpy as np
@@ -69,9 +69,9 @@ RESERVED_STRUCT_SLICE = slice(6, 10)
 class VectorLayout:
     """Read-only contract of the vector dimensions and slices."""
     vector_dim: int = VECTOR_DIM
-    struct_slice: slice = STRUCT_SLICE
-    param_slice: slice = PARAM_SLICE
-    stat_slice: slice = STAT_SLICE
+    struct_slice: slice = field(default_factory=lambda: slice(0, 10))
+    param_slice: slice = field(default_factory=lambda: slice(10, 30))
+    stat_slice: slice = field(default_factory=lambda: slice(30, 40))
     max_lag_order: int = MAX_LAG_ORDER
 
 
