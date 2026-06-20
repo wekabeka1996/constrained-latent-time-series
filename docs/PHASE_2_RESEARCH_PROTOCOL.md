@@ -128,7 +128,7 @@ validity rates than constrained decoding under identical conditions.
 - No C sample in training under any label, in any split, under any mode
 - Evaluation: C holdout set
 - Primary metrics: `generated_C_valid_rate`, `generated_C_composition_score`, `generated_C_novelty_score`
-- Success requires all three metrics above precommitted thresholds (TO_BE_DEFINED before training)
+- Success requires all three metrics above precommitted thresholds (APPROVED_PROTOCOL_THRESHOLD: see `docs/PHASE_2_METRIC_CONTRACT.md` §6)
 - Models tested: all baselines and all constrained variants
 
 ### Experiment E2 — Few-Shot C at 1%
@@ -165,29 +165,28 @@ All baselines are subject to the same split contract, metric contract, and artif
 
 ### B2 — β-VAE
 - Architecture: same as B1 but with β > 1 KL weight
-- β value: TO_BE_DEFINED (must be committed before training)
+- β value: APPROVED_PROTOCOL_VALUE: beta = 4.0
 - Purpose: tests whether disentanglement pressure improves structural validity
 
 ### B3 — Conditional VAE (cVAE)
 - Architecture: VAE conditioned on family label (A or B as one-hot or embedding)
 - Purpose: tests whether explicit label conditioning helps C generalization
-- Condition: label is A or B during training; what label is given at C evaluation time must be
-  specified in the protocol before training (TO_BE_DEFINED: label conditioning strategy for C inference)
+- Condition: label is A or B during training; what label is given at C evaluation time is: APPROVED_PROTOCOL_VALUE: evaluated at C using the interpolated label vector [0.5, 0.5] and also by evaluating both A [1, 0] and B [0, 1] label conditioning inputs separately.
 
 ### B4 — Gumbel / Categorical-Structure VAE
 - Architecture: VAE with discrete or semi-discrete latent structure (e.g. Gumbel-softmax for family indicators)
 - Purpose: tests whether explicit latent discretization for family type improves structural validity
-- Specific variant: TO_BE_DEFINED (must be committed before training)
+- Specific variant: APPROVED_PROTOCOL_VALUE: Gumbel-Softmax estimator with a continuous relaxation of categorical variables (initial temperature = 1.0, annealed to 0.1).
 
 ### B5 — Grammar / Schema Decoder
 - Architecture: decoder that decodes through a schema-constrained projection layer (parameter groups decoded separately)
 - Purpose: tests whether architectural separation of mean and volatility components enables C generalization
-- Specific architecture: TO_BE_DEFINED (must be committed as design document before implementation)
+- Specific architecture: BLOCKING_TO_BE_DEFINED: The specific network architecture for the grammar-projection layer depends on model capacity decisions and is deferred to the future implementation phase.
 
 ### B6 — Mixture-of-Experts / Composer
 - Architecture: explicit composer that combines A-decoder output and B-decoder output via a learned composition gate
 - Purpose: direct test of the A+B→C composition hypothesis
-- Specific architecture: TO_BE_DEFINED (must be committed as design document before implementation)
+- Specific architecture: BLOCKING_TO_BE_DEFINED: The gating network architecture and experts count are deferred to the future implementation phase.
 
 ---
 
@@ -228,7 +227,7 @@ All of the following must be documented in the artifact and verified against pre
 2. `generated_C_composition_score` ≥ APPROVED_PROTOCOL_THRESHOLD (frozen before training)
 3. `generated_C_novelty_score` ≥ APPROVED_PROTOCOL_THRESHOLD (frozen before training)
 4. C was absent from zero-shot training (split manifest hash verified)
-5. Result is stable across ≥ N seeds (N: TO_BE_DEFINED, must be frozen before training)
+5. Result is stable across ≥ 5 seeds (APPROVED_PROTOCOL_VALUE: `minimum_model_repeat_seeds = 5`)
 6. Unconstrained baseline was evaluated under identical conditions
 7. Full artifact archive exists for the run
 8. Model checkpoint hash is committed in the manifest

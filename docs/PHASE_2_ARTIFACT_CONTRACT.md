@@ -23,10 +23,15 @@ artifacts/phase2/runs/<run_id>/
 ├── manifest.json                  REQUIRED — run-level manifest (see §3)
 ├── config_snapshot.yaml           REQUIRED — exact copy of config used for this run
 ├── git_commit.txt                 REQUIRED — full SHA of HEAD at run time
-├── environment_freeze.txt         REQUIRED — pip freeze output at run time
+├── dirty_tree_status.txt          REQUIRED — clean/dirty plus git status output
+├── environment_freeze.txt         REQUIRED — pip freeze output, python/torch version, etc.
 ├── dataset_manifest.json          REQUIRED — all sample IDs and family labels used
 ├── split_manifest.json            REQUIRED — split assignment for every sample
 ├── metric_contract_snapshot.md    REQUIRED — copy of docs/PHASE_2_METRIC_CONTRACT.md at commit time
+├── metric_contract_hash.txt       REQUIRED — SHA-256 hash of docs/PHASE_2_METRIC_CONTRACT.md
+├── split_contract_hash.txt        REQUIRED — SHA-256 hash of docs/PHASE_2_SPLIT_CONTRACT.md
+├── schema_spec_hash.txt           REQUIRED — SHA-256 hash of docs/PHASE_2_SCHEMA_SPEC.md
+├── protocol_hash.txt              REQUIRED — SHA-256 hash of docs/PHASE_2_PROTOCOL.md
 ├── model_card.md                  REQUIRED — model architecture, training config, training seed
 ├── metrics.json                   REQUIRED — all metric values computed (see §4)
 ├── verdict.json                   REQUIRED — pass/fail verdict against precommitted thresholds
@@ -37,7 +42,7 @@ artifacts/phase2/runs/<run_id>/
 
 **Notes on run_id:**
 - `run_id` must be a globally unique identifier for each run
-- Format: TO_BE_DEFINED (candidates: ISO8601 timestamp + 8-char hex suffix, UUID4)
+- APPROVED_PROTOCOL_VALUE: run_id format = `phase2_<stage>_<protocol>_<YYYYMMDD_HHMMSS>_<gitshort>_<seedgroup>` (e.g., `phase2_p5_generator_smoke_20260620_193000_1e3bb97_gen12001`)
 - Must be deterministically reproducible from: seed list + config hash + git commit hash + timestamp
 - The run_id must be the same across all artifact files in the same run
 
@@ -190,15 +195,31 @@ A partially passing run may not make a positive C-generation claim.
 - Must match `config_hash` in `manifest.json`
 
 ### git_commit.txt
-- Single line: full 40-character commit SHA
+- Single line: full 40-character commit SHA (no newlines or extra text)
 - Must be written before any computation begins
 - Must be reproducible via `git rev-parse HEAD` at run time
 - This resolves P1 Blocker B2: `code_git_commit: None` hardcoded in manifest
 
+### dirty_tree_status.txt
+- First line: "clean" or "dirty" indicating if there are uncommitted changes in tracked files
+- Remaining lines: output of `git status --short` at run time
+
 ### environment_freeze.txt
 - Output of `pip freeze` at run time
-- First line comment: `# Python <version>, generated at <ISO8601 timestamp>`
+- First line comment: `# Python <version>, platform <platform>, CUDA <available_boolean>, torch <torch_version_if_installed>`
 - This resolves P1 Blocker B3: missing lock file
+
+### metric_contract_hash.txt
+- Single line: SHA-256 hash of the local `docs/PHASE_2_METRIC_CONTRACT.md` file at run time
+
+### split_contract_hash.txt
+- Single line: SHA-256 hash of the local `docs/PHASE_2_SPLIT_CONTRACT.md` file at run time
+
+### schema_spec_hash.txt
+- Single line: SHA-256 hash of the local `docs/PHASE_2_SCHEMA_SPEC.md` file at run time
+
+### protocol_hash.txt
+- Single line: SHA-256 hash of the local `docs/PHASE_2_PROTOCOL.md` file at run time
 
 ### dataset_manifest.json
 - One entry per training and evaluation sample

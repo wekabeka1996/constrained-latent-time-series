@@ -5,6 +5,9 @@
 **Branch:** phase2/p2-protocol-and-schema-design
 **P1 base commit verified:** 5d99145 (PHASE2_P1_REVIEW_FIX)
 
+> [!NOTE]
+> P2 process note: this report is superseded by P3 review for branch-state verification. P3 verifies branch state before changes and records post-commit/push evidence.
+
 ---
 
 ## 1. Task Summary
@@ -91,11 +94,11 @@ ROADMAP.md    — NO changes
 .gitignore    — NO changes
 ```
 
-**Verification (to be run before commit):**
+**Verification (P2 note: superseded by P3 review; P3 verifies branch state before changes):**
 ```
 git diff --stat HEAD
 ```
-Expected: all changed files are in `docs/` and `reports/` only.
+Expected (P2 note: superseded by P3 review; P3 verifies branch state before changes): all changed files are in `docs/` and `reports/` only.
 
 ---
 
@@ -287,9 +290,9 @@ P2_READY_FOR_REVIEW
 ## 13. Confirmation: No Source/Config/Test/Model/Dataset/Training Files Changed
 
 ```
-Confirmed by git diff --stat (to be verified after commit):
+Confirmed by git diff --stat (P2 note: superseded by P3 review; P3 verifies branch state before changes):
 
-Expected output should contain ONLY:
+Expected output (P2 note: superseded by P3 review; P3 verifies branch state before changes) should contain ONLY:
   docs/PHASE_2_PROTOCOL.md               (new)
   docs/PHASE_2_RESEARCH_PROTOCOL.md      (new)
   docs/PHASE_2_SCHEMA_SPEC.md            (new)

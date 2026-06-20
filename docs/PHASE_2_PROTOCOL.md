@@ -131,7 +131,55 @@ documented as **Phase 1 legacy baseline values only**. They are not Phase 2 defa
 
 ---
 
-## 7. Strict No-Training-Before-Protocol Policy
+---
+
+## 7. Approved Protocol Values and Thresholds
+
+The following is a top-level summary of the approved Phase 2 protocol constants and thresholds. For details and mathematical justifications, see the referenced contract documents.
+
+- **Schema Max Orders & Dimensions** (see `docs/PHASE_2_SCHEMA_SPEC.md`):
+  - `max_p = 5`, `max_q = 5`, `max_r = 2`, `max_s = 2`
+  - `schema_v2_min_flat_dim = 32` (logical serialization layout intent)
+- **Benchmark Sample Sizes** (see `docs/PHASE_2_SPLIT_CONTRACT.md`):
+  - Smoke: A=1,000, B=1,000, C-Holdout=1,000
+  - Dev: A=10,000, B=10,000, C-Holdout=10,000
+  - Main: A=100,000, B=100,000, C-Holdout=100,000
+  - Large (optional): A=1,000,000, B=1,000,000, C-Holdout=1,000,000
+- **Time-Series Lengths** (see `docs/PHASE_2_SPLIT_CONTRACT.md`):
+  - `smoke_ts_length = 256`
+  - `dev_ts_length = 512`
+  - `main_ts_length = 512`
+  - `extended_ts_length = 1024` (optional)
+- **Seeds** (see `docs/PHASE_2_SPLIT_CONTRACT.md`):
+  - `seed_generation_A = 12001`, `seed_generation_B = 12002`, `seed_generation_C = 12003`
+  - `seed_split_zero_shot = 12100`, `seed_fewshot_1pct = 12101`, `seed_fewshot_5pct = 12105`
+  - `seed_model_repeats = [13001, 13002, 13003, 13004, 13005]`
+- **Metric Thresholds** (see `docs/PHASE_2_METRIC_CONTRACT.md`):
+  - `A_input_valid_rate = 1.0`, `B_input_valid_rate = 1.0`, `C_input_valid_rate = 1.0`
+  - `generated_C_valid_rate_min_smoke = 0.50`
+  - `generated_C_valid_rate_min_main = 0.70`
+  - `generated_C_composition_score_min = 0.70` (`COMPOSITION_MEAN_THRESHOLD = 0.60`, `COMPOSITION_VOL_THRESHOLD = 0.60`)
+  - `generated_C_novelty_score_min = 0.80`
+  - `simulation_failure_rate_max = 0.01`
+  - `seed_stability_valid_rate_range_max = 0.15`
+- **Validation Tolerances** (see `docs/PHASE_2_CONFIG_DISCIPLINE.md`):
+  - `validation.tolerance = 1e-8`
+  - `validation.persistence_tol = 1e-8`
+  - `validation.root_boundary_margin = 1e-6`
+- **Required Integrity Values** (see `docs/PHASE_2_CONFIG_DISCIPLINE.md`):
+  - `integrity.allow_cached_artifacts = false`
+  - `integrity.allow_random_fallbacks = false`
+  - `integrity.allow_fake_market_data = false`
+  - `integrity.require_artifact_provenance = true`
+  - `integrity.fail_fast_on_missing_required_artifacts = true`
+- **Artifact Run ID Format** (see `docs/PHASE_2_ARTIFACT_CONTRACT.md`):
+  - `phase2_<stage>_<protocol>_<YYYYMMDD_HHMMSS>_<gitshort>_<seedgroup>`
+- **Remaining Blockers** (see Section 10 below):
+  - Blockers B1 (torch), B2 (git commit in manifest), B3 (pip freeze), S1 (v[10] collision), D1 (function defaults) remain inherited and unresolved.
+
+---
+
+## 8. Strict No-Training-Before-Protocol Policy
 
 Training is blocked until ALL of the following gates are cleared:
 
@@ -172,20 +220,20 @@ Training is blocked until ALL of the following gates are cleared:
 
 ---
 
-## 8. Required Gates Before Final Claim
+## 9. Required Gates Before Final Claim
 
 Before any Phase 2 result is published or cited:
 
 1. Full artifact archive must exist (`docs/PHASE_2_ARTIFACT_CONTRACT.md`)
 2. All metrics must have been frozen before training (documented by metric contract hash in manifest)
 3. Unconstrained VAE baseline must be compared against constrained model
-4. Results must be stable across ≥ 3 independent random seeds (TO_BE_DEFINED: minimum seed count)
+4. Results must be stable across ≥ 5 independent random seeds (APPROVED_PROTOCOL_VALUE: `minimum_model_repeat_seeds = 5`)
 5. Claim language must comply with `docs/PHASE_2_NO_RESULT_CHASING_RULES.md` §11
 6. Negative results must be included in the final report
 
 ---
 
-## 9. Current Blockers Inherited from P1
+## 10. Current Blockers Inherited from P1
 
 These blockers were documented in `reports/PHASE_2_P1_REPO_INVENTORY.md` (v2) and
 `reports/PHASE_2_P1_REVIEW_FIX_NOTES.md`. They are carried forward as P2 blockers:
@@ -203,7 +251,7 @@ This documentation task only freezes the protocol. Resolving blockers requires a
 
 ---
 
-## 10. Sub-Document Index
+## 11. Sub-Document Index
 
 | Document | Purpose | Status |
 |----------|---------|--------|
@@ -222,7 +270,7 @@ None of them constitute implementation authorization.
 
 ---
 
-## 11. What This Document Is NOT
+## 12. What This Document Is NOT
 
 - This document does NOT authorize implementation of any Phase 2 code.
 - This document does NOT constitute a model training plan.

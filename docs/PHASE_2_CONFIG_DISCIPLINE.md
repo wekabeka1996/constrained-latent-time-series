@@ -90,10 +90,11 @@ training.learning_rate: <float>        # Learning rate — no default
 training.beta: <float>                 # KL weight (β-VAE parameter) — no default; "beta=1.0" is a P1 legacy value
 
 # Validation / metric contract
-validation.tolerance: <float>          # Numerical tolerance for root checks — no default; "1e-8" is a P1 legacy value
-validation.persistence_tol: <float>    # Persistence margin below 1 — no default
-validation.composition_mean_threshold: <float>  # Min |φᵢ| for composition score — no default
-validation.composition_vol_threshold: <float>   # Min αᵢ for composition score — no default
+validation.tolerance: 1e-8             # APPROVED_PROTOCOL_VALUE (numerical tolerance for root checks; no default)
+validation.persistence_tol: 1e-8       # APPROVED_PROTOCOL_VALUE (persistence margin below 1; no default)
+validation.root_boundary_margin: 1e-6  # APPROVED_PROTOCOL_VALUE (boundary margin; no default)
+validation.composition_mean_threshold: 0.60  # APPROVED_PROTOCOL_THRESHOLD
+validation.composition_vol_threshold: 0.60   # APPROVED_PROTOCOL_THRESHOLD
 validation.activation_threshold: <float>        # If used: must be explicit; must not be "0.5" P1 legacy default
 validation.activation_epsilon: <float>          # If used: must be explicit; must not be "0.05" P1 legacy default
 
@@ -110,11 +111,11 @@ split.split_manifest_path: <str>       # Path to the pre-committed split manifes
 split.split_manifest_hash: <str>       # SHA-256 hash of the split manifest — must match at runtime
 
 # Artifact discipline
-integrity.allow_cached_artifacts: false    # MUST be explicit; MUST be false for Phase 2
-integrity.allow_random_fallbacks: false    # MUST be explicit; MUST be false
-integrity.allow_fake_market_data: false    # MUST be explicit; MUST be false
-integrity.require_artifact_provenance: true
-integrity.fail_fast_on_missing_required_artifacts: true
+integrity.allow_cached_artifacts: false    # APPROVED_PROTOCOL_VALUE (MUST be explicit; MUST be false for Phase 2)
+integrity.allow_random_fallbacks: false    # APPROVED_PROTOCOL_VALUE (MUST be explicit; MUST be false)
+integrity.allow_fake_market_data: false    # APPROVED_PROTOCOL_VALUE (MUST be explicit; MUST be false)
+integrity.require_artifact_provenance: true # APPROVED_PROTOCOL_VALUE
+integrity.fail_fast_on_missing_required_artifacts: true # APPROVED_PROTOCOL_VALUE
 
 # Paths
 paths.output_dir: <str>               # Run output directory — no default
@@ -257,27 +258,30 @@ They are documented here as Phase 1 legacy baselines for reference only.
 
 ---
 
-## 9. Required Explicit Config Value: integrity.allow_cached_artifacts
+## 9. Explicit required integrity values, not defaults
 
-The following value must be present in the Phase 2 config and must be set to `false`:
+The following integrity configuration keys must be explicitly present in the Phase 2 config with the specified values:
 
 ```yaml
 integrity:
-  allow_cached_artifacts: false
+  allow_cached_artifacts: false                  # APPROVED_PROTOCOL_VALUE
+  allow_random_fallbacks: false                  # APPROVED_PROTOCOL_VALUE
+  allow_fake_market_data: false                  # APPROVED_PROTOCOL_VALUE
+  require_artifact_provenance: true              # APPROVED_PROTOCOL_VALUE
+  fail_fast_on_missing_required_artifacts: true   # APPROVED_PROTOCOL_VALUE
 ```
 
-This is not a default. This is not negotiable. It must be explicit.
+These are approved explicit required values, not defaults. If future config omits any of them, the implementation must fail fast.
 
-**Rationale:** In Phase 1, `allow_cached_artifacts: true` was the default (and the Pydantic default).
-This means a Phase 1 run might have silently used cached artifacts from a previous run without
-re-generating them. In Phase 2, every run must generate all artifacts fresh. A cached artifact
-is an unverified artifact. An unverified artifact cannot be cited as evidence.
+**Rationale:**
+- In Phase 1, many integrity settings had silent defaults (e.g. `allow_cached_artifacts: true`), which could lead to unverified or inconsistent state.
+- Forcing these explicit required values ensures that every run is completely fresh, reproducible, and traceably verified without silent fallbacks or cached state.
 
 ---
 
 ## 10. Missing Config Key Behavior: FAIL_FAST_REQUIRED
 
-The following is the required behavior for any missing Phase 2 config key:
+The following is the required behavior for any missing Phase 2 config key or code integrity violation:
 
 ```
 FAIL_FAST_REQUIRED
@@ -291,6 +295,8 @@ If any required config key is absent:
 6. Do not run validation
 7. Do not write any artifacts
 8. Exit with a non-zero return code
+
+If the git status shows a dirty tree (uncommitted changes) at run time, the implementation must reject execution and fail fast, unless explicitly running in documentation-only mode.
 
 A warning is not acceptable. A default substitution is not acceptable.
 ```

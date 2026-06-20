@@ -111,8 +111,7 @@ Any of these is acceptable, but the choice must be explicit and specified before
 The following is a **logical object definition** — not a code class, not a Pydantic model.
 It describes the conceptual structure that the Phase 2 schema must be able to represent.
 
-Implementation language (Python dataclass, Pydantic, TypedDict, etc.) is TO_BE_DEFINED and must be
-committed as an implementation design document before the schema code is written.
+Implementation form (Python dataclass, Pydantic, TypedDict, class, etc.) is BLOCKING_TO_BE_DEFINED and remains deferred in P3 as ModelSpec is a logical protocol object only.
 
 ```
 ModelSpec
@@ -220,16 +219,56 @@ must be the same type and drawn from the same vocabulary.
 
 ## 6. Phase 2 Schema Dimension Specification
 
-The exact dimensions of the Phase 2 vector are **TO_BE_DEFINED**.
+The exact dimensions of the Phase 2 vector are specified as follows:
+- APPROVED_PROTOCOL_VALUE: max_p = 5
+- APPROVED_PROTOCOL_VALUE: max_q = 5
+- APPROVED_PROTOCOL_VALUE: max_r = 2
+- APPROVED_PROTOCOL_VALUE: max_s = 2
+- APPROVED_PROTOCOL_VALUE: schema_v2_min_flat_dim = 32
 
-Requirements:
-- Must be sufficient to represent max(p), max(q), max(r), max(s) for all four families
-- max(p), max(q), max(r), max(s) must be explicit protocol constants — not function defaults
-- Must include family_id encoding, order encoding, parameter encoding (non-overlapping)
-- Must include provenance fields if embedded in vector, or a separate sidecar structure if not
+### Rationale
+- p/q up to 5 is sufficient for ARMA mean dynamics and matches the legacy max lag scale.
+- r/s up to 2 covers GARCH(1,1), GARCH(2,1), GARCH(1,2), and GARCH(2,2) without making the benchmark too large.
+- Keeps Phase 2 feasible on 8GB VRAM and CPU-based synthetic generation.
+- schema_v2_min_flat_dim = 32 is a logical boundary serialization minimum, not the internal representation.
 
-The max lag/order bounds must be committed to the Phase 2 config discipline document before any
-implementation begins.
+### ModelSpec Logical Object Fields
+The logical object must support the following fields:
+- family_id
+- mean_family
+- volatility_family
+- p
+- q
+- r
+- s
+- ar_params[max_p]
+- ma_params[max_q]
+- omega
+- alpha_params[max_r]
+- beta_params[max_s]
+- constraint_flags
+- provenance fields
+
+### Logical Serialization Layout Intent
+This layout represents a **logical serialization intent, not implementation code**.
+
+- index 0: family_id enum/logit source, not final truth
+- index 1: mean_family enum/logit source
+- index 2: volatility_family enum/logit source
+- index 3: p
+- index 4: q
+- index 5: r
+- index 6: s
+- index 7: omega
+- indices 8:12: reserved constraint/provenance flags
+- indices 12:17: ar_params[5]
+- indices 17:22: ma_params[5]
+- indices 22:24: alpha_params[2]
+- indices 24:26: beta_params[2]
+- indices 26:32: reserved explicit diagnostics/provenance slots
+
+> [!WARNING]
+> The final implementation may use a typed ModelSpec object internally and only serialize to flat vectors at model boundaries. The protocol forbids overloaded numeric slots and family-dependent interpretation of the same index.
 
 ---
 

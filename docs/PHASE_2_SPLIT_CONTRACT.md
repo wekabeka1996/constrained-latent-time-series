@@ -22,8 +22,12 @@
   - MA invertibility: all roots of the MA polynomial strictly outside the unit circle (for ARMA)
   - Volatility component: absent (omega=0, alpha=[], beta=[])
 - **Generator:** Phase 2 generator (to be implemented; `src/data_generator.py` in `clean_validated` mode is a candidate)
-- **Sample count:** TO_BE_DEFINED — must be committed before data generation
-- **Seed:** TO_BE_DEFINED — must be explicit, not `seed=42` silently inherited
+- **Sample count:** APPROVED_PROTOCOL_VALUE:
+  - Smoke benchmark: 1_000
+  - Dev benchmark: 10_000
+  - Main benchmark: 100_000
+  - Large optional benchmark: 1_000_000 (optional only, not required for claims)
+- **Seed:** APPROVED_PROTOCOL_VALUE: seed_generation_A = 12001
 - **Validity rate target:** 100% of generated samples must pass validity checks before training
   (if any sample fails, the generator must fail-fast and not silently exclude the sample)
 - **Schema:** Phase 2 schema v2 (after schema spec approval)
@@ -37,8 +41,12 @@
   - Σα + Σβ < 1 (persistence strictly below 1)
   - Mean component: absent (phi=[], theta=[])
 - **Generator:** Phase 2 generator (must NOT use `legacy_compatible` mode — the Phase 1 GARCH beta bug must not appear in training data)
-- **Sample count:** TO_BE_DEFINED — must be committed before data generation
-- **Seed:** TO_BE_DEFINED — separate from A-Train seed; must be explicit
+- **Sample count:** APPROVED_PROTOCOL_VALUE:
+  - Smoke benchmark: 1_000
+  - Dev benchmark: 10_000
+  - Main benchmark: 100_000
+  - Large optional benchmark: 1_000_000 (optional only, not required for claims)
+- **Seed:** APPROVED_PROTOCOL_VALUE: seed_generation_B = 12002 (separate from A-Train seed; must be explicit)
 - **Validity rate target:** 100% of generated samples must pass validity checks
 
 ### 1.3 C-Holdout
@@ -47,10 +55,20 @@
   - All A-family constraints (stationarity, invertibility)
   - All B-family constraints (non-negativity, persistence < 1)
 - **Generator:** Phase 2 C generator (to be implemented as a separate function; must be completely separate from A and B generators)
-- **Sample count:** TO_BE_DEFINED — must be committed before data generation
-- **Seed:** TO_BE_DEFINED — separate from A and B seeds; must be explicit
+- **Sample count:** APPROVED_PROTOCOL_VALUE:
+  - Smoke benchmark: 1_000
+  - Dev benchmark: 10_000
+  - Main benchmark: 100_000
+  - Large optional benchmark: 1_000_000 (optional only, not required for claims)
+- **Seed:** APPROVED_PROTOCOL_VALUE: seed_generation_C = 12003 (separate from A and B seeds; must be explicit)
 - **Validity rate target:** 100% of generated samples must pass validity checks
 - **Critical rule:** C-Holdout samples must NEVER appear in A-Train or B-Train under any protocol variant
+
+### 1.4 Time Series Lengths
+- APPROVED_PROTOCOL_VALUE: smoke_ts_length = 256
+- APPROVED_PROTOCOL_VALUE: dev_ts_length = 512
+- APPROVED_PROTOCOL_VALUE: main_ts_length = 512
+- APPROVED_PROTOCOL_VALUE: extended_ts_length = 1024 (optional)
 
 ---
 
@@ -76,7 +94,7 @@ The zero-shot protocol has a single inviolable rule:
 
 ### 2.3 What Is Permitted in Training (Clarification of Boundary Cases)
 - ARMA(p,q) with q=0 is AR — permitted in A-Train
-- ARMA(p,q) with p=0 is MA — treatment: TO_BE_DEFINED (must be committed before data generation)
+- ARMA(p,q) with p=0 is MA — APPROVED_PROTOCOL_VALUE: Pure MA may be included only as A-subfamily if explicitly represented as ARMA(0,q). The main A-family minimum must include AR and ARMA. Pure MA inclusion is optional and must be separately labeled.
 - GARCH(r,s) with s=0 is ARCH — permitted in B-Train
 - Zero-mean models with GARCH volatility: mean_family="none", volatility_family="GARCH" — permitted in B-Train
 
@@ -90,12 +108,11 @@ The zero-shot protocol has a single inviolable rule:
 set size, drawn from a pool that is disjoint from the C-Holdout evaluation set.
 
 **Requirements:**
-- The 1% C pool and the C-Holdout are generated from disjoint seeds or disjoint sample ID ranges
-  (specific mechanism: TO_BE_DEFINED)
-- Explicit seed list for the 1% C pool: TO_BE_DEFINED
+- The 1% C pool and the C-Holdout are generated from disjoint seeds (APPROVED_PROTOCOL_VALUE: generated using disjoint seeds, specifically `seed_fewshot_1pct = 12101` for the few-shot pool and `seed_generation_C = 12003` for the zero-shot holdout).
+- Explicit seed for the 1% C pool: APPROVED_PROTOCOL_VALUE: `seed_fewshot_1pct = 12101`.
 - Explicit sample IDs for every C sample in training: listed in `few_shot_1pct_manifest.json`
 - Manifest hash committed before training begins
-- `C_count_in_few_shot_train` must equal exactly `round(0.01 × total_train_size)` — no rounding ambiguity; exact rule TO_BE_DEFINED
+- `C_count_in_few_shot_train` must equal exactly `ceil(0.01 * C_holdout_count)` (APPROVED_PROTOCOL_VALUE). Few-shot samples must be removed from the C evaluation holdout for that few-shot run. Zero-shot C holdout remains untouched and contains no training exposure.
 - A-Holdout and B-Holdout sets (for measuring A and B reconstruction quality) must also be specified
 
 ### 3.2 Few-Shot C at 5%
@@ -103,8 +120,8 @@ set size, drawn from a pool that is disjoint from the C-Holdout evaluation set.
 **Rule:** Same as §3.1 but with 5% C in training.
 
 **Requirements:**
-- The 5% C samples must be drawn from the same disjoint C pool as the 1% samples, but include more samples
-- The 5% set must be a strict superset of the 1% set (same samples, plus additional), or a completely disjoint draw — the choice is TO_BE_DEFINED but must be committed before training
+- The 5% C samples must be drawn from the same disjoint C pool as the 1% samples, but include more samples.
+- APPROVED_PROTOCOL_VALUE: The 5% set must be a strict superset of the 1% set (same samples, plus additional). The 5% C few-shot count is `ceil(0.05 * C_holdout_count)` using `seed_fewshot_5pct = 12105`, and these few-shot samples are removed from the C evaluation holdout for that few-shot run.
 - Explicit seed list and sample ID manifest required: `few_shot_5pct_manifest.json`
 - Manifest hash committed before training begins
 
@@ -138,7 +155,7 @@ Every dataset must be accompanied by a family manifest that lists:
 
 ### 5.2 Sample IDs
 Every generated sample must have a unique, deterministic sample ID.
-Sample ID generation method: TO_BE_DEFINED (e.g. `SHA256(seed || index)` or UUID from seeded RNG).
+Sample ID generation method: APPROVED_PROTOCOL_VALUE: family + "_" + protocol + "_" + zero_padded_index + "_seed" + seed + "_" + sha256(parameter_payload)[:12] (e.g., A_dev_000001_seed12001_<hash12>).
 
 ### 5.3 Split Manifest Hash
 Before training begins, the complete split manifest must be committed to the artifact directory and
@@ -213,15 +230,15 @@ Date: [YYYY-MM-DD]
 Commit hash at approval: [full SHA]
 Status: APPROVED
 Resolved TO_BE_DEFINED items:
-  - MA treatment (pure MA in A-Train): [decision]
-  - A-Train sample count: [value]
-  - B-Train sample count: [value]
-  - C-Holdout sample count: [value]
-  - Seed for A-Train: [value]
-  - Seed for B-Train: [value]
-  - Seed for C-Holdout: [value]
-  - 1% few-shot C pool mechanism: [decision]
-  - 5% few-shot C pool superset rule: [decision]
-  - Sample ID generation method: [method]
-  - Exact 1% rounding rule: [rule]
+  - MA treatment (pure MA in A-Train): included as ARMA(0,q) sub-family under separate label
+  - A-Train sample count: Smoke: 1,000 | Dev: 10,000 | Main: 100,000 | Large: 1,000,000
+  - B-Train sample count: Smoke: 1,000 | Dev: 10,000 | Main: 100,000 | Large: 1,000,000
+  - C-Holdout sample count: Smoke: 1,000 | Dev: 10,000 | Main: 100,000 | Large: 1,000,000
+  - Seed for A-Train: 12001
+  - Seed for B-Train: 12002
+  - Seed for C-Holdout: 12003
+  - 1% few-shot C pool mechanism: disjoint pool generated with seed 12101
+  - 5% few-shot C pool superset rule: strict superset of 1% few-shot set generated with seed 12105
+  - Sample ID generation method: family + "_" + protocol + "_" + zero_padded_index + "_seed" + seed + "_" + sha256(parameter_payload)[:12]
+  - Exact 1% rounding rule: ceil(0.01 * C_holdout_count)
 ```
