@@ -1,0 +1,30 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+.env
+.venv/
+venv/
+.DS_Store
+Thumbs.db
+
+# Generated reproduction outputs
+results/reproduction_*/
+
+# Legacy/generated artifacts
+*.npy
+*.npz
+*.csv
+*.png
+
+# But allow explicitly tracked examples if needed
+!configs/*.yaml
+!docs/*.md
+
+# Large model checkpoints: keep only documented primary checkpoints unless intentionally tracked
+*.pth
+!models/vae_model_weights.pth
+!models/vae_beta50.pth

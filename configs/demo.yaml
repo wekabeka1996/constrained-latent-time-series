@@ -1,0 +1,56 @@
+project:
+  name: econometric-vae-manifold
+  mode: demo
+
+model:
+  architecture: baseline_vae
+  input_dim: 40
+  latent_dim: 8
+  hidden_dims: [64, 32]
+  checkpoint_path: models/vae_beta50.pth
+  checkpoint_role: public_demo_default
+
+vector_schema:
+  vector_dim: 40
+  struct_dim: 10
+  param_dim: 20
+  stat_dim: 10
+  max_lag_order: 5
+
+generation:
+  n_arma: 100
+  n_garch: 100
+  seed: 42
+  # legacy_compatible: reproduces the original Симуляція.py training grammar exactly,
+  # including the GARCH boundary bug (inverted uniform bounds when sum(alpha) > 0.4).
+  # This mode is required to retrain models compatible with existing vae_beta*.pth weights.
+  # clean_validated: future mode, strict GARCH persistence < 1 — NOT YET IMPLEMENTED.
+  mode: legacy_compatible
+  allow_supervised_arma_garch: false
+  # Synthetic AR/GARCH training vectors are the stated research methodology,
+  # not a substitute for real market data.
+  synthetic_training_data_is_methodology: true
+
+validation:
+  activation_threshold: 0.5
+  activation_epsilon: 0.05
+  tolerance: 1.0e-8
+
+paths:
+  # Real market data path. Set to null if no real data is available.
+  # DO NOT substitute with fake/random market series.
+  market_data_csv: null
+  output_dir: results/demo
+
+integrity:
+  # Forbid random fallback arrays substituting missing real artifacts.
+  allow_random_fallbacks: false
+  # Forbid fake BTCUSDT/SP500 or any synthetic market price data.
+  allow_fake_market_data: false
+  # Cached artifacts (e.g. Z_train.npy, generated_valid_thetas.npy) from prior
+  # training runs are allowed, but must be labeled as cached.
+  allow_cached_artifacts: true
+  # Any artifact used as evidence must have traceable provenance.
+  require_artifact_provenance: true
+  # Do not swallow Missing errors or substitute random data.
+  fail_fast_on_missing_required_artifacts: true

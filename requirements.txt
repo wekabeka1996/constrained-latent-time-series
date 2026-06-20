@@ -1,0 +1,38 @@
+# requirements.txt
+# ----------------
+# Minimal reproducible environment for the econometric-vae-manifold project.
+#
+# Install with:
+#   pip install -r requirements.txt
+#
+# Notes:
+#   - torch is listed without a CUDA variant; install a GPU build separately
+#     if needed (see https://pytorch.org/get-started/locally/).
+#   - python-binance is intentionally excluded.  The public demo uses a
+#     local sample CSV file instead of live market data.
+
+# Core numerical / ML
+numpy>=1.23
+torch>=2.0
+scipy>=1.10
+
+# Data wrangling
+pandas>=1.5
+
+# Visualisation
+matplotlib>=3.6
+
+# Dimensionality reduction (used for t-SNE and UMAP latent-space plots)
+scikit-learn>=1.2
+umap-learn>=0.5
+
+# Time-series econometrics (used in backtest module)
+statsmodels>=0.14
+arch>=5.6
+
+# Config / validation
+pydantic>=2.0
+pyyaml>=6.0
+
+# Testing
+pytest>=7.0
