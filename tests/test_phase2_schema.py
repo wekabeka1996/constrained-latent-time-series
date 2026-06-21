@@ -358,3 +358,56 @@ def test_modelspec_immutability():
         
     with pytest.raises(AttributeError):
         spec.ar_params = (0.1, 0.2)  # type: ignore
+
+# 22. Enum type strictness
+def test_enum_types_strictness():
+    spec = ModelSpec(
+        family_id="AR",  # type: ignore (invalid, must be Enum)
+        mean_family=MeanFamily.AR,
+        volatility_family=VolatilityFamily.NONE,
+        p=1, q=0, r=0, s=0,
+        ar_params=(0.5,), ma_params=(), omega=None, alpha_params=(), beta_params=(),
+        constraint_flags=(1.0, 0.0, 0.0, 0.0), provenance=()
+    )
+    with pytest.raises(ValueError) as excinfo:
+        validate_model_spec(spec)
+    assert "must be a FamilyId enum instance" in str(excinfo.value)
+
+# 23. Tuple type strictness (rejects lists)
+def test_tuple_strictness():
+    spec = ModelSpec(
+        family_id=FamilyId.AR,
+        mean_family=MeanFamily.AR,
+        volatility_family=VolatilityFamily.NONE,
+        p=1, q=0, r=0, s=0,
+        ar_params=[0.5],  # type: ignore (invalid, must be tuple)
+        ma_params=(), omega=None, alpha_params=(), beta_params=(),
+        constraint_flags=(1.0, 0.0, 0.0, 0.0), provenance=()
+    )
+    with pytest.raises(ValueError) as excinfo:
+        validate_model_spec(spec)
+    assert "ar_params must be exactly a tuple" in str(excinfo.value)
+
+# 24. A-family consistency strictness
+def test_a_family_consistency_strictness():
+    # AR family but with ARMA mean
+    spec = ModelSpec(
+        family_id=FamilyId.AR,
+        mean_family=MeanFamily.ARMA,  # invalid
+        volatility_family=VolatilityFamily.NONE,
+        p=1, q=0, r=0, s=0,
+        ar_params=(0.5,), ma_params=(), omega=None, alpha_params=(), beta_params=(),
+        constraint_flags=(1.0, 0.0, 0.0, 0.0), provenance=()
+    )
+    with pytest.raises(ValueError) as excinfo:
+        validate_model_spec(spec)
+    assert "AR family requires mean_family to be AR" in str(excinfo.value)
+
+# 25. from_flat_boundary_vector robust decoding for orders
+def test_from_flat_boundary_vector_type_error():
+    vec = to_flat_boundary_vector(get_valid_ar_spec())
+    vec[3] = "abc"  # type: ignore (pass uncastable string instead of float)
+    with pytest.raises(ValueError) as excinfo:
+        from_flat_boundary_vector(vec)
+    assert "p must be convertible to float" in str(excinfo.value)
+

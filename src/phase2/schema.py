@@ -62,17 +62,33 @@ def is_b_family(spec: ModelSpec) -> bool:
 def is_c_family(spec: ModelSpec) -> bool:
     return spec.family_id == FamilyId.ARMA_GARCH
 
+def validate_enum_types(spec: ModelSpec) -> None:
+    if not isinstance(spec.family_id, FamilyId):
+        raise ValueError(f"family_id must be a FamilyId enum instance, got {type(spec.family_id)}")
+    if not isinstance(spec.mean_family, MeanFamily):
+        raise ValueError(f"mean_family must be a MeanFamily enum instance, got {type(spec.mean_family)}")
+    if not isinstance(spec.volatility_family, VolatilityFamily):
+        raise ValueError(f"volatility_family must be a VolatilityFamily enum instance, got {type(spec.volatility_family)}")
+
+def validate_immutable_tuple_fields(spec: ModelSpec) -> None:
+    for field_name in ["ar_params", "ma_params", "alpha_params", "beta_params", "constraint_flags", "provenance"]:
+        val = getattr(spec, field_name)
+        if type(val) is not tuple:
+            raise ValueError(f"{field_name} must be exactly a tuple, got {type(val)}")
+
 def validate_family_consistency(spec: ModelSpec) -> None:
     if is_a_family(spec):
         if spec.family_id == FamilyId.AR:
             if spec.p <= 0 or spec.q != 0:
                 raise ValueError(f"AR family requires p > 0 and q == 0, got p={spec.p}, q={spec.q}")
+            if spec.mean_family != MeanFamily.AR:
+                raise ValueError(f"AR family requires mean_family to be AR, got {spec.mean_family}")
         elif spec.family_id == FamilyId.ARMA:
             if spec.p < 0 or spec.q < 0 or (spec.p + spec.q == 0):
                 raise ValueError(f"ARMA family requires p>=0, q>=0 and p+q > 0, got p={spec.p}, q={spec.q}")
+            if spec.mean_family != MeanFamily.ARMA:
+                raise ValueError(f"ARMA family requires mean_family to be ARMA, got {spec.mean_family}")
         
-        if spec.mean_family not in (MeanFamily.AR, MeanFamily.ARMA):
-            raise ValueError(f"A-family requires mean_family to be AR or ARMA, got {spec.mean_family}")
         if spec.volatility_family != VolatilityFamily.NONE:
             raise ValueError(f"A-family requires volatility_family to be NONE, got {spec.volatility_family}")
         if spec.r != 0 or spec.s != 0:
@@ -156,6 +172,8 @@ def validate_no_legacy_collision(spec: ModelSpec) -> None:
                     raise ValueError(f"Index collision detected between {k1} and {k2} at indices {intersection}")
 
 def validate_model_spec(spec: ModelSpec) -> None:
+    validate_enum_types(spec)
+    validate_immutable_tuple_fields(spec)
     validate_order_bounds(spec)
     validate_family_consistency(spec)
     validate_parameter_lengths(spec)
@@ -218,6 +236,15 @@ def to_flat_boundary_vector(spec: ModelSpec) -> list[float]:
             
     return vector
 
+def _decode_non_negative_integer_code(val: float, name: str) -> int:
+    try:
+        f_val = float(val)
+    except (TypeError, ValueError):
+        raise ValueError(f"{name} must be convertible to float, got {type(val)}")
+    if not f_val.is_integer() or f_val < 0:
+        raise ValueError(f"{name} order must be a non-negative integer, got {f_val}")
+    return int(f_val)
+
 def from_flat_boundary_vector(vector: list[float]) -> ModelSpec:
     if len(vector) != SCHEMA_V2_MIN_FLAT_DIM:
         raise ValueError(f"Vector length must be exactly {SCHEMA_V2_MIN_FLAT_DIM}, got {len(vector)}")
@@ -237,24 +264,10 @@ def from_flat_boundary_vector(vector: list[float]) -> ModelSpec:
     mean_family = MEAN_FAMILY_REV[mf_code]
     volatility_family = VOLATILITY_FAMILY_REV[vf_code]
     
-    p_float = vector[3]
-    q_float = vector[4]
-    r_float = vector[5]
-    s_float = vector[6]
-    
-    if not p_float.is_integer() or p_float < 0:
-        raise ValueError(f"p order must be a non-negative integer, got {p_float}")
-    if not q_float.is_integer() or q_float < 0:
-        raise ValueError(f"q order must be a non-negative integer, got {q_float}")
-    if not r_float.is_integer() or r_float < 0:
-        raise ValueError(f"r order must be a non-negative integer, got {r_float}")
-    if not s_float.is_integer() or s_float < 0:
-        raise ValueError(f"s order must be a non-negative integer, got {s_float}")
-        
-    p = int(p_float)
-    q = int(q_float)
-    r = int(r_float)
-    s = int(s_float)
+    p = _decode_non_negative_integer_code(vector[3], "p")
+    q = _decode_non_negative_integer_code(vector[4], "q")
+    r = _decode_non_negative_integer_code(vector[5], "r")
+    s = _decode_non_negative_integer_code(vector[6], "s")
     
     omega_val = vector[7]
     if family_id in (FamilyId.AR, FamilyId.ARMA):
