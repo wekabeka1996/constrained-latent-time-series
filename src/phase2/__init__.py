@@ -50,6 +50,16 @@ from .simulator import (
     simulate_time_series,
 )
 
+from .dataset import (
+    SplitName,
+    DatasetBuildRequest,
+    DatasetSample,
+    DatasetBuildResult,
+    make_sample_id,
+    validate_dataset_build_request,
+    build_dataset_in_memory,
+)
+
 __all__ = [
     "APPROVED_MAX_P",
     "APPROVED_MAX_Q",
@@ -89,4 +99,12 @@ __all__ = [
     "SimulationResult",
     "validate_simulation_request",
     "simulate_time_series",
+    "SplitName",
+    "DatasetBuildRequest",
+    "DatasetSample",
+    "DatasetBuildResult",
+    "make_sample_id",
+    "validate_dataset_build_request",
+    "build_dataset_in_memory",
 ]
+
