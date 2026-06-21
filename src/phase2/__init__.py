@@ -36,6 +36,13 @@ from .constraints import (
     require_constraint_pass,
 )
 
+from .sampler import (
+    GenerationRequest,
+    GenerationResult,
+    validate_generation_request,
+    generate_model_spec,
+)
+
 __all__ = [
     "APPROVED_MAX_P",
     "APPROVED_MAX_Q",
@@ -67,4 +74,8 @@ __all__ = [
     "validate_math_constraints",
     "require_math_valid",
     "require_constraint_pass",
+    "GenerationRequest",
+    "GenerationResult",
+    "validate_generation_request",
+    "generate_model_spec",
 ]
