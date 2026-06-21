@@ -238,12 +238,15 @@ def test_constraint_result_details_is_tuple():
 # --- E. Dependency / scope ---
 
 def test_no_torch_imported():
+    import subprocess
     import sys
-    assert "torch" not in sys.modules
+    script = "import sys; import src.phase2.constraints; sys.exit(1 if 'torch' in sys.modules else 0)"
+    result = subprocess.run([sys.executable, "-c", script], capture_output=True)
+    assert result.returncode == 0, "torch was imported by phase2.constraints"
 
 def test_no_forbidden_modules_imported():
+    import subprocess
     import sys
-    assert "src.generator" not in sys.modules
-    assert "src.dataset" not in sys.modules
-    assert "src.models" not in sys.modules
-    assert "src.configs" not in sys.modules
+    script = "import sys; import src.phase2.constraints; forbidden = ['src.generator', 'src.dataset', 'src.models', 'src.configs']; sys.exit(1 if any(f in sys.modules for f in forbidden) else 0)"
+    result = subprocess.run([sys.executable, "-c", script], capture_output=True)
+    assert result.returncode == 0, "A forbidden module was imported by phase2.constraints"
