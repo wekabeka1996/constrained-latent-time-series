@@ -43,6 +43,13 @@ from .sampler import (
     generate_model_spec,
 )
 
+from .simulator import (
+    SimulationRequest,
+    SimulationResult,
+    validate_simulation_request,
+    simulate_time_series,
+)
+
 __all__ = [
     "APPROVED_MAX_P",
     "APPROVED_MAX_Q",
@@ -78,4 +85,8 @@ __all__ = [
     "GenerationResult",
     "validate_generation_request",
     "generate_model_spec",
+    "SimulationRequest",
+    "SimulationResult",
+    "validate_simulation_request",
+    "simulate_time_series",
 ]
