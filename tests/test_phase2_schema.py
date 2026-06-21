@@ -16,6 +16,7 @@ from src.phase2.schema import (
     to_flat_boundary_vector,
     from_flat_boundary_vector,
 )
+from dataclasses import replace
 
 def get_valid_ar_spec():
     return ModelSpec(
@@ -373,41 +374,106 @@ def test_enum_types_strictness():
         validate_model_spec(spec)
     assert "must be a FamilyId enum instance" in str(excinfo.value)
 
-# 23. Tuple type strictness (rejects lists)
-def test_tuple_strictness():
-    spec = ModelSpec(
-        family_id=FamilyId.AR,
-        mean_family=MeanFamily.AR,
-        volatility_family=VolatilityFamily.NONE,
-        p=1, q=0, r=0, s=0,
-        ar_params=[0.5],  # type: ignore (invalid, must be tuple)
-        ma_params=(), omega=None, alpha_params=(), beta_params=(),
-        constraint_flags=(1.0, 0.0, 0.0, 0.0), provenance=()
-    )
-    with pytest.raises(ValueError) as excinfo:
-        validate_model_spec(spec)
-    assert "ar_params must be exactly a tuple" in str(excinfo.value)
+# --- Tuple Container Strictness Tests ---
+def test_ar_params_as_list_rejected():
+    spec = replace(get_valid_ar_spec(), ar_params=[0.5]) # type: ignore
+    with pytest.raises(ValueError, match="ar_params must be exactly a tuple"): validate_model_spec(spec)
 
-# 24. A-family consistency strictness
-def test_a_family_consistency_strictness():
-    # AR family but with ARMA mean
-    spec = ModelSpec(
-        family_id=FamilyId.AR,
-        mean_family=MeanFamily.ARMA,  # invalid
-        volatility_family=VolatilityFamily.NONE,
-        p=1, q=0, r=0, s=0,
-        ar_params=(0.5,), ma_params=(), omega=None, alpha_params=(), beta_params=(),
-        constraint_flags=(1.0, 0.0, 0.0, 0.0), provenance=()
-    )
-    with pytest.raises(ValueError) as excinfo:
-        validate_model_spec(spec)
-    assert "AR family requires mean_family to be AR" in str(excinfo.value)
+def test_ma_params_as_list_rejected():
+    spec = replace(get_valid_arma_spec(), ma_params=[0.3]) # type: ignore
+    with pytest.raises(ValueError, match="ma_params must be exactly a tuple"): validate_model_spec(spec)
 
-# 25. from_flat_boundary_vector robust decoding for orders
-def test_from_flat_boundary_vector_type_error():
+def test_alpha_params_as_list_rejected():
+    spec = replace(get_valid_garch_spec(), alpha_params=[0.2]) # type: ignore
+    with pytest.raises(ValueError, match="alpha_params must be exactly a tuple"): validate_model_spec(spec)
+
+def test_beta_params_as_list_rejected():
+    spec = replace(get_valid_garch_spec(), beta_params=[0.7]) # type: ignore
+    with pytest.raises(ValueError, match="beta_params must be exactly a tuple"): validate_model_spec(spec)
+
+def test_constraint_flags_as_list_rejected():
+    spec = replace(get_valid_ar_spec(), constraint_flags=[1.0, 0.0, 0.0, 0.0]) # type: ignore
+    with pytest.raises(ValueError, match="constraint_flags must be exactly a tuple"): validate_model_spec(spec)
+
+def test_provenance_as_list_rejected():
+    spec = replace(get_valid_ar_spec(), provenance=[("a", "b")]) # type: ignore
+    with pytest.raises(ValueError, match="provenance must be exactly a tuple"): validate_model_spec(spec)
+
+def test_provenance_entry_as_list_rejected():
+    spec = replace(get_valid_ar_spec(), provenance=(["a", "b"],)) # type: ignore
+    with pytest.raises(ValueError, match="provenance entry must be exactly a tuple"): validate_model_spec(spec)
+
+def test_provenance_entry_length_rejected():
+    spec = replace(get_valid_ar_spec(), provenance=(("a",),)) # type: ignore
+    with pytest.raises(ValueError, match="provenance entry length must be exactly 2"): validate_model_spec(spec)
+
+def test_provenance_key_not_str_rejected():
+    spec = replace(get_valid_ar_spec(), provenance=((1, "b"),)) # type: ignore
+    with pytest.raises(ValueError, match="provenance key must be a string"): validate_model_spec(spec)
+
+def test_provenance_value_not_str_rejected():
+    spec = replace(get_valid_ar_spec(), provenance=(("a", 2),)) # type: ignore
+    with pytest.raises(ValueError, match="provenance value must be a string"): validate_model_spec(spec)
+
+# --- Tuple Element Type Strictness Tests ---
+def test_ar_params_containing_bool_rejected():
+    spec = replace(get_valid_ar_spec(), ar_params=(True,)) # type: ignore
+    with pytest.raises(ValueError, match="ar_params items must not be bool"): validate_model_spec(spec)
+
+def test_ma_params_containing_string_rejected():
+    spec = replace(get_valid_arma_spec(), ma_params=("0.3",)) # type: ignore
+    with pytest.raises(ValueError, match="ma_params items must be int or float"): validate_model_spec(spec)
+
+def test_alpha_params_containing_nan_rejected():
+    spec = replace(get_valid_garch_spec(), alpha_params=(float("nan"),))
+    with pytest.raises(ValueError, match="alpha_params items must be finite"): validate_model_spec(spec)
+
+def test_beta_params_containing_inf_rejected():
+    spec = replace(get_valid_garch_spec(), beta_params=(float("inf"),))
+    with pytest.raises(ValueError, match="beta_params items must be finite"): validate_model_spec(spec)
+
+def test_constraint_flags_containing_bool_rejected():
+    spec = replace(get_valid_ar_spec(), constraint_flags=(True, 0.0, 0.0, 0.0)) # type: ignore
+    with pytest.raises(ValueError, match="constraint_flags items must not be bool"): validate_model_spec(spec)
+
+# --- Boundary Vector Decoding Tests ---
+def test_from_flat_boundary_vector_bool_p_rejected():
     vec = to_flat_boundary_vector(get_valid_ar_spec())
-    vec[3] = "abc"  # type: ignore (pass uncastable string instead of float)
-    with pytest.raises(ValueError) as excinfo:
-        from_flat_boundary_vector(vec)
-    assert "p must be convertible to float" in str(excinfo.value)
+    vec[3] = True # type: ignore
+    with pytest.raises(ValueError, match="got bool"): from_flat_boundary_vector(vec)
+
+def test_from_flat_boundary_vector_bool_q_rejected():
+    vec = to_flat_boundary_vector(get_valid_ar_spec())
+    vec[4] = True # type: ignore
+    with pytest.raises(ValueError, match="got bool"): from_flat_boundary_vector(vec)
+
+def test_from_flat_boundary_vector_bool_r_rejected():
+    vec = to_flat_boundary_vector(get_valid_ar_spec())
+    vec[5] = True # type: ignore
+    with pytest.raises(ValueError, match="got bool"): from_flat_boundary_vector(vec)
+
+def test_from_flat_boundary_vector_bool_s_rejected():
+    vec = to_flat_boundary_vector(get_valid_ar_spec())
+    vec[6] = True # type: ignore
+    with pytest.raises(ValueError, match="got bool"): from_flat_boundary_vector(vec)
+
+def test_from_flat_boundary_vector_string_order_rejected():
+    vec = to_flat_boundary_vector(get_valid_ar_spec())
+    vec[3] = "1" # type: ignore
+    with pytest.raises(ValueError, match="must be a float or int"): from_flat_boundary_vector(vec)
+
+def test_from_flat_boundary_vector_nan_order_rejected():
+    vec = to_flat_boundary_vector(get_valid_ar_spec())
+    vec[3] = float("nan")
+    with pytest.raises(ValueError, match="must be finite"): from_flat_boundary_vector(vec)
+
+def test_from_flat_boundary_vector_inf_order_rejected():
+    vec = to_flat_boundary_vector(get_valid_ar_spec())
+    vec[3] = float("inf")
+    with pytest.raises(ValueError, match="must be finite"): from_flat_boundary_vector(vec)
+
+def test_from_flat_boundary_vector_fractional_order_rejected():
+    vec = to_flat_boundary_vector(get_valid_ar_spec())
+    vec[3] = 1.5
+    with pytest.raises(ValueError, match="non-negative integer"): from_flat_boundary_vector(vec)
 

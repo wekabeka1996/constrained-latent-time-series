@@ -3,6 +3,7 @@
 from dataclasses import dataclass
 from enum import Enum
 from typing import Optional
+import math
 
 # Approved protocol constants from P3
 APPROVED_MAX_P = 5
@@ -70,11 +71,37 @@ def validate_enum_types(spec: ModelSpec) -> None:
     if not isinstance(spec.volatility_family, VolatilityFamily):
         raise ValueError(f"volatility_family must be a VolatilityFamily enum instance, got {type(spec.volatility_family)}")
 
+def _validate_numeric_tuple(tup: tuple, name: str, expected_length: Optional[int] = None) -> None:
+    if type(tup) is not tuple:
+        raise ValueError(f"{name} must be exactly a tuple, got {type(tup)}")
+    if expected_length is not None and len(tup) != expected_length:
+        raise ValueError(f"{name} length must be exactly {expected_length}, got {len(tup)}")
+    for item in tup:
+        if isinstance(item, bool):
+            raise ValueError(f"{name} items must not be bool")
+        if not isinstance(item, (int, float)):
+            raise ValueError(f"{name} items must be int or float, got {type(item)}")
+        if not math.isfinite(item):
+            raise ValueError(f"{name} items must be finite, got {item}")
+
 def validate_immutable_tuple_fields(spec: ModelSpec) -> None:
-    for field_name in ["ar_params", "ma_params", "alpha_params", "beta_params", "constraint_flags", "provenance"]:
-        val = getattr(spec, field_name)
-        if type(val) is not tuple:
-            raise ValueError(f"{field_name} must be exactly a tuple, got {type(val)}")
+    _validate_numeric_tuple(spec.ar_params, "ar_params")
+    _validate_numeric_tuple(spec.ma_params, "ma_params")
+    _validate_numeric_tuple(spec.alpha_params, "alpha_params")
+    _validate_numeric_tuple(spec.beta_params, "beta_params")
+    _validate_numeric_tuple(spec.constraint_flags, "constraint_flags", expected_length=4)
+    
+    if type(spec.provenance) is not tuple:
+        raise ValueError(f"provenance must be exactly a tuple, got {type(spec.provenance)}")
+    for entry in spec.provenance:
+        if type(entry) is not tuple:
+            raise ValueError(f"provenance entry must be exactly a tuple, got {type(entry)}")
+        if len(entry) != 2:
+            raise ValueError(f"provenance entry length must be exactly 2, got {len(entry)}")
+        if type(entry[0]) is not str:
+            raise ValueError(f"provenance key must be a string, got {type(entry[0])}")
+        if type(entry[1]) is not str:
+            raise ValueError(f"provenance value must be a string, got {type(entry[1])}")
 
 def validate_family_consistency(spec: ModelSpec) -> None:
     if is_a_family(spec):
@@ -236,14 +263,18 @@ def to_flat_boundary_vector(spec: ModelSpec) -> list[float]:
             
     return vector
 
-def _decode_non_negative_integer_code(val: float, name: str) -> int:
-    try:
-        f_val = float(val)
-    except (TypeError, ValueError):
-        raise ValueError(f"{name} must be convertible to float, got {type(val)}")
-    if not f_val.is_integer() or f_val < 0:
-        raise ValueError(f"{name} order must be a non-negative integer, got {f_val}")
-    return int(f_val)
+def _decode_non_negative_integer_code(val: object, name: str) -> int:
+    if isinstance(val, bool):
+        raise ValueError(f"{name} must be a float or int, got bool")
+    if not isinstance(val, (int, float)):
+        raise ValueError(f"{name} must be a float or int, got {type(val)}")
+    if not math.isfinite(val):
+        raise ValueError(f"{name} must be finite, got {val}")
+    if isinstance(val, float) and not val.is_integer():
+        raise ValueError(f"{name} order must be a non-negative integer, got {val}")
+    if val < 0:
+        raise ValueError(f"{name} order must be a non-negative integer, got {val}")
+    return int(val)
 
 def from_flat_boundary_vector(vector: list[float]) -> ModelSpec:
     if len(vector) != SCHEMA_V2_MIN_FLAT_DIM:
