@@ -109,17 +109,19 @@ Root extraction explicitly relies on NumPy's `np.roots()` expectation of descend
 ## 13. Post-Commit/Push Evidence
 ### Git Log (Oneline -3)
 ```
-[POST_COMMIT_LOG]
+db50924 PHASE2_P6 mathematical validity guards
+07860c0 Update report with post-push evidence
+82c150f PHASE2_P5 fix schema guard completeness
 ```
 
 ### Git Status (Short)
 ```
-[POST_COMMIT_STATUS]
+(clean)
 ```
 
 ### Git Remote Check (Ls-Remote)
 ```
-[POST_PUSH_REMOTE]
+db50924c418a1a1b4a70db9085a1afc523548ad8	refs/heads/phase2/p6-math-validity-guards
 ```
 
 ---
