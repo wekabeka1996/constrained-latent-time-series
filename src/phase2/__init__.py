@@ -89,11 +89,20 @@ from .protocol_presets import (
     APPROVED_PHASE2_ARTIFACT_SUBDIR_BY_SPLIT,
     APPROVED_PHASE2_SAMPLES_FILENAME,
     APPROVED_PHASE2_MANIFEST_FILENAME,
+    APPROVED_PHASE2_FEWSHOT_COUNTS_BY_PRESET,
+    APPROVED_PHASE2_C_SEED_ROOT_BY_C_SPLIT,
+    APPROVED_PHASE2_C_SEED_RANGE_STRIDE,
+    APPROVED_PHASE2_C_SEED_BASE_BY_C_SPLIT,
     validate_protocol_preset_factory_request,
     get_preset_sample_count_by_family,
     build_split_request_for_preset,
     build_phase2_preset_run_request,
     build_phase2_preset_factory_result,
+    get_fewshot_counts_for_preset,
+    seed_range_for_base_and_count,
+    ranges_overlap,
+    range_is_prefix_subset,
+    validate_p13_fewshot_seed_plan_for_preset,
 )
 
 __all__ = [
@@ -164,11 +173,20 @@ __all__ = [
     "APPROVED_PHASE2_ARTIFACT_SUBDIR_BY_SPLIT",
     "APPROVED_PHASE2_SAMPLES_FILENAME",
     "APPROVED_PHASE2_MANIFEST_FILENAME",
+    "APPROVED_PHASE2_FEWSHOT_COUNTS_BY_PRESET",
+    "APPROVED_PHASE2_C_SEED_ROOT_BY_C_SPLIT",
+    "APPROVED_PHASE2_C_SEED_RANGE_STRIDE",
+    "APPROVED_PHASE2_C_SEED_BASE_BY_C_SPLIT",
     "validate_protocol_preset_factory_request",
     "get_preset_sample_count_by_family",
     "build_split_request_for_preset",
     "build_phase2_preset_run_request",
     "build_phase2_preset_factory_result",
+    "get_fewshot_counts_for_preset",
+    "seed_range_for_base_and_count",
+    "ranges_overlap",
+    "range_is_prefix_subset",
+    "validate_p13_fewshot_seed_plan_for_preset",
 ]
 
 

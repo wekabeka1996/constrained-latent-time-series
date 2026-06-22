@@ -82,7 +82,8 @@ The implementation adheres to the narrow scope:
 None. All tests pass, and contracts are fully aligned.
 
 ## 17. Post-Commit/Push Evidence
-Evidence is generated and logged upon committing and pushing.
+- Branch: `phase2/p12-protocol-preset-factory-smoke-dev-main`
+- Commit: `526b6ef0bf6a94f850d71f9f97e3b7f7588c1f43`
 
 ## 18. Final Verdict
-**PASS**. The protocol preset factory successfully constructs Phase 2 run requests under all constraints.
+**P12_READY_FOR_REVIEW**

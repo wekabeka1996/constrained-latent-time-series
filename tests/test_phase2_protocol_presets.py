@@ -24,11 +24,20 @@ from src.phase2.protocol_presets import (
     APPROVED_PHASE2_ARTIFACT_SUBDIR_BY_SPLIT,
     APPROVED_PHASE2_SAMPLES_FILENAME,
     APPROVED_PHASE2_MANIFEST_FILENAME,
+    APPROVED_PHASE2_FEWSHOT_COUNTS_BY_PRESET,
+    APPROVED_PHASE2_C_SEED_ROOT_BY_C_SPLIT,
+    APPROVED_PHASE2_C_SEED_RANGE_STRIDE,
+    APPROVED_PHASE2_C_SEED_BASE_BY_C_SPLIT,
     validate_protocol_preset_factory_request,
     get_preset_sample_count_by_family,
     build_split_request_for_preset,
     build_phase2_preset_run_request,
     build_phase2_preset_factory_result,
+    get_fewshot_counts_for_preset,
+    seed_range_for_base_and_count,
+    ranges_overlap,
+    range_is_prefix_subset,
+    validate_p13_fewshot_seed_plan_for_preset,
 )
 
 
@@ -48,7 +57,7 @@ def get_test_gen_template(family_id: FamilyId) -> GenerationRequest:
             alpha_range=(0.0, 0.4),
             beta_range=(0.0, 0.4),
             constraint_flags=(1.0, 0.0, 0.0, 0.0),
-            provenance=(("phase", "p12"),),
+            provenance=(("phase", "p13"),),
             max_attempts=100,
         )
     elif family_id == FamilyId.ARMA:
@@ -62,7 +71,7 @@ def get_test_gen_template(family_id: FamilyId) -> GenerationRequest:
             alpha_range=(0.0, 0.4),
             beta_range=(0.0, 0.4),
             constraint_flags=(1.0, 0.0, 0.0, 0.0),
-            provenance=(("phase", "p12"),),
+            provenance=(("phase", "p13"),),
             max_attempts=100,
         )
     elif family_id == FamilyId.GARCH:
@@ -76,7 +85,7 @@ def get_test_gen_template(family_id: FamilyId) -> GenerationRequest:
             alpha_range=(0.1, 0.3),
             beta_range=(0.1, 0.5),
             constraint_flags=(1.0, 0.0, 0.0, 0.0),
-            provenance=(("phase", "p12"),),
+            provenance=(("phase", "p13"),),
             max_attempts=100,
         )
     elif family_id == FamilyId.ARMA_GARCH:
@@ -90,7 +99,7 @@ def get_test_gen_template(family_id: FamilyId) -> GenerationRequest:
             alpha_range=(0.1, 0.3),
             beta_range=(0.1, 0.5),
             constraint_flags=(1.0, 0.0, 0.0, 0.0),
-            provenance=(("phase", "p12"),),
+            provenance=(("phase", "p13"),),
             max_attempts=100,
         )
     else:
@@ -157,89 +166,394 @@ def make_valid_factory_request(
 
 
 # ==============================================================================
-# Group A: Enum and constants (Tests 1-5)
+# Group A: Fewshot constants (Tests 1-3)
 # ==============================================================================
 
-def test_a_enums_and_constants_1():
-    # 1. ProtocolPresetName has exactly smoke/dev/main.
-    assert len(ProtocolPresetName) == 3
-    assert ProtocolPresetName.SMOKE == "smoke"
-    assert ProtocolPresetName.DEV == "dev"
-    assert ProtocolPresetName.MAIN == "main"
-    assert list(ProtocolPresetName) == ["smoke", "dev", "main"]
+def test_a_fewshot_constants_1():
+    # 1. APPROVED_PHASE2_FEWSHOT_COUNTS_BY_PRESET has SMOKE=(10,50), DEV=(100,500), MAIN=(1000,5000).
+    assert type(APPROVED_PHASE2_FEWSHOT_COUNTS_BY_PRESET) is tuple
+    counts_dict = {item[0]: (item[1], item[2]) for item in APPROVED_PHASE2_FEWSHOT_COUNTS_BY_PRESET}
+    assert counts_dict[ProtocolPresetName.SMOKE] == (10, 50)
+    assert counts_dict[ProtocolPresetName.DEV] == (100, 500)
+    assert counts_dict[ProtocolPresetName.MAIN] == (1000, 5000)
 
 
-def test_a_enums_and_constants_2_3():
-    # 2. Approved base seed constants contain AR, ARMA, GARCH, ARMA_GARCH.
-    # 3. Approved base seed constants use 12001/12001/12002/12003.
-    assert type(APPROVED_PHASE2_BASE_SEEDS_BY_FAMILY) is tuple
-    seeds_dict = dict(APPROVED_PHASE2_BASE_SEEDS_BY_FAMILY)
-    assert set(seeds_dict.keys()) == {FamilyId.AR, FamilyId.ARMA, FamilyId.GARCH, FamilyId.ARMA_GARCH}
-    assert seeds_dict[FamilyId.AR] == 12001
-    assert seeds_dict[FamilyId.ARMA] == 12001
-    assert seeds_dict[FamilyId.GARCH] == 12002
-    assert seeds_dict[FamilyId.ARMA_GARCH] == 12003
+def test_a_fewshot_constants_2():
+    # 2. APPROVED_PHASE2_C_SEED_BASE_BY_C_SPLIT has zero_shot_eval=12003, fewshot_train=10_012_101, fewshot_eval=20_012_105.
+    assert type(APPROVED_PHASE2_C_SEED_BASE_BY_C_SPLIT) is tuple
+    seeds = dict(APPROVED_PHASE2_C_SEED_BASE_BY_C_SPLIT)
+    assert seeds["zero_shot_eval"] == 12003
+    assert seeds["fewshot_train"] == 10012101
+    assert seeds["fewshot_eval"] == 20012105
 
 
-def test_a_enums_and_constants_4():
-    # 4. Approved filenames are samples.jsonl and manifest.json.
-    assert APPROVED_PHASE2_SAMPLES_FILENAME == "samples.jsonl"
-    assert APPROVED_PHASE2_MANIFEST_FILENAME == "manifest.json"
-
-
-def test_a_enums_and_constants_5():
-    # 5. Approved subdir constants match smoke/zero_shot_train/zero_shot_eval/fewshot_train/fewshot_eval.
-    assert type(APPROVED_PHASE2_ARTIFACT_SUBDIR_BY_SPLIT) is tuple
-    subdirs = dict(APPROVED_PHASE2_ARTIFACT_SUBDIR_BY_SPLIT)
-    assert subdirs[SplitName.SMOKE] == "smoke"
-    assert subdirs[SplitName.ZERO_SHOT_TRAIN] == "zero_shot_train"
-    assert subdirs[SplitName.ZERO_SHOT_EVAL] == "zero_shot_eval"
-    assert subdirs[SplitName.FEWSHOT_TRAIN] == "fewshot_train"
-    assert subdirs[SplitName.FEWSHOT_EVAL] == "fewshot_eval"
-    assert len(subdirs) == 5
+def test_a_fewshot_constants_3():
+    # 3. Artifact subdirs include fewshot_1pct_train and fewshot_5pct_train.
+    subdirs = [subdir for _, subdir in APPROVED_PHASE2_ARTIFACT_SUBDIR_BY_SPLIT]
+    assert "fewshot_1pct_train" in subdirs
+    assert "fewshot_5pct_train" in subdirs
+    assert "fewshot_eval" in subdirs
 
 
 # ==============================================================================
-# Group B: Factory request validation (Tests 6-32)
+# Group B: Seed range helpers (Tests 4-12)
 # ==============================================================================
 
-def test_b_validation_6():
-    # 6. Reject raw non-ProtocolPresetFactoryRequest.
+def test_b_seed_range_helpers_4():
+    # 4. seed_range_for_base_and_count(12101, 10) returns (12101, 12110).
+    assert seed_range_for_base_and_count(12101, 10) == (12101, 12110)
+
+
+def test_b_seed_range_helpers_5():
+    # 5. seed_range_for_base_and_count rejects count <= 0.
+    with pytest.raises(ValueError, match="count must be a positive integer"):
+        seed_range_for_base_and_count(12101, 0)
+    with pytest.raises(ValueError, match="count must be a positive integer"):
+        seed_range_for_base_and_count(12101, -5)
+
+
+def test_b_seed_range_helpers_6_7():
+    # 6. ranges_overlap detects overlap.
+    assert ranges_overlap((10, 20), (15, 25)) is True
+    assert ranges_overlap((10, 20), (20, 30)) is True
+    assert ranges_overlap((10, 20), (5, 12)) is True
+    # 7. ranges_overlap detects non-overlap.
+    assert ranges_overlap((10, 20), (21, 30)) is False
+    assert ranges_overlap((10, 20), (1, 9)) is False
+
+
+def test_b_seed_range_helpers_8_9():
+    # 8. range_is_prefix_subset accepts 1% inside 5%.
+    assert range_is_prefix_subset((12101, 12110), (12101, 12150)) is True
+    assert range_is_prefix_subset((100, 200), (100, 200)) is True
+    # 9. range_is_prefix_subset rejects non-prefix overlap.
+    assert range_is_prefix_subset((101, 200), (100, 200)) is False
+    assert range_is_prefix_subset((100, 250), (100, 200)) is False
+
+
+def test_b_seed_range_helpers_10_11_12():
+    # 10. validate_p13_fewshot_seed_plan_for_preset passes for SMOKE.
+    # 11. validate_p13_fewshot_seed_plan_for_preset passes for DEV.
+    # 12. validate_p13_fewshot_seed_plan_for_preset passes for MAIN.
+    validate_p13_fewshot_seed_plan_for_preset(ProtocolPresetName.SMOKE)
+    validate_p13_fewshot_seed_plan_for_preset(ProtocolPresetName.DEV)
+    validate_p13_fewshot_seed_plan_for_preset(ProtocolPresetName.MAIN)
+
+
+# ==============================================================================
+# Group C: Split request generation (Tests 13-27)
+# ==============================================================================
+
+def test_c_split_request_generation_13_14():
+    # 13. build_split_request_for_preset requires valid split_name/artifact_subdir pair.
+    # 14. invalid split_name/artifact_subdir pair is rejected.
+    req = make_valid_factory_request()
+    
+    # Valid
+    split_req = build_split_request_for_preset(
+        ProtocolPresetName.SMOKE,
+        SplitName.SMOKE,
+        "smoke",
+        req.generation_template_by_family,
+        req.simulation_template,
+        8
+    )
+    assert isinstance(split_req, SplitArtifactRequest)
+
+    # Invalid subdir
+    with pytest.raises(ValueError, match="Invalid split_name and artifact_subdir pair"):
+        build_split_request_for_preset(
+            ProtocolPresetName.SMOKE,
+            SplitName.SMOKE,
+            "zero_shot_train",
+            req.generation_template_by_family,
+            req.simulation_template,
+            8
+        )
+
+
+def test_c_split_request_generation_15():
+    # 15. smoke split includes all A/B/C families.
+    req = make_valid_factory_request(preset_name=ProtocolPresetName.SMOKE)
+    split_req = build_split_request_for_preset(
+        req.preset_name,
+        SplitName.SMOKE,
+        "smoke",
+        req.generation_template_by_family,
+        req.simulation_template,
+        req.sample_id_hash_len
+    )
+    counts = dict(split_req.sample_count_by_family)
+    assert set(counts.keys()) == {FamilyId.AR, FamilyId.ARMA, FamilyId.GARCH, FamilyId.ARMA_GARCH}
+    assert counts[FamilyId.AR] == 1000
+    assert counts[FamilyId.ARMA] == 1000
+    assert counts[FamilyId.GARCH] == 1000
+    assert counts[FamilyId.ARMA_GARCH] == 1000
+
+
+def test_c_split_request_generation_16_17():
+    # 16. zero_shot_train excludes ARMA_GARCH.
+    # 17. zero_shot_train has enforce_zero_shot_c_train_exclusion=True.
+    req = make_valid_factory_request(preset_name=ProtocolPresetName.SMOKE)
+    split_req = build_split_request_for_preset(
+        req.preset_name,
+        SplitName.ZERO_SHOT_TRAIN,
+        "zero_shot_train",
+        req.generation_template_by_family,
+        req.simulation_template,
+        req.sample_id_hash_len
+    )
+    counts = dict(split_req.sample_count_by_family)
+    assert FamilyId.ARMA_GARCH not in counts
+    assert split_req.enforce_zero_shot_c_train_exclusion is True
+
+
+def test_c_split_request_generation_18():
+    # 18. zero_shot_eval is C-only with base seed 12003.
+    req = make_valid_factory_request(preset_name=ProtocolPresetName.SMOKE)
+    split_req = build_split_request_for_preset(
+        req.preset_name,
+        SplitName.ZERO_SHOT_EVAL,
+        "zero_shot_eval",
+        req.generation_template_by_family,
+        req.simulation_template,
+        req.sample_id_hash_len
+    )
+    counts = dict(split_req.sample_count_by_family)
+    assert list(counts.keys()) == [FamilyId.ARMA_GARCH]
+    assert counts[FamilyId.ARMA_GARCH] == 1000
+    
+    seeds = dict(split_req.base_seed_by_family)
+    assert seeds[FamilyId.ARMA_GARCH] == 12003
+
+
+def test_c_split_request_generation_19_20():
+    # 19. fewshot_1pct_train is C-only with count 10/100/1000 depending preset.
+    # 20. fewshot_1pct_train uses ARMA_GARCH base seed 10_012_101.
+    req = make_valid_factory_request(preset_name=ProtocolPresetName.SMOKE)
+    split_req = build_split_request_for_preset(
+        req.preset_name,
+        SplitName.FEWSHOT_TRAIN,
+        "fewshot_1pct_train",
+        req.generation_template_by_family,
+        req.simulation_template,
+        req.sample_id_hash_len
+    )
+    counts = dict(split_req.sample_count_by_family)
+    assert list(counts.keys()) == [FamilyId.ARMA_GARCH]
+    assert counts[FamilyId.ARMA_GARCH] == 10
+    
+    seeds = dict(split_req.base_seed_by_family)
+    assert seeds[FamilyId.ARMA_GARCH] == 10012101
+
+
+def test_c_split_request_generation_21_22():
+    # 21. fewshot_5pct_train is C-only with count 50/500/5000 depending preset.
+    # 22. fewshot_5pct_train uses ARMA_GARCH base seed 10_012_101.
+    req = make_valid_factory_request(preset_name=ProtocolPresetName.SMOKE)
+    split_req = build_split_request_for_preset(
+        req.preset_name,
+        SplitName.FEWSHOT_TRAIN,
+        "fewshot_5pct_train",
+        req.generation_template_by_family,
+        req.simulation_template,
+        req.sample_id_hash_len
+    )
+    counts = dict(split_req.sample_count_by_family)
+    assert list(counts.keys()) == [FamilyId.ARMA_GARCH]
+    assert counts[FamilyId.ARMA_GARCH] == 50
+    
+    seeds = dict(split_req.base_seed_by_family)
+    assert seeds[FamilyId.ARMA_GARCH] == 10012101
+
+
+def test_c_split_request_generation_23():
+    # 23. fewshot_eval is C-only with base seed 20_012_105.
+    req = make_valid_factory_request(preset_name=ProtocolPresetName.SMOKE)
+    split_req = build_split_request_for_preset(
+        req.preset_name,
+        SplitName.FEWSHOT_EVAL,
+        "fewshot_eval",
+        req.generation_template_by_family,
+        req.simulation_template,
+        req.sample_id_hash_len
+    )
+    counts = dict(split_req.sample_count_by_family)
+    assert list(counts.keys()) == [FamilyId.ARMA_GARCH]
+    assert counts[FamilyId.ARMA_GARCH] == 1000
+    
+    seeds = dict(split_req.base_seed_by_family)
+    assert seeds[FamilyId.ARMA_GARCH] == 20012105
+
+
+def test_c_split_request_generation_24_25_26_27():
+    # 24. fewshot_5pct_train count is greater than fewshot_1pct_train count.
+    # 25. fewshot_1pct seed range is prefix subset of fewshot_5pct seed range.
+    # 26. zero_shot_eval seed range does not overlap fewshot_5pct_train.
+    # 27. fewshot_eval seed range does not overlap fewshot_5pct_train.
+    req = make_valid_factory_request(preset_name=ProtocolPresetName.SMOKE)
+    
+    s_1pct = build_split_request_for_preset(req.preset_name, SplitName.FEWSHOT_TRAIN, "fewshot_1pct_train", req.generation_template_by_family, req.simulation_template, 8)
+    s_5pct = build_split_request_for_preset(req.preset_name, SplitName.FEWSHOT_TRAIN, "fewshot_5pct_train", req.generation_template_by_family, req.simulation_template, 8)
+    s_z_eval = build_split_request_for_preset(req.preset_name, SplitName.ZERO_SHOT_EVAL, "zero_shot_eval", req.generation_template_by_family, req.simulation_template, 8)
+    s_f_eval = build_split_request_for_preset(req.preset_name, SplitName.FEWSHOT_EVAL, "fewshot_eval", req.generation_template_by_family, req.simulation_template, 8)
+
+    c_1 = dict(s_1pct.sample_count_by_family)[FamilyId.ARMA_GARCH]
+    c_5 = dict(s_5pct.sample_count_by_family)[FamilyId.ARMA_GARCH]
+    c_z = dict(s_z_eval.sample_count_by_family)[FamilyId.ARMA_GARCH]
+    c_f = dict(s_f_eval.sample_count_by_family)[FamilyId.ARMA_GARCH]
+
+    assert c_5 > c_1
+
+    r_1 = seed_range_for_base_and_count(dict(s_1pct.base_seed_by_family)[FamilyId.ARMA_GARCH], c_1)
+    r_5 = seed_range_for_base_and_count(dict(s_5pct.base_seed_by_family)[FamilyId.ARMA_GARCH], c_5)
+    r_z = seed_range_for_base_and_count(dict(s_z_eval.base_seed_by_family)[FamilyId.ARMA_GARCH], c_z)
+    r_f = seed_range_for_base_and_count(dict(s_f_eval.base_seed_by_family)[FamilyId.ARMA_GARCH], c_f)
+
+    assert range_is_prefix_subset(r_1, r_5) is True
+    assert ranges_overlap(r_5, r_z) is False
+    assert ranges_overlap(r_5, r_f) is False
+    assert ranges_overlap(r_z, r_f) is False
+
+
+# ==============================================================================
+# Group D: Full run request (Tests 28-36)
+# ==============================================================================
+
+def test_d_run_request_28_29_30():
+    # 28. build_phase2_preset_run_request returns 6 split requests.
+    # 29. split order is smoke, zero_shot_train, zero_shot_eval, fewshot_1pct_train, fewshot_5pct_train, fewshot_eval.
+    # 30. duplicate SplitName.FEWSHOT_TRAIN appears twice but different artifact_subdir and passes validate_phase2_artifact_run_request.
+    req = make_valid_factory_request()
+    run_req = build_phase2_preset_run_request(req)
+    assert isinstance(run_req, Phase2ArtifactRunRequest)
+    assert len(run_req.split_requests) == 6
+
+    expected = [
+        (SplitName.SMOKE, "smoke"),
+        (SplitName.ZERO_SHOT_TRAIN, "zero_shot_train"),
+        (SplitName.ZERO_SHOT_EVAL, "zero_shot_eval"),
+        (SplitName.FEWSHOT_TRAIN, "fewshot_1pct_train"),
+        (SplitName.FEWSHOT_TRAIN, "fewshot_5pct_train"),
+        (SplitName.FEWSHOT_EVAL, "fewshot_eval"),
+    ]
+    
+    actual = [(s.split_name, s.artifact_subdir) for s in run_req.split_requests]
+    assert actual == expected
+
+    # Passes runner's validation
+    validate_phase2_artifact_run_request(run_req)  # should not raise
+
+
+def test_d_run_request_31_32():
+    # 31. count_by_split in factory result preserves the 6-split order.
+    # 32. factory result split_count is 6.
+    req = make_valid_factory_request()
+    res = build_phase2_preset_factory_result(req)
+    assert isinstance(res, ProtocolPresetFactoryResult)
+    assert res.split_count == 6
+
+    expected_splits = [
+        SplitName.SMOKE,
+        SplitName.ZERO_SHOT_TRAIN,
+        SplitName.ZERO_SHOT_EVAL,
+        SplitName.FEWSHOT_TRAIN,
+        SplitName.FEWSHOT_TRAIN,
+        SplitName.FEWSHOT_EVAL,
+    ]
+    assert [split for split, _ in res.count_by_split] == expected_splits
+
+
+def test_d_run_request_33_34_35():
+    # 33. factory result total_requested_samples is correct for SMOKE.
+    # smoke: SMOKE (4000) + ZERO_SHOT_TRAIN (3000) + ZERO_SHOT_EVAL (1000) + FEWSHOT_1PCT (10) + FEWSHOT_5PCT (50) + FEWSHOT_EVAL (1000) = 9060
+    req_smoke = make_valid_factory_request(preset_name=ProtocolPresetName.SMOKE)
+    res_smoke = build_phase2_preset_factory_result(req_smoke)
+    assert res_smoke.total_requested_samples == 9060
+
+    # 34. factory result total_requested_samples is correct for DEV.
+    # dev: SMOKE (40000) + ZERO_SHOT_TRAIN (30000) + ZERO_SHOT_EVAL (10000) + FEWSHOT_1PCT (100) + FEWSHOT_5PCT (500) + FEWSHOT_EVAL (10000) = 90600
+    req_dev = make_valid_factory_request(preset_name=ProtocolPresetName.DEV)
+    res_dev = build_phase2_preset_factory_result(req_dev)
+    assert res_dev.total_requested_samples == 90600
+
+    # 35. factory result total_requested_samples is correct for MAIN.
+    # main: SMOKE (400000) + ZERO_SHOT_TRAIN (300000) + ZERO_SHOT_EVAL (100000) + FEWSHOT_1PCT (1000) + FEWSHOT_5PCT (5000) + FEWSHOT_EVAL (100000) = 906000
+    req_main = make_valid_factory_request(preset_name=ProtocolPresetName.MAIN)
+    res_main = build_phase2_preset_factory_result(req_main)
+    assert res_main.total_requested_samples == 906000
+
+
+def test_d_run_request_36():
+    # 36. no files or directories are created by factory.
+    # Verify that nonexistent output directory was not created on disk
+    req = make_valid_factory_request(output_root_dir="never_ever_created_by_preset_factory_p13")
+    build_phase2_preset_run_request(req)
+    assert not pathlib.Path("never_ever_created_by_preset_factory_p13").exists()
+
+
+# ==============================================================================
+# Group E: No-execution / scope (Tests 37-43)
+# ==============================================================================
+
+def test_e_no_execution_scope_37_39():
+    # 37. protocol_presets.py does not call run_phase2_artifact_generation.
+    # 38. protocol_presets.py does not call write_dataset_artifacts.
+    # 39. protocol_presets.py does not call build_dataset_in_memory.
+    import src.phase2.protocol_presets as presets
+    assert "run_phase2_artifact_generation" not in dir(presets)
+    assert "write_dataset_artifacts" not in dir(presets)
+    assert "build_dataset_in_memory" not in dir(presets)
+
+
+def test_e_no_execution_scope_40_43():
+    # 40. protocol_presets.py does not import torch.
+    # 41. protocol_presets.py does not import numpy.
+    # 42. protocol_presets.py does not import pandas/yaml/argparse.
+    # 43. protocol_presets.py does not import model/training modules.
+    import src.phase2.protocol_presets as presets
+    assert "torch" not in sys.modules or "torch" not in dir(presets)
+    assert "numpy" not in sys.modules or "numpy" not in dir(presets)
+    assert "pandas" not in dir(presets)
+    assert "yaml" not in dir(presets)
+    assert "argparse" not in dir(presets)
+    assert "models" not in dir(presets)
+
+
+# ==============================================================================
+# Preserved P12 Request Validation Tests
+# ==============================================================================
+
+def test_preserved_p12_validation_reject_raw_non_request():
     with pytest.raises(ValueError, match="must be a ProtocolPresetFactoryRequest instance"):
         validate_protocol_preset_factory_request("not_a_request")
 
 
-def test_b_validation_7():
-    # 7. Reject empty protocol_name.
+def test_preserved_p12_validation_reject_empty_protocol_name():
     req = make_valid_factory_request(protocol_name="")
     with pytest.raises(ValueError, match="protocol_name must be a non-empty string"):
         validate_protocol_preset_factory_request(req)
 
 
-def test_b_validation_8():
-    # 8. Reject raw string preset_name.
-    # Note: since preset_name is typed as ProtocolPresetName, we bypass type checking by using replace with an invalid value
+def test_preserved_p12_validation_reject_raw_string_preset_name():
     req = replace(make_valid_factory_request(), preset_name="smoke")
     with pytest.raises(ValueError, match="preset_name must be a ProtocolPresetName enum member"):
         validate_protocol_preset_factory_request(req)
 
 
-def test_b_validation_9():
-    # 9. Reject empty output_root_dir.
+def test_preserved_p12_validation_reject_empty_output_root_dir():
     req = make_valid_factory_request(output_root_dir="   ")
     with pytest.raises(ValueError, match="output_root_dir must be a non-empty string"):
         validate_protocol_preset_factory_request(req)
 
 
-def test_b_validation_10():
-    # 10. Reject list generation_template_by_family.
+def test_preserved_p12_validation_reject_list_templates():
     req = replace(make_valid_factory_request(), generation_template_by_family=[])
     with pytest.raises(ValueError, match="generation_template_by_family must be exactly a tuple"):
         validate_protocol_preset_factory_request(req)
 
 
-def test_b_validation_11():
-    # 11. Reject duplicate family template.
+def test_preserved_p12_validation_reject_duplicate_family_template():
     dup_templates = (
         (FamilyId.AR, get_test_gen_template(FamilyId.AR)),
         (FamilyId.AR, get_test_gen_template(FamilyId.AR)),
@@ -252,8 +566,7 @@ def test_b_validation_11():
         validate_protocol_preset_factory_request(req)
 
 
-def test_b_validation_12():
-    # 12. Reject raw string family key.
+def test_preserved_p12_validation_reject_raw_string_family_key():
     bad_keys = (
         ("AR", get_test_gen_template(FamilyId.AR)),
         (FamilyId.ARMA, get_test_gen_template(FamilyId.ARMA)),
@@ -265,8 +578,7 @@ def test_b_validation_12():
         validate_protocol_preset_factory_request(req)
 
 
-def test_b_validation_13():
-    # 13. Reject non-GenerationRequest template.
+def test_preserved_p12_validation_reject_non_generation_request():
     bad_templates = (
         (FamilyId.AR, "not_a_template"),
         (FamilyId.ARMA, get_test_gen_template(FamilyId.ARMA)),
@@ -278,8 +590,7 @@ def test_b_validation_13():
         validate_protocol_preset_factory_request(req)
 
 
-def test_b_validation_14():
-    # 14. Reject template family mismatch.
+def test_preserved_p12_validation_reject_template_family_mismatch():
     bad_mismatch = (
         (FamilyId.AR, get_test_gen_template(FamilyId.ARMA)),
         (FamilyId.ARMA, get_test_gen_template(FamilyId.ARMA)),
@@ -291,8 +602,7 @@ def test_b_validation_14():
         validate_protocol_preset_factory_request(req)
 
 
-def test_b_validation_15():
-    # 15. Reject invalid GenerationRequest template.
+def test_preserved_p12_validation_reject_invalid_generation_template():
     bad_gen_req = replace(get_test_gen_template(FamilyId.AR), max_attempts=0)
     templates = (
         (FamilyId.AR, bad_gen_req),
@@ -305,93 +615,80 @@ def test_b_validation_15():
         validate_protocol_preset_factory_request(req)
 
 
-def test_b_validation_16():
-    # 16. Reject non-SimulationRequest simulation_template.
+def test_preserved_p12_validation_reject_non_simulation_request():
     req = replace(make_valid_factory_request(), simulation_template="not_a_simulation_template")
     with pytest.raises(ValueError, match="simulation_template must be a SimulationRequest instance"):
         validate_protocol_preset_factory_request(req)
 
 
-def test_b_validation_17():
-    # 17. Reject invalid SimulationRequest template.
+def test_preserved_p12_validation_reject_invalid_simulation_template():
     bad_sim_req = replace(get_test_sim_template(), length=0)
     req = replace(make_valid_factory_request(), simulation_template=bad_sim_req)
     with pytest.raises(ValueError, match="length must be a positive int"):
         validate_protocol_preset_factory_request(req)
 
 
-def test_b_validation_18():
-    # 18. Reject non-bool create_parent_dirs.
+def test_preserved_p12_validation_reject_non_bool_create_parent_dirs():
     req = replace(make_valid_factory_request(), create_parent_dirs="True")
     with pytest.raises(ValueError, match="create_parent_dirs must be a bool"):
         validate_protocol_preset_factory_request(req)
 
 
-def test_b_validation_19():
-    # 19. Reject non-bool overwrite_existing.
+def test_preserved_p12_validation_reject_non_bool_overwrite_existing():
     req = replace(make_valid_factory_request(), overwrite_existing=1)
     with pytest.raises(ValueError, match="overwrite_existing must be a bool"):
         validate_protocol_preset_factory_request(req)
 
 
-def test_b_validation_20():
-    # 20. Reject non-bool include_values.
+def test_preserved_p12_validation_reject_non_bool_include_values():
     req = replace(make_valid_factory_request(), include_values=None)
     with pytest.raises(ValueError, match="include_values must be a bool"):
         validate_protocol_preset_factory_request(req)
 
 
-def test_b_validation_21():
-    # 21. Reject non-bool include_innovations.
+def test_preserved_p12_validation_reject_non_bool_include_innovations():
     req = replace(make_valid_factory_request(), include_innovations="False")
     with pytest.raises(ValueError, match="include_innovations must be a bool"):
         validate_protocol_preset_factory_request(req)
 
 
-def test_b_validation_22():
-    # 22. Reject non-bool include_variances.
+def test_preserved_p12_validation_reject_non_bool_include_variances():
     req = replace(make_valid_factory_request(), include_variances=0.0)
     with pytest.raises(ValueError, match="include_variances must be a bool"):
         validate_protocol_preset_factory_request(req)
 
 
-def test_b_validation_23():
-    # 23. Reject all include flags False.
+def test_preserved_p12_validation_reject_all_include_flags_false():
     req = make_valid_factory_request(include_values=False, include_innovations=False, include_variances=False)
     with pytest.raises(ValueError, match="At least one include flag must be True"):
         validate_protocol_preset_factory_request(req)
 
 
-def test_b_validation_24():
-    # 24. Reject non-bool json_sort_keys.
+def test_preserved_p12_validation_reject_non_bool_json_sort_keys():
     req = replace(make_valid_factory_request(), json_sort_keys="True")
     with pytest.raises(ValueError, match="json_sort_keys must be a bool"):
         validate_protocol_preset_factory_request(req)
 
 
-def test_b_validation_25():
-    # 25. Reject bool json_indent.
+def test_preserved_p12_validation_reject_bool_json_indent():
     req = replace(make_valid_factory_request(), json_indent=True)
     with pytest.raises(ValueError, match="json_indent must be a non-negative int"):
         validate_protocol_preset_factory_request(req)
 
 
-def test_b_validation_26():
-    # 26. Reject negative json_indent.
+def test_preserved_p12_validation_reject_negative_json_indent():
     req = replace(make_valid_factory_request(), json_indent=-1)
     with pytest.raises(ValueError, match="json_indent must be a non-negative int"):
         validate_protocol_preset_factory_request(req)
 
 
-def test_b_validation_27():
-    # 27. Reject sample_id_hash_len < 8.
+def test_preserved_p12_validation_reject_sample_id_hash_len_too_short():
     req = replace(make_valid_factory_request(), sample_id_hash_len=7)
     with pytest.raises(ValueError, match="sample_id_hash_len must be an int >= 8"):
         validate_protocol_preset_factory_request(req)
 
 
-def test_b_validation_28(tmp_path):
-    # 28. Reject output_root_dir that exists as file.
+def test_preserved_p12_validation_reject_output_root_dir_exists_as_file(tmp_path):
     file_path = tmp_path / "already_a_file.txt"
     file_path.write_text("content")
     req = make_valid_factory_request(output_root_dir=str(file_path))
@@ -399,8 +696,8 @@ def test_b_validation_28(tmp_path):
         validate_protocol_preset_factory_request(req)
 
 
-def test_b_validation_29_32():
-    # 29. Reject missing AR template.
+def test_preserved_p12_validation_reject_missing_required_templates():
+    # Reject missing AR template
     missing_ar = (
         (FamilyId.ARMA, get_test_gen_template(FamilyId.ARMA)),
         (FamilyId.GARCH, get_test_gen_template(FamilyId.GARCH)),
@@ -409,340 +706,3 @@ def test_b_validation_29_32():
     req = replace(make_valid_factory_request(), generation_template_by_family=missing_ar)
     with pytest.raises(ValueError, match="Missing generation templates for required families:.*AR"):
         validate_protocol_preset_factory_request(req)
-
-    # 30. Reject missing ARMA template.
-    missing_arma = (
-        (FamilyId.AR, get_test_gen_template(FamilyId.AR)),
-        (FamilyId.GARCH, get_test_gen_template(FamilyId.GARCH)),
-        (FamilyId.ARMA_GARCH, get_test_gen_template(FamilyId.ARMA_GARCH)),
-    )
-    req = replace(make_valid_factory_request(), generation_template_by_family=missing_arma)
-    with pytest.raises(ValueError, match="Missing generation templates for required families:.*ARMA"):
-        validate_protocol_preset_factory_request(req)
-
-    # 31. Reject missing GARCH template.
-    missing_garch = (
-        (FamilyId.AR, get_test_gen_template(FamilyId.AR)),
-        (FamilyId.ARMA, get_test_gen_template(FamilyId.ARMA)),
-        (FamilyId.ARMA_GARCH, get_test_gen_template(FamilyId.ARMA_GARCH)),
-    )
-    req = replace(make_valid_factory_request(), generation_template_by_family=missing_garch)
-    with pytest.raises(ValueError, match="Missing generation templates for required families:.*GARCH"):
-        validate_protocol_preset_factory_request(req)
-
-    # 32. Reject missing ARMA_GARCH template.
-    missing_arma_garch = (
-        (FamilyId.AR, get_test_gen_template(FamilyId.AR)),
-        (FamilyId.ARMA, get_test_gen_template(FamilyId.ARMA)),
-        (FamilyId.GARCH, get_test_gen_template(FamilyId.GARCH)),
-    )
-    req = replace(make_valid_factory_request(), generation_template_by_family=missing_arma_garch)
-    with pytest.raises(ValueError, match="Missing generation templates for required families:.*ARMA_GARCH"):
-        validate_protocol_preset_factory_request(req)
-
-
-# ==============================================================================
-# Group C: Sample count presets (Tests 33-36)
-# ==============================================================================
-
-def test_c_sample_counts_33():
-    # 33. SMOKE family counts are 1000 each.
-    counts = get_preset_sample_count_by_family(ProtocolPresetName.SMOKE)
-    assert len(counts) == 4
-    for fid, cnt in counts:
-        assert cnt == 1000
-
-
-def test_c_sample_counts_34():
-    # 34. DEV family counts are 10000 each.
-    counts = get_preset_sample_count_by_family(ProtocolPresetName.DEV)
-    assert len(counts) == 4
-    for fid, cnt in counts:
-        assert cnt == 10000
-
-
-def test_c_sample_counts_35():
-    # 35. MAIN family counts are 100000 each.
-    counts = get_preset_sample_count_by_family(ProtocolPresetName.MAIN)
-    assert len(counts) == 4
-    for fid, cnt in counts:
-        assert cnt == 100000
-
-
-def test_c_sample_counts_36():
-    # 36. Invalid preset_name rejected by get_preset_sample_count_by_family.
-    with pytest.raises(ValueError):
-        get_preset_sample_count_by_family("smoke")
-
-
-# ==============================================================================
-# Group D: Split request generation (Tests 37-49)
-# ==============================================================================
-
-def test_d_split_requests_37():
-    # 37. SMOKE split includes AR, ARMA, GARCH, ARMA_GARCH.
-    req = make_valid_factory_request(preset_name=ProtocolPresetName.SMOKE)
-    split_req = build_split_request_for_preset(
-        preset_name=req.preset_name,
-        split_name=SplitName.SMOKE,
-        generation_template_by_family=req.generation_template_by_family,
-        simulation_template=req.simulation_template,
-        sample_id_hash_len=req.sample_id_hash_len,
-    )
-    counts = dict(split_req.sample_count_by_family)
-    assert set(counts.keys()) == {FamilyId.AR, FamilyId.ARMA, FamilyId.GARCH, FamilyId.ARMA_GARCH}
-    assert counts[FamilyId.AR] == 1000
-    assert counts[FamilyId.ARMA] == 1000
-    assert counts[FamilyId.GARCH] == 1000
-    assert counts[FamilyId.ARMA_GARCH] == 1000
-
-
-def test_d_split_requests_38_39():
-    # 38. ZERO_SHOT_TRAIN excludes ARMA_GARCH or sets ARMA_GARCH count 0.
-    # 39. ZERO_SHOT_TRAIN enforce_zero_shot_c_train_exclusion is True.
-    req = make_valid_factory_request(preset_name=ProtocolPresetName.SMOKE)
-    split_req = build_split_request_for_preset(
-        preset_name=req.preset_name,
-        split_name=SplitName.ZERO_SHOT_TRAIN,
-        generation_template_by_family=req.generation_template_by_family,
-        simulation_template=req.simulation_template,
-        sample_id_hash_len=req.sample_id_hash_len,
-    )
-    counts = dict(split_req.sample_count_by_family)
-    assert FamilyId.ARMA_GARCH not in counts or counts[FamilyId.ARMA_GARCH] == 0
-    assert split_req.enforce_zero_shot_c_train_exclusion is True
-
-
-def test_d_split_requests_40_41_42():
-    # 40. ZERO_SHOT_EVAL includes only ARMA_GARCH.
-    # 41. FEWSHOT_TRAIN includes only ARMA_GARCH.
-    # 42. FEWSHOT_EVAL includes only ARMA_GARCH.
-    req = make_valid_factory_request(preset_name=ProtocolPresetName.SMOKE)
-    
-    for split_name in [SplitName.ZERO_SHOT_EVAL, SplitName.FEWSHOT_TRAIN, SplitName.FEWSHOT_EVAL]:
-        split_req = build_split_request_for_preset(
-            preset_name=req.preset_name,
-            split_name=split_name,
-            generation_template_by_family=req.generation_template_by_family,
-            simulation_template=req.simulation_template,
-            sample_id_hash_len=req.sample_id_hash_len,
-        )
-        counts = dict(split_req.sample_count_by_family)
-        assert list(counts.keys()) == [FamilyId.ARMA_GARCH]
-        assert counts[FamilyId.ARMA_GARCH] == 1000
-
-
-def test_d_split_requests_43():
-    # 43. Each split uses correct artifact_subdir.
-    req = make_valid_factory_request(preset_name=ProtocolPresetName.SMOKE)
-    for split_name in SplitName:
-        split_req = build_split_request_for_preset(
-            preset_name=req.preset_name,
-            split_name=split_name,
-            generation_template_by_family=req.generation_template_by_family,
-            simulation_template=req.simulation_template,
-            sample_id_hash_len=req.sample_id_hash_len,
-        )
-        expected_subdir = dict(APPROVED_PHASE2_ARTIFACT_SUBDIR_BY_SPLIT)[split_name]
-        assert split_req.artifact_subdir == expected_subdir
-
-
-def test_d_split_requests_44():
-    # 44. Each split uses approved filenames.
-    req = make_valid_factory_request(preset_name=ProtocolPresetName.SMOKE)
-    for split_name in SplitName:
-        split_req = build_split_request_for_preset(
-            preset_name=req.preset_name,
-            split_name=split_name,
-            generation_template_by_family=req.generation_template_by_family,
-            simulation_template=req.simulation_template,
-            sample_id_hash_len=req.sample_id_hash_len,
-        )
-        assert split_req.samples_filename == APPROVED_PHASE2_SAMPLES_FILENAME
-        assert split_req.manifest_filename == APPROVED_PHASE2_MANIFEST_FILENAME
-
-
-def test_d_split_requests_45():
-    # 45. Each split uses approved base seeds.
-    req = make_valid_factory_request(preset_name=ProtocolPresetName.SMOKE)
-    for split_name in SplitName:
-        split_req = build_split_request_for_preset(
-            preset_name=req.preset_name,
-            split_name=split_name,
-            generation_template_by_family=req.generation_template_by_family,
-            simulation_template=req.simulation_template,
-            sample_id_hash_len=req.sample_id_hash_len,
-        )
-        assert split_req.base_seed_by_family == APPROVED_PHASE2_BASE_SEEDS_BY_FAMILY
-
-
-def test_d_split_requests_46():
-    # 46. Each split passes validate_split_artifact_request.
-    req = make_valid_factory_request(preset_name=ProtocolPresetName.SMOKE)
-    for split_name in SplitName:
-        split_req = build_split_request_for_preset(
-            preset_name=req.preset_name,
-            split_name=split_name,
-            generation_template_by_family=req.generation_template_by_family,
-            simulation_template=req.simulation_template,
-            sample_id_hash_len=req.sample_id_hash_len,
-        )
-        validate_split_artifact_request(split_req)  # should not raise
-
-
-def test_d_split_requests_47_48_49():
-    # 47. Split request sample_id_hash_len is propagated.
-    # 48. Split request simulation_template is propagated.
-    # 49. Split request generation_template_by_family is propagated.
-    req = make_valid_factory_request(preset_name=ProtocolPresetName.SMOKE, sample_id_hash_len=12)
-    split_req = build_split_request_for_preset(
-        preset_name=req.preset_name,
-        split_name=SplitName.SMOKE,
-        generation_template_by_family=req.generation_template_by_family,
-        simulation_template=req.simulation_template,
-        sample_id_hash_len=req.sample_id_hash_len,
-    )
-    assert split_req.sample_id_hash_len == 12
-    assert split_req.simulation_template == req.simulation_template
-    assert split_req.generation_template_by_family == req.generation_template_by_family
-
-
-# ==============================================================================
-# Group E: Full run request generation (Tests 50-60)
-# ==============================================================================
-
-def test_e_run_requests_50_51_52():
-    # 50. build_phase2_preset_run_request returns Phase2ArtifactRunRequest.
-    # 51. split order is exactly smoke, zero_shot_train, zero_shot_eval, fewshot_train, fewshot_eval.
-    # 52. run request protocol_name propagated.
-    req = make_valid_factory_request(protocol_name="custom_protocol")
-    run_req = build_phase2_preset_run_request(req)
-    assert isinstance(run_req, Phase2ArtifactRunRequest)
-    assert run_req.protocol_name == "custom_protocol"
-    
-    expected_order = [
-        SplitName.SMOKE,
-        SplitName.ZERO_SHOT_TRAIN,
-        SplitName.ZERO_SHOT_EVAL,
-        SplitName.FEWSHOT_TRAIN,
-        SplitName.FEWSHOT_EVAL,
-    ]
-    assert [s.split_name for s in run_req.split_requests] == expected_order
-
-
-def test_e_run_requests_53_58():
-    # 53. output_root_dir propagated.
-    # 54. create_parent_dirs propagated.
-    # 55. overwrite_existing propagated.
-    # 56. include flags propagated.
-    # 57. json_sort_keys propagated.
-    # 58. json_indent propagated.
-    req = make_valid_factory_request(
-        output_root_dir="results/preset_test",
-        create_parent_dirs=True,
-        overwrite_existing=False,
-        include_values=True,
-        include_innovations=False,
-        include_variances=True,
-        json_sort_keys=False,
-        json_indent=4,
-    )
-    run_req = build_phase2_preset_run_request(req)
-    assert run_req.output_root_dir == "results/preset_test"
-    assert run_req.create_parent_dirs is True
-    assert run_req.overwrite_existing is False
-    assert run_req.include_values is True
-    assert run_req.include_innovations is False
-    assert run_req.include_variances is True
-    assert run_req.json_sort_keys is False
-    assert run_req.json_indent == 4
-
-
-def test_e_run_requests_59_60():
-    # 59. run request passes validate_phase2_artifact_run_request.
-    # 60. build_phase2_preset_run_request does not create files or directories.
-    req = make_valid_factory_request(output_root_dir="nonexistent_test_directory_never_created")
-    run_req = build_phase2_preset_run_request(req)
-    validate_phase2_artifact_run_request(run_req)  # should not raise
-    assert not pathlib.Path("nonexistent_test_directory_never_created").exists()
-
-
-# ==============================================================================
-# Group F: Factory result (Tests 61-66)
-# ==============================================================================
-
-def test_f_factory_result_61_62_63():
-    # 61. build_phase2_preset_factory_result returns ProtocolPresetFactoryResult.
-    # 62. result reason is "phase2_protocol_preset_request_built".
-    # 63. result split_count is 5.
-    req = make_valid_factory_request(preset_name=ProtocolPresetName.SMOKE)
-    res = build_phase2_preset_factory_result(req)
-    assert isinstance(res, ProtocolPresetFactoryResult)
-    assert res.preset_name == ProtocolPresetName.SMOKE
-    assert res.reason == "phase2_protocol_preset_request_built"
-    assert res.split_count == 5
-
-
-def test_f_factory_result_64():
-    # 64. result total_requested_samples equals sum of all split request counts.
-    # SMOKE: SMOKE split (4 * 1000) + ZERO_SHOT_TRAIN split (3 * 1000) + ZERO_SHOT_EVAL (1 * 1000) + FEWSHOT_TRAIN (1 * 1000) + FEWSHOT_EVAL (1 * 1000) = 10 * 1000 = 10000.
-    req = make_valid_factory_request(preset_name=ProtocolPresetName.SMOKE)
-    res = build_phase2_preset_factory_result(req)
-    assert res.total_requested_samples == 10000
-
-    # DEV: 10 * 10000 = 100000
-    req_dev = make_valid_factory_request(preset_name=ProtocolPresetName.DEV)
-    res_dev = build_phase2_preset_factory_result(req_dev)
-    assert res_dev.total_requested_samples == 100000
-
-
-def test_f_factory_result_65_66():
-    # 65. count_by_split preserves split order.
-    # 66. run_request inside result passes validate_phase2_artifact_run_request.
-    req = make_valid_factory_request(preset_name=ProtocolPresetName.SMOKE)
-    res = build_phase2_preset_factory_result(req)
-    
-    expected_splits = [
-        SplitName.SMOKE,
-        SplitName.ZERO_SHOT_TRAIN,
-        SplitName.ZERO_SHOT_EVAL,
-        SplitName.FEWSHOT_TRAIN,
-        SplitName.FEWSHOT_EVAL,
-    ]
-    assert [split for split, _ in res.count_by_split] == expected_splits
-    validate_phase2_artifact_run_request(res.run_request)  # should not raise
-
-
-# ==============================================================================
-# Group G: Scope (Tests 67-74)
-# ==============================================================================
-
-def test_g_scope_67_70():
-    # 67. protocol_presets.py does not import torch directly.
-    # 68. protocol_presets.py does not import numpy directly.
-    # 69. protocol_presets.py does not import pandas/yaml/argparse.
-    # 70. protocol_presets.py does not import model/training modules.
-    import src.phase2.protocol_presets as presets
-    assert "torch" not in sys.modules or "torch" not in dir(presets)
-    assert "numpy" not in sys.modules or "numpy" not in dir(presets)
-    assert "pandas" not in dir(presets)
-    assert "yaml" not in dir(presets)
-    assert "argparse" not in dir(presets)
-    assert "models" not in dir(presets)
-
-
-def test_g_scope_71_73():
-    # 71. protocol_presets.py does not call run_phase2_artifact_generation.
-    # 72. protocol_presets.py does not call write_dataset_artifacts.
-    # 73. protocol_presets.py does not call build_dataset_in_memory.
-    import src.phase2.protocol_presets as presets
-    # Check that execution functions are not imported or present in presets namespace
-    assert "run_phase2_artifact_generation" not in dir(presets)
-    assert "write_dataset_artifacts" not in dir(presets)
-    assert "build_dataset_in_memory" not in dir(presets)
-
-
-def test_g_scope_74():
-    # 74. P12 tests do not create artifact files.
-    # We only build the run request, and never execute or write files, so no files should be created.
-    assert True

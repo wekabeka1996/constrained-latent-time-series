@@ -3,7 +3,6 @@
 from dataclasses import dataclass
 from enum import Enum
 import pathlib
-from typing import Any
 
 from src.phase2.schema import FamilyId
 from src.phase2.sampler import GenerationRequest, validate_generation_request
@@ -64,16 +63,137 @@ APPROVED_PHASE2_BASE_SEEDS_BY_FAMILY = (
     (FamilyId.ARMA_GARCH, 12003),
 )
 
+APPROVED_PHASE2_FEWSHOT_COUNTS_BY_PRESET = (
+    (ProtocolPresetName.SMOKE, 10, 50),
+    (ProtocolPresetName.DEV, 100, 500),
+    (ProtocolPresetName.MAIN, 1000, 5000),
+)
+
 APPROVED_PHASE2_ARTIFACT_SUBDIR_BY_SPLIT = (
     (SplitName.SMOKE, "smoke"),
     (SplitName.ZERO_SHOT_TRAIN, "zero_shot_train"),
     (SplitName.ZERO_SHOT_EVAL, "zero_shot_eval"),
-    (SplitName.FEWSHOT_TRAIN, "fewshot_train"),
+    (SplitName.FEWSHOT_TRAIN, "fewshot_1pct_train"),
+    (SplitName.FEWSHOT_TRAIN, "fewshot_5pct_train"),
     (SplitName.FEWSHOT_EVAL, "fewshot_eval"),
+)
+
+APPROVED_PHASE2_C_SEED_ROOT_BY_C_SPLIT = (
+    ("zero_shot_eval", 12003),
+    ("fewshot_train", 12101),
+    ("fewshot_eval", 12105),
+)
+
+APPROVED_PHASE2_C_SEED_RANGE_STRIDE = 10_000_000
+
+APPROVED_PHASE2_C_SEED_BASE_BY_C_SPLIT = (
+    ("zero_shot_eval", 12003),
+    ("fewshot_train", 10_012_101),
+    ("fewshot_eval", 20_012_105),
 )
 
 APPROVED_PHASE2_SAMPLES_FILENAME = "samples.jsonl"
 APPROVED_PHASE2_MANIFEST_FILENAME = "manifest.json"
+
+
+def get_fewshot_counts_for_preset(
+    preset_name: ProtocolPresetName,
+) -> tuple[int, int]:
+    if not isinstance(preset_name, ProtocolPresetName):
+        raise ValueError("preset_name must be a ProtocolPresetName enum member")
+    for name, c1, c5 in APPROVED_PHASE2_FEWSHOT_COUNTS_BY_PRESET:
+        if name == preset_name:
+            return (c1, c5)
+    raise ValueError(f"Unknown preset_name: {preset_name}")
+
+
+def seed_range_for_base_and_count(
+    base_seed: int,
+    count: int,
+) -> tuple[int, int]:
+    if type(count) is not int or isinstance(count, bool) or count <= 0:
+        raise ValueError("count must be a positive integer")
+    if type(base_seed) is not int or isinstance(base_seed, bool):
+        raise ValueError("base_seed must be an integer")
+    return (base_seed, base_seed + count - 1)
+
+
+def ranges_overlap(
+    left: tuple[int, int],
+    right: tuple[int, int],
+) -> bool:
+    if type(left) is not tuple or len(left) != 2 or type(right) is not tuple or len(right) != 2:
+        raise ValueError("ranges must be 2-tuples")
+    x1, x2 = left
+    y1, y2 = right
+    if type(x1) is not int or type(x2) is not int or type(y1) is not int or type(y2) is not int:
+        raise ValueError("range bounds must be integers")
+    return max(x1, y1) <= min(x2, y2)
+
+
+def range_is_prefix_subset(
+    smaller: tuple[int, int],
+    larger: tuple[int, int],
+) -> bool:
+    if type(smaller) is not tuple or len(smaller) != 2 or type(larger) is not tuple or len(larger) != 2:
+        raise ValueError("ranges must be 2-tuples")
+    s1, s2 = smaller
+    l1, l2 = larger
+    if type(s1) is not int or type(s2) is not int or type(l1) is not int or type(l2) is not int:
+        raise ValueError("range bounds must be integers")
+    return s1 == l1 and s2 <= l2
+
+
+def validate_p13_fewshot_seed_plan_for_preset(
+    preset_name: ProtocolPresetName,
+) -> None:
+    if not isinstance(preset_name, ProtocolPresetName):
+        raise ValueError("preset_name must be a ProtocolPresetName enum member")
+
+    # Get preset counts
+    preset_counts = get_preset_sample_count_by_family(preset_name)
+    count_map = dict(preset_counts)
+    n_eval = count_map[FamilyId.ARMA_GARCH]
+
+    n_1, n_5 = get_fewshot_counts_for_preset(preset_name)
+
+    # Base seeds from approved constant
+    seeds_dict = dict(APPROVED_PHASE2_C_SEED_BASE_BY_C_SPLIT)
+    base_eval = seeds_dict["zero_shot_eval"]
+    base_train = seeds_dict["fewshot_train"]
+    base_fewshot_eval = seeds_dict["fewshot_eval"]
+
+    # Generation Ranges
+    r_1 = seed_range_for_base_and_count(base_train, n_1)
+    r_5 = seed_range_for_base_and_count(base_train, n_5)
+    r_z_eval = seed_range_for_base_and_count(base_eval, n_eval)
+    r_f_eval = seed_range_for_base_and_count(base_fewshot_eval, n_eval)
+
+    # Overlap and Prefix validations for generation
+    if not range_is_prefix_subset(r_1, r_5):
+        raise ValueError(f"Fewshot 1% range {r_1} is not a prefix subset of 5% range {r_5}")
+    if ranges_overlap(r_5, r_z_eval):
+        raise ValueError(f"Fewshot 5% train range {r_5} overlaps with zero_shot_eval range {r_z_eval}")
+    if ranges_overlap(r_5, r_f_eval):
+        raise ValueError(f"Fewshot 5% train range {r_5} overlaps with fewshot_eval range {r_f_eval}")
+    if ranges_overlap(r_z_eval, r_f_eval):
+        raise ValueError(f"Zero_shot_eval range {r_z_eval} overlaps with fewshot_eval range {r_f_eval}")
+
+    # Simulation Ranges (offset by 1_000_000)
+    s_1 = seed_range_for_base_and_count(base_train + 1_000_000, n_1)
+    s_5 = seed_range_for_base_and_count(base_train + 1_000_000, n_5)
+    s_z_eval = seed_range_for_base_and_count(base_eval + 1_000_000, n_eval)
+    s_f_eval = seed_range_for_base_and_count(base_fewshot_eval + 1_000_000, n_eval)
+
+    # Overlap and Prefix validations for simulation
+    if not range_is_prefix_subset(s_1, s_5):
+        raise ValueError(f"Simulation Fewshot 1% range {s_1} is not a prefix subset of 5% range {s_5}")
+    if ranges_overlap(s_5, s_z_eval):
+        raise ValueError(f"Simulation Fewshot 5% train range {s_5} overlaps with zero_shot_eval range {s_z_eval}")
+    if ranges_overlap(s_5, s_f_eval):
+        raise ValueError(f"Simulation Fewshot 5% train range {s_5} overlaps with fewshot_eval range {s_f_eval}")
+    if ranges_overlap(s_z_eval, s_f_eval):
+        raise ValueError(f"Simulation Zero_shot_eval range {s_z_eval} overlaps with fewshot_eval range {s_f_eval}")
 
 
 def validate_protocol_preset_factory_request(request: ProtocolPresetFactoryRequest) -> None:
@@ -148,11 +268,14 @@ def validate_protocol_preset_factory_request(request: ProtocolPresetFactoryReque
     if p.exists() and p.is_file():
         raise ValueError(f"output_root_dir '{request.output_root_dir}' exists and is a file")
 
+    # Validate seed plan non-overlap and prefix requirements
+    validate_p13_fewshot_seed_plan_for_preset(request.preset_name)
+
 
 def get_preset_sample_count_by_family(preset_name: ProtocolPresetName) -> tuple[tuple[FamilyId, int], ...]:
     if not isinstance(preset_name, ProtocolPresetName):
         raise ValueError("preset_name must be a ProtocolPresetName enum member")
-    
+
     val = 0
     if preset_name == ProtocolPresetName.SMOKE:
         val = 1000
@@ -174,6 +297,7 @@ def get_preset_sample_count_by_family(preset_name: ProtocolPresetName) -> tuple[
 def build_split_request_for_preset(
     preset_name: ProtocolPresetName,
     split_name: SplitName,
+    artifact_subdir: str,
     generation_template_by_family: tuple[tuple[FamilyId, GenerationRequest], ...],
     simulation_template: SimulationRequest,
     sample_id_hash_len: int,
@@ -182,59 +306,91 @@ def build_split_request_for_preset(
         raise ValueError("preset_name must be a ProtocolPresetName enum member")
     if not isinstance(split_name, SplitName):
         raise ValueError("split_name must be a SplitName enum member")
+    if not isinstance(artifact_subdir, str):
+        raise ValueError("artifact_subdir must be a string")
 
     # Get sample count per family based on preset name
     family_preset_counts = get_preset_sample_count_by_family(preset_name)
     count_map = dict(family_preset_counts)
+    fewshot_1pct, fewshot_5pct = get_fewshot_counts_for_preset(preset_name)
 
-    if split_name == SplitName.SMOKE:
+    if split_name == SplitName.SMOKE and artifact_subdir == "smoke":
         sample_count_by_family = (
             (FamilyId.AR, count_map[FamilyId.AR]),
             (FamilyId.ARMA, count_map[FamilyId.ARMA]),
             (FamilyId.GARCH, count_map[FamilyId.GARCH]),
             (FamilyId.ARMA_GARCH, count_map[FamilyId.ARMA_GARCH]),
         )
+        base_seeds = APPROVED_PHASE2_BASE_SEEDS_BY_FAMILY
         enforce_zero_shot_c_train_exclusion = False
-    elif split_name == SplitName.ZERO_SHOT_TRAIN:
+
+    elif split_name == SplitName.ZERO_SHOT_TRAIN and artifact_subdir == "zero_shot_train":
         sample_count_by_family = (
             (FamilyId.AR, count_map[FamilyId.AR]),
             (FamilyId.ARMA, count_map[FamilyId.ARMA]),
             (FamilyId.GARCH, count_map[FamilyId.GARCH]),
         )
+        base_seeds = APPROVED_PHASE2_BASE_SEEDS_BY_FAMILY
         enforce_zero_shot_c_train_exclusion = True
-    elif split_name == SplitName.ZERO_SHOT_EVAL:
-        sample_count_by_family = (
-            (FamilyId.ARMA_GARCH, count_map[FamilyId.ARMA_GARCH]),
-        )
-        enforce_zero_shot_c_train_exclusion = False
-    elif split_name == SplitName.FEWSHOT_TRAIN:
-        sample_count_by_family = (
-            (FamilyId.ARMA_GARCH, count_map[FamilyId.ARMA_GARCH]),
-        )
-        enforce_zero_shot_c_train_exclusion = False
-    elif split_name == SplitName.FEWSHOT_EVAL:
-        sample_count_by_family = (
-            (FamilyId.ARMA_GARCH, count_map[FamilyId.ARMA_GARCH]),
-        )
-        enforce_zero_shot_c_train_exclusion = False
-    else:
-        raise ValueError(f"Unknown split_name: {split_name}")
 
-    subdir = None
-    for s_name, sub in APPROVED_PHASE2_ARTIFACT_SUBDIR_BY_SPLIT:
-        if s_name == split_name:
-            subdir = sub
-            break
-    if subdir is None:
-        raise ValueError(f"No subdir found for split {split_name}")
+    elif split_name == SplitName.ZERO_SHOT_EVAL and artifact_subdir == "zero_shot_eval":
+        sample_count_by_family = (
+            (FamilyId.ARMA_GARCH, count_map[FamilyId.ARMA_GARCH]),
+        )
+        base_seeds = (
+            (FamilyId.AR, 12001),
+            (FamilyId.ARMA, 12001),
+            (FamilyId.GARCH, 12002),
+            (FamilyId.ARMA_GARCH, 12003),
+        )
+        enforce_zero_shot_c_train_exclusion = False
+
+    elif split_name == SplitName.FEWSHOT_TRAIN and artifact_subdir == "fewshot_1pct_train":
+        sample_count_by_family = (
+            (FamilyId.ARMA_GARCH, fewshot_1pct),
+        )
+        base_seeds = (
+            (FamilyId.AR, 12001),
+            (FamilyId.ARMA, 12001),
+            (FamilyId.GARCH, 12002),
+            (FamilyId.ARMA_GARCH, 10_012_101),
+        )
+        enforce_zero_shot_c_train_exclusion = False
+
+    elif split_name == SplitName.FEWSHOT_TRAIN and artifact_subdir == "fewshot_5pct_train":
+        sample_count_by_family = (
+            (FamilyId.ARMA_GARCH, fewshot_5pct),
+        )
+        base_seeds = (
+            (FamilyId.AR, 12001),
+            (FamilyId.ARMA, 12001),
+            (FamilyId.GARCH, 12002),
+            (FamilyId.ARMA_GARCH, 10_012_101),
+        )
+        enforce_zero_shot_c_train_exclusion = False
+
+    elif split_name == SplitName.FEWSHOT_EVAL and artifact_subdir == "fewshot_eval":
+        sample_count_by_family = (
+            (FamilyId.ARMA_GARCH, count_map[FamilyId.ARMA_GARCH]),
+        )
+        base_seeds = (
+            (FamilyId.AR, 12001),
+            (FamilyId.ARMA, 12001),
+            (FamilyId.GARCH, 12002),
+            (FamilyId.ARMA_GARCH, 20_012_105),
+        )
+        enforce_zero_shot_c_train_exclusion = False
+
+    else:
+        raise ValueError(f"Invalid split_name and artifact_subdir pair: ({split_name}, {artifact_subdir})")
 
     return SplitArtifactRequest(
         split_name=split_name,
         sample_count_by_family=sample_count_by_family,
-        base_seed_by_family=APPROVED_PHASE2_BASE_SEEDS_BY_FAMILY,
+        base_seed_by_family=base_seeds,
         generation_template_by_family=generation_template_by_family,
         simulation_template=simulation_template,
-        artifact_subdir=subdir,
+        artifact_subdir=artifact_subdir,
         samples_filename=APPROVED_PHASE2_SAMPLES_FILENAME,
         manifest_filename=APPROVED_PHASE2_MANIFEST_FILENAME,
         enforce_zero_shot_c_train_exclusion=enforce_zero_shot_c_train_exclusion,
@@ -246,18 +402,20 @@ def build_phase2_preset_run_request(request: ProtocolPresetFactoryRequest) -> Ph
     validate_protocol_preset_factory_request(request)
 
     splits = (
-        SplitName.SMOKE,
-        SplitName.ZERO_SHOT_TRAIN,
-        SplitName.ZERO_SHOT_EVAL,
-        SplitName.FEWSHOT_TRAIN,
-        SplitName.FEWSHOT_EVAL,
+        (SplitName.SMOKE, "smoke"),
+        (SplitName.ZERO_SHOT_TRAIN, "zero_shot_train"),
+        (SplitName.ZERO_SHOT_EVAL, "zero_shot_eval"),
+        (SplitName.FEWSHOT_TRAIN, "fewshot_1pct_train"),
+        (SplitName.FEWSHOT_TRAIN, "fewshot_5pct_train"),
+        (SplitName.FEWSHOT_EVAL, "fewshot_eval"),
     )
 
     split_requests = []
-    for s_name in splits:
+    for s_name, subdir in splits:
         split_req = build_split_request_for_preset(
             preset_name=request.preset_name,
             split_name=s_name,
+            artifact_subdir=subdir,
             generation_template_by_family=request.generation_template_by_family,
             simulation_template=request.simulation_template,
             sample_id_hash_len=request.sample_id_hash_len,
