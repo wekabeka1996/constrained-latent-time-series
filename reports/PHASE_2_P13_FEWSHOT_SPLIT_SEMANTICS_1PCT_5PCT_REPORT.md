@@ -107,7 +107,8 @@ The implementation does **not** execute any artifact generation, dataset buildin
 None.
 
 ## 17. Post-Commit/Push Evidence
-Evidence is generated and logged upon committing and pushing.
+- Branch: `phase2/p13-fewshot-split-semantics-1pct-5pct`
+- Commit: `018533e89112eedff80bc84524b55827ea379da5`
 
 ## 18. Final Verdict
 **P13_READY_FOR_REVIEW**
