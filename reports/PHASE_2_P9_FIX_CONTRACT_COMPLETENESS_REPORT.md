@@ -182,7 +182,18 @@ git log --oneline -3
 git status --short
 git ls-remote origin phase2/p9-fix-contract-completeness
 ```
-(See below after push)
+```
+git log --oneline -3
+90f2f3c PHASE2_P9 fix dataset contract completeness
+dab660b PHASE2_P9 split-safe in-memory dataset builder
+4837e86 Update report with post-push evidence
+
+git status --short
+(clean)
+
+git ls-remote origin phase2/p9-fix-contract-completeness
+90f2f3cf7f67e4990caec0fa41fc3df1715aae99  refs/heads/phase2/p9-fix-contract-completeness
+```
 
 ## Final Verdict
 
