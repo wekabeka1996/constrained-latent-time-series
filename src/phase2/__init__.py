@@ -68,6 +68,18 @@ from .artifacts import (
     sha256_file,
 )
 
+from .split_runner import (
+    SplitArtifactRequest,
+    Phase2ArtifactRunRequest,
+    SplitArtifactRunResult,
+    Phase2ArtifactRunResult,
+    validate_split_artifact_request,
+    validate_phase2_artifact_run_request,
+    build_dataset_request_for_split,
+    build_artifact_write_request_for_split,
+    run_phase2_artifact_generation,
+)
+
 __all__ = [
     "APPROVED_MAX_P",
     "APPROVED_MAX_Q",
@@ -119,5 +131,15 @@ __all__ = [
     "validate_artifact_write_request",
     "write_dataset_artifacts",
     "sha256_file",
+    "SplitArtifactRequest",
+    "Phase2ArtifactRunRequest",
+    "SplitArtifactRunResult",
+    "Phase2ArtifactRunResult",
+    "validate_split_artifact_request",
+    "validate_phase2_artifact_run_request",
+    "build_dataset_request_for_split",
+    "build_artifact_write_request_for_split",
+    "run_phase2_artifact_generation",
 ]
+
 
