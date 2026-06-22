@@ -64,8 +64,12 @@ No third-party packages such as `torch`, `numpy`, `pandas`, `yaml`, or `argparse
 
 ## 13. Post-Push Evidence
 - **Branch Name**: `phase2/p11-fix-runner-contract-alignment`
-- **Commit Hash**: [Pending stage and commit]
-- **Remote Branch Check**: [Pending push]
+- **Commit Hash**: `12230a465c1d5d518a68263c036d80ddb8c1d0d6`
+- **Remote Branch Check**:
+  ```
+  git ls-remote origin phase2/p11-fix-runner-contract-alignment
+  12230a465c1d5d518a68263c036d80ddb8c1d0d6	refs/heads/phase2/p11-fix-runner-contract-alignment
+  ```
 
 ## 14. Final Verdict
 P11_FIX_READY_FOR_REVIEW
