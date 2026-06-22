@@ -80,6 +80,22 @@ from .split_runner import (
     run_phase2_artifact_generation,
 )
 
+from .protocol_presets import (
+    ProtocolPresetName,
+    ProtocolPresetFactoryRequest,
+    ProtocolPresetFactoryResult,
+    APPROVED_PHASE2_PRESET_SAMPLE_COUNTS,
+    APPROVED_PHASE2_BASE_SEEDS_BY_FAMILY,
+    APPROVED_PHASE2_ARTIFACT_SUBDIR_BY_SPLIT,
+    APPROVED_PHASE2_SAMPLES_FILENAME,
+    APPROVED_PHASE2_MANIFEST_FILENAME,
+    validate_protocol_preset_factory_request,
+    get_preset_sample_count_by_family,
+    build_split_request_for_preset,
+    build_phase2_preset_run_request,
+    build_phase2_preset_factory_result,
+)
+
 __all__ = [
     "APPROVED_MAX_P",
     "APPROVED_MAX_Q",
@@ -140,6 +156,19 @@ __all__ = [
     "build_dataset_request_for_split",
     "build_artifact_write_request_for_split",
     "run_phase2_artifact_generation",
+    "ProtocolPresetName",
+    "ProtocolPresetFactoryRequest",
+    "ProtocolPresetFactoryResult",
+    "APPROVED_PHASE2_PRESET_SAMPLE_COUNTS",
+    "APPROVED_PHASE2_BASE_SEEDS_BY_FAMILY",
+    "APPROVED_PHASE2_ARTIFACT_SUBDIR_BY_SPLIT",
+    "APPROVED_PHASE2_SAMPLES_FILENAME",
+    "APPROVED_PHASE2_MANIFEST_FILENAME",
+    "validate_protocol_preset_factory_request",
+    "get_preset_sample_count_by_family",
+    "build_split_request_for_preset",
+    "build_phase2_preset_run_request",
+    "build_phase2_preset_factory_result",
 ]
 
 
