@@ -108,7 +108,7 @@ None.
 
 ## 17. Post-Commit/Push Evidence
 - Branch: `phase2/p13-fewshot-split-semantics-1pct-5pct`
-- Commit: `018533e89112eedff80bc84524b55827ea379da5`
+- Commit: `276f18713a6ba42a09ce57e34cab4600627346bb`
 
 ## 18. Final Verdict
 **P13_READY_FOR_REVIEW**
