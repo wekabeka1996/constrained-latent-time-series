@@ -28,3 +28,6 @@ results/reproduction_*/
 *.pth
 !models/vae_model_weights.pth
 !models/vae_beta50.pth
+
+# Generated Phase 2 artifacts
+phase2_artifacts/
