@@ -16,7 +16,7 @@ The base branch `phase2/p11-artifact-backed-split-generation-runner` was checked
 
 ## 3. Files Created
 - `src/phase2/split_runner.py`: Implements `SplitArtifactRequest`, `Phase2ArtifactRunRequest`, `SplitArtifactRunResult`, and `Phase2ArtifactRunResult` dataclasses along with request validation functions (`validate_split_artifact_request`, `validate_phase2_artifact_run_request`), mappings (`build_dataset_request_for_split`, `build_artifact_write_request_for_split`), and the main orchestration runner (`run_phase2_artifact_generation`).
-- `tests/test_phase2_split_runner.py`: Implements a comprehensive test suite (68 assertions / test items) covering split request validation, run request validation, zero-shot C leakage guards, request mapping, end-to-end multi-split generation, and strict scope constraints.
+- `tests/test_phase2_split_runner.py`: Implements a comprehensive test suite covering split request validation, run request validation, zero-shot C leakage guards, request mapping, end-to-end multi-split generation, and strict scope constraints.
 - `reports/PHASE_2_P11_ARTIFACT_BACKED_SPLIT_GENERATION_RUNNER_REPORT.md`: This report.
 
 ## 4. Files Modified
@@ -44,19 +44,19 @@ All other files in the repository remain unchanged:
 
 ## 8. Split Generation Runner Design
 The split generation runner defines:
-- `SplitArtifactRequest`: Captures parameters for an individual split (e.g. counts, base seeds, templates, and filenames). Has no default values.
-- `Phase2ArtifactRunRequest`: Orchestrates the run at a protocol level (e.g. output directory, splits list, simulation settings, write flags, JSON settings, and leakage flags). Has no default values.
-- `SplitArtifactRunResult`: Output details for a single completed split (e.g. paths, SHA256 hashes, counts, and P10 write result).
-- `Phase2ArtifactRunResult`: Final summary of the execution run (e.g. protocol name, directory, list of completed split results, and overall status).
-- `validate_split_artifact_request(request)`: Validates split types, active template checks, positive counts, and filenames.
-- `validate_phase2_artifact_run_request(request)`: Validates run types, subdir paths, simulation templates, and JSON indent configurations.
+- `SplitArtifactRequest`: Captures parameters for an individual split (e.g. counts, base seeds, templates, simulation templates, output subdir, filenames, leakage flag, and hash length). Has no default values.
+- `Phase2ArtifactRunRequest`: Orchestrates the run at a protocol level (e.g. protocol name, output root directory, list of split requests, parent directory option, overwrite option, and style / include preferences). Has no default values.
+- `SplitArtifactRunResult`: Output details for a single completed split (e.g. name, subdir, total count, count by family, leakage count, paths, SHA256 hashes, sample IDs list, and reason). Has no default values.
+- `Phase2ArtifactRunResult`: Final summary of the execution run (e.g. protocol name, output root directory, list of completed split results, total sample count, total split count, and overall reason). Has no default values.
+- `validate_split_artifact_request(request)`: Validates split types, active template checks, positive counts, filenames, subdirectories, and leakage guards.
+- `validate_phase2_artifact_run_request(request)`: Validates run types, output root directories, unique subdirectories, unique split+subdir pairs, unique output targets, and JSON styling.
 - `run_phase2_artifact_generation(request)`: Orchestrates the validation of run request, loop validation of split requests, sequential dataset construction, artifact writing, and returns the unified result.
 
 ## 9. Zero-shot C Leakage Guard Detail
-The runner enforces zero-shot C leakage guarding at request time. If `enforce_zero_shot_c_train_exclusion` is `True`, the runner validates all split requests in the run request. If any request for the `SplitName.ZERO_SHOT_TRAIN` split requests a sample count `> 0` for `FamilyId.ARMA_GARCH`, it fails fast by raising a `ValueError` describing the leakage. This prevents execution of any splits and fails immediately.
+The runner enforces zero-shot C leakage guarding at request time. If `enforce_zero_shot_c_train_exclusion` is `True` on the split request, the validation checks if the split requests a sample count `> 0` for `FamilyId.ARMA_GARCH` when `split_name == SplitName.ZERO_SHOT_TRAIN`. If it does, it fails fast by raising a `ValueError` describing the leakage. This prevents execution of any splits and fails immediately.
 
 ## 10. `artifact_subdir` Validation
-The validation of `artifact_subdir` explicitly checks and rejects:
+Each split request specifies its own `artifact_subdir`. Validation checks and rejects:
 - Empty strings or whitespace-only strings.
 - Absolute paths (using `is_absolute()` or checking for leading slashes/drive letters).
 - Any path traversal using `".."`. This is validated by splitting the path components using `pathlib.Path.parts` and checking for the existence of `".."`, as well as checking against split separators.
@@ -75,13 +75,9 @@ The runner implements strict fail-fast semantics:
 None.
 
 ## 14. Post-Commit/Push Evidence
-- **Branch Name**: `phase2/p11-artifact-backed-split-generation-runner`
-- **Commit Hash**: `3d2b64881da94dbea9abf7e76750d3b18a65d4cf`
-- **Remote Branch Check**:
-  ```
-  git ls-remote origin phase2/p11-artifact-backed-split-generation-runner
-  3d2b64881da94dbea9abf7e76750d3b18a65d4cf	refs/heads/phase2/p11-artifact-backed-split-generation-runner
-  ```
+- **Branch Name**: `phase2/p11-fix-runner-contract-alignment`
+- **Commit Hash**: [Pending stage and commit]
+- **Remote Branch Check**: [Pending push]
 
 ## 15. Final Verdict
-P11_READY_FOR_REVIEW
+P11_FIX_READY_FOR_REVIEW

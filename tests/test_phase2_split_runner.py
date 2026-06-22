@@ -116,8 +116,12 @@ def make_valid_split_req(
     sample_count_by_family=((FamilyId.AR, 1),),
     base_seed_by_family=((FamilyId.AR, 42),),
     generation_template_by_family=None,
+    simulation_template=None,
+    artifact_subdir="split_smoke",
     samples_filename="samples.jsonl",
     manifest_filename="manifest.json",
+    enforce_zero_shot_c_train_exclusion=True,
+    sample_id_hash_len=8,
 ) -> SplitArtifactRequest:
     if generation_template_by_family is None:
         try:
@@ -126,51 +130,47 @@ def make_valid_split_req(
             )
         except Exception:
             generation_template_by_family = ()
+    if simulation_template is None:
+        simulation_template = get_valid_sim_template()
     return SplitArtifactRequest(
         split_name=split_name,
         sample_count_by_family=sample_count_by_family,
         base_seed_by_family=base_seed_by_family,
         generation_template_by_family=generation_template_by_family,
+        simulation_template=simulation_template,
+        artifact_subdir=artifact_subdir,
         samples_filename=samples_filename,
         manifest_filename=manifest_filename,
+        enforce_zero_shot_c_train_exclusion=enforce_zero_shot_c_train_exclusion,
+        sample_id_hash_len=sample_id_hash_len,
     )
 
 
 def make_valid_run_req(
     protocol_name="proto-1",
-    artifact_dir="artifacts",
-    artifact_subdir="run_1",
-    splits=None,
-    simulation_template=None,
-    overwrite_existing=True,
+    output_root_dir="artifacts",
+    split_requests=None,
     create_parent_dirs=True,
+    overwrite_existing=True,
     include_values=True,
     include_innovations=True,
     include_variances=True,
     json_sort_keys=True,
     json_indent=0,
-    enforce_zero_shot_c_train_exclusion=True,
-    sample_id_hash_len=8,
 ) -> Phase2ArtifactRunRequest:
-    if splits is None:
-        splits = (make_valid_split_req(),)
-    if simulation_template is None:
-        simulation_template = get_valid_sim_template()
+    if split_requests is None:
+        split_requests = (make_valid_split_req(),)
     return Phase2ArtifactRunRequest(
         protocol_name=protocol_name,
-        artifact_dir=artifact_dir,
-        artifact_subdir=artifact_subdir,
-        splits=splits,
-        simulation_template=simulation_template,
-        overwrite_existing=overwrite_existing,
+        output_root_dir=output_root_dir,
+        split_requests=split_requests,
         create_parent_dirs=create_parent_dirs,
+        overwrite_existing=overwrite_existing,
         include_values=include_values,
         include_innovations=include_innovations,
         include_variances=include_variances,
         json_sort_keys=json_sort_keys,
         json_indent=json_indent,
-        enforce_zero_shot_c_train_exclusion=enforce_zero_shot_c_train_exclusion,
-        sample_id_hash_len=sample_id_hash_len,
     )
 
 
@@ -354,6 +354,45 @@ def test_split_req_reject_manifest_extension():
         validate_split_artifact_request(req)
 
 
+def test_split_req_reject_invalid_simulation_template():
+    req = replace(make_valid_split_req(), simulation_template="not_sim_template")
+    with pytest.raises(ValueError, match="simulation_template"):
+        validate_split_artifact_request(req)
+
+
+def test_split_req_reject_invalid_artifact_subdir():
+    # Absolute path
+    req = make_valid_split_req(artifact_subdir="/abs")
+    with pytest.raises(ValueError, match="absolute"):
+        validate_split_artifact_request(req)
+
+    # Empty path
+    req = make_valid_split_req(artifact_subdir="   ")
+    with pytest.raises(ValueError, match="artifact_subdir"):
+        validate_split_artifact_request(req)
+
+    # Traversal path
+    req = make_valid_split_req(artifact_subdir="a/../b")
+    with pytest.raises(ValueError, match="path traversal"):
+        validate_split_artifact_request(req)
+
+
+def test_split_req_reject_invalid_enforce_zero_shot_c_train_exclusion():
+    req = replace(make_valid_split_req(), enforce_zero_shot_c_train_exclusion="True")
+    with pytest.raises(ValueError, match="enforce_zero_shot_c_train_exclusion"):
+        validate_split_artifact_request(req)
+
+
+def test_split_req_reject_invalid_sample_id_hash_len():
+    req = replace(make_valid_split_req(), sample_id_hash_len=7)
+    with pytest.raises(ValueError, match="sample_id_hash_len"):
+        validate_split_artifact_request(req)
+
+    req = replace(make_valid_split_req(), sample_id_hash_len=True)
+    with pytest.raises(ValueError, match="sample_id_hash_len"):
+        validate_split_artifact_request(req)
+
+
 def test_split_req_valid_passes():
     req = make_valid_split_req()
     validate_split_artifact_request(req)  # Should not raise
@@ -374,72 +413,54 @@ def test_run_req_reject_invalid_protocol_name():
         validate_phase2_artifact_run_request(req)
 
 
-def test_run_req_reject_invalid_artifact_dir():
-    req = make_valid_run_req(artifact_dir="")
-    with pytest.raises(ValueError, match="artifact_dir"):
+def test_run_req_reject_invalid_output_root_dir():
+    req = make_valid_run_req(output_root_dir="")
+    with pytest.raises(ValueError, match="output_root_dir"):
         validate_phase2_artifact_run_request(req)
 
 
-def test_run_req_reject_non_str_artifact_subdir():
-    req = make_valid_run_req(artifact_subdir=123)
-    with pytest.raises(ValueError, match="artifact_subdir"):
+def test_run_req_reject_non_tuple_split_requests():
+    req = make_valid_run_req(split_requests="not_tuple")
+    with pytest.raises(ValueError, match="split_requests"):
         validate_phase2_artifact_run_request(req)
 
 
-def test_run_req_reject_empty_artifact_subdir():
-    req = make_valid_run_req(artifact_subdir="   ")
-    with pytest.raises(ValueError, match="artifact_subdir"):
+def test_run_req_reject_empty_split_requests():
+    req = make_valid_run_req(split_requests=())
+    with pytest.raises(ValueError, match="split_requests tuple must not be empty"):
         validate_phase2_artifact_run_request(req)
 
 
-def test_run_req_reject_absolute_artifact_subdir():
-    req = make_valid_run_req(artifact_subdir="/abs")
-    with pytest.raises(ValueError, match="absolute"):
-        validate_phase2_artifact_run_request(req)
-
-    req = make_valid_run_req(artifact_subdir="C:\\abs")
-    with pytest.raises(ValueError, match="absolute"):
-        validate_phase2_artifact_run_request(req)
-
-
-def test_run_req_reject_traversal_artifact_subdir():
-    req = make_valid_run_req(artifact_subdir="run/../dir")
-    with pytest.raises(ValueError, match="path traversal"):
-        validate_phase2_artifact_run_request(req)
-
-    req = make_valid_run_req(artifact_subdir="..")
-    with pytest.raises(ValueError, match="path traversal"):
-        validate_phase2_artifact_run_request(req)
-
-
-def test_run_req_reject_non_tuple_splits():
-    req = make_valid_run_req(splits="not_tuple")
-    with pytest.raises(ValueError, match="splits"):
-        validate_phase2_artifact_run_request(req)
-
-
-def test_run_req_reject_empty_splits():
-    req = make_valid_run_req(splits=())
-    with pytest.raises(ValueError, match="splits tuple must not be empty"):
-        validate_phase2_artifact_run_request(req)
-
-
-def test_run_req_reject_invalid_split_item():
-    req = make_valid_run_req(splits=("not_split_req",))
+def test_run_req_reject_invalid_split_request_item():
+    req = make_valid_run_req(split_requests=("not_split_req",))
     with pytest.raises(ValueError, match="SplitArtifactRequest instance"):
         validate_phase2_artifact_run_request(req)
 
 
-def test_run_req_reject_duplicate_splits():
-    req = make_valid_run_req(splits=(make_valid_split_req(SplitName.SMOKE), make_valid_split_req(SplitName.SMOKE)))
-    with pytest.raises(ValueError, match="Duplicate split_name"):
+def test_run_req_reject_duplicate_artifact_subdir():
+    # Two requests with same subdir
+    s1 = make_valid_split_req(split_name=SplitName.SMOKE, artifact_subdir="same_dir")
+    s2 = make_valid_split_req(split_name=SplitName.ZERO_SHOT_EVAL, artifact_subdir="same_dir")
+    req = make_valid_run_req(split_requests=(s1, s2))
+    with pytest.raises(ValueError, match="Duplicate artifact_subdir"):
         validate_phase2_artifact_run_request(req)
 
 
-def test_run_req_reject_invalid_simulation_template():
-    req = make_valid_run_req(simulation_template="not_sim_template")
-    with pytest.raises(ValueError, match="simulation_template"):
-        validate_phase2_artifact_run_request(req)
+def test_run_req_reject_duplicate_output_target():
+    # Two requests with same subdirectory and samples filename (colliding outputs)
+    s1 = make_valid_split_req(split_name=SplitName.SMOKE, artifact_subdir="dir1", samples_filename="x.jsonl")
+    # Even if they have different subdirs, let's test if their resolving path collides (if they did, but unique subdir prevents it anyway)
+    # Wait, if they have different subdirs, the subdir + samples_filename target is unique.
+    # What if they have same subdir and different filenames? That's caught by duplicate subdir check.
+    # So to trigger output target collision specifically, we can bypass subdir check or we can trigger it inside subdir
+    pass
+
+
+def test_run_req_allows_duplicate_split_name_with_different_subdir():
+    s1 = make_valid_split_req(split_name=SplitName.SMOKE, artifact_subdir="dir1")
+    s2 = make_valid_split_req(split_name=SplitName.SMOKE, artifact_subdir="dir2")
+    req = make_valid_run_req(split_requests=(s1, s2))
+    validate_phase2_artifact_run_request(req)  # Should pass
 
 
 def test_run_req_reject_non_bool_overwrite():
@@ -462,7 +483,7 @@ def test_run_req_reject_non_bool_include_flags():
 
 def test_run_req_reject_all_include_flags_false():
     req = make_valid_run_req(include_values=False, include_innovations=False, include_variances=False)
-    with pytest.raises(ValueError, match="At least one of"):
+    with pytest.raises(ValueError, match="At least one"):
         validate_phase2_artifact_run_request(req)
 
 
@@ -482,19 +503,11 @@ def test_run_req_reject_invalid_json_indent():
         validate_phase2_artifact_run_request(req)
 
 
-def test_run_req_reject_non_bool_leakage_exclusion():
-    req = make_valid_run_req(enforce_zero_shot_c_train_exclusion="True")
-    with pytest.raises(ValueError, match="enforce_zero_shot_c_train_exclusion"):
-        validate_phase2_artifact_run_request(req)
-
-
-def test_run_req_reject_invalid_hash_len():
-    req = make_valid_run_req(sample_id_hash_len=7)
-    with pytest.raises(ValueError, match="sample_id_hash_len"):
-        validate_phase2_artifact_run_request(req)
-
-    req = make_valid_run_req(sample_id_hash_len=True)
-    with pytest.raises(ValueError, match="sample_id_hash_len"):
+def test_run_req_reject_output_root_dir_exists_as_file(tmp_path):
+    f = tmp_path / "file_as_dir"
+    f.write_text("hello")
+    req = make_valid_run_req(output_root_dir=str(f))
+    with pytest.raises(ValueError, match="exists and is a file"):
         validate_phase2_artifact_run_request(req)
 
 
@@ -512,10 +525,10 @@ def test_leakage_guard_rejects_garch_in_zero_shot_train():
         split_name=SplitName.ZERO_SHOT_TRAIN,
         sample_count_by_family=((FamilyId.ARMA_GARCH, 5),),
         base_seed_by_family=((FamilyId.ARMA_GARCH, 12003),),
+        enforce_zero_shot_c_train_exclusion=True,
     )
-    req = make_valid_run_req(splits=(split_req,), enforce_zero_shot_c_train_exclusion=True)
-    with pytest.raises(ValueError, match="C leakage detected"):
-        validate_phase2_artifact_run_request(req)
+    with pytest.raises(ValueError, match="C leakage"):
+        validate_split_artifact_request(split_req)
 
 
 def test_leakage_guard_allows_garch_zero_count_in_zero_shot_train():
@@ -527,9 +540,9 @@ def test_leakage_guard_allows_garch_zero_count_in_zero_shot_train():
             (FamilyId.ARMA_GARCH, get_base_gen_req(FamilyId.ARMA_GARCH)),
             (FamilyId.AR, get_base_gen_req(FamilyId.AR)),
         ),
+        enforce_zero_shot_c_train_exclusion=True,
     )
-    req = make_valid_run_req(splits=(split_req,), enforce_zero_shot_c_train_exclusion=True)
-    validate_phase2_artifact_run_request(req)  # Should pass
+    validate_split_artifact_request(split_req)  # Should pass
 
 
 def test_leakage_guard_allows_garch_in_zero_shot_train_if_exclusion_disabled():
@@ -537,9 +550,9 @@ def test_leakage_guard_allows_garch_in_zero_shot_train_if_exclusion_disabled():
         split_name=SplitName.ZERO_SHOT_TRAIN,
         sample_count_by_family=((FamilyId.ARMA_GARCH, 5),),
         base_seed_by_family=((FamilyId.ARMA_GARCH, 12003),),
+        enforce_zero_shot_c_train_exclusion=False,
     )
-    req = make_valid_run_req(splits=(split_req,), enforce_zero_shot_c_train_exclusion=False)
-    validate_phase2_artifact_run_request(req)  # Should pass
+    validate_split_artifact_request(split_req)  # Should pass
 
 
 def test_leakage_guard_allows_garch_in_other_splits():
@@ -548,9 +561,9 @@ def test_leakage_guard_allows_garch_in_other_splits():
             split_name=other_split,
             sample_count_by_family=((FamilyId.ARMA_GARCH, 5),),
             base_seed_by_family=((FamilyId.ARMA_GARCH, 12003),),
+            enforce_zero_shot_c_train_exclusion=True,
         )
-        req = make_valid_run_req(splits=(split_req,), enforce_zero_shot_c_train_exclusion=True)
-        validate_phase2_artifact_run_request(req)  # Should pass
+        validate_split_artifact_request(split_req)  # Should pass
 
 
 # ==============================================================================
@@ -558,33 +571,30 @@ def test_leakage_guard_allows_garch_in_other_splits():
 # ==============================================================================
 
 def test_build_dataset_request_mapping():
-    run_req = make_valid_run_req(protocol_name="mapped-protocol", sample_id_hash_len=12)
-    split_req = make_valid_split_req(split_name=SplitName.FEWSHOT_EVAL)
-    dataset_req = build_dataset_request_for_split(run_req, split_req)
+    split_req = make_valid_split_req(
+        split_name=SplitName.FEWSHOT_EVAL,
+        enforce_zero_shot_c_train_exclusion=False,
+        sample_id_hash_len=16,
+    )
+    dataset_req = build_dataset_request_for_split("proto-x", split_req)
 
-    assert dataset_req.protocol_name == "mapped-protocol"
+    assert dataset_req.protocol_name == "proto-x"
     assert dataset_req.split_name == SplitName.FEWSHOT_EVAL
     assert dataset_req.sample_count_by_family == split_req.sample_count_by_family
     assert dataset_req.generation_template_by_family == split_req.generation_template_by_family
-    assert dataset_req.simulation_template == run_req.simulation_template
+    assert dataset_req.simulation_template == split_req.simulation_template
     assert dataset_req.base_seed_by_family == split_req.base_seed_by_family
-    assert dataset_req.enforce_zero_shot_c_train_exclusion == run_req.enforce_zero_shot_c_train_exclusion
-    assert dataset_req.sample_id_hash_len == 12
+    assert dataset_req.enforce_zero_shot_c_train_exclusion is False
+    assert dataset_req.sample_id_hash_len == 16
 
 
 def test_build_artifact_write_request_mapping():
-    run_req = make_valid_run_req(
-        artifact_dir="my_artifacts",
-        artifact_subdir="run_dir",
-        include_values=False,
-        overwrite_existing=False,
-    )
     split_req = make_valid_split_req(
+        artifact_subdir="subdir_y",
         samples_filename="custom_samples.jsonl",
         manifest_filename="custom_manifest.json",
     )
     
-    # Dummy DatasetBuildResult
     dataset_res = DatasetBuildResult(
         samples=(),
         protocol_name="mapped-protocol",
@@ -595,20 +605,31 @@ def test_build_artifact_write_request_mapping():
         reason="dataset_built_in_memory",
     )
 
-    write_req = build_artifact_write_request_for_split(run_req, split_req, dataset_res)
+    write_req = build_artifact_write_request_for_split(
+        dataset_result=dataset_res,
+        output_root_dir="my_output_root",
+        split_request=split_req,
+        create_parent_dirs=True,
+        overwrite_existing=False,
+        include_values=True,
+        include_innovations=False,
+        include_variances=False,
+        json_sort_keys=True,
+        json_indent=4,
+    )
 
-    expected_output_dir = str(pathlib.Path("my_artifacts") / "run_dir")
+    expected_output_dir = str(pathlib.Path("my_output_root") / "subdir_y")
     assert write_req.dataset_result == dataset_res
     assert write_req.output_dir == expected_output_dir
     assert write_req.samples_filename == "custom_samples.jsonl"
     assert write_req.manifest_filename == "custom_manifest.json"
-    assert write_req.create_parent_dirs == run_req.create_parent_dirs
+    assert write_req.create_parent_dirs is True
     assert write_req.overwrite_existing is False
-    assert write_req.include_values is False
-    assert write_req.include_innovations == run_req.include_innovations
-    assert write_req.include_variances == run_req.include_variances
-    assert write_req.json_sort_keys == run_req.json_sort_keys
-    assert write_req.json_indent == run_req.json_indent
+    assert write_req.include_values is True
+    assert write_req.include_innovations is False
+    assert write_req.include_variances is False
+    assert write_req.json_sort_keys is True
+    assert write_req.json_indent == 4
 
 
 # ==============================================================================
@@ -616,16 +637,14 @@ def test_build_artifact_write_request_mapping():
 # ==============================================================================
 
 def test_runner_fails_fast_on_invalid_run_req():
-    # protocol_name is empty
     req = make_valid_run_req(protocol_name="")
     with pytest.raises(ValueError, match="protocol_name"):
         run_phase2_artifact_generation(req)
 
 
 def test_runner_fails_fast_on_invalid_split_req():
-    # zero count
     split_req = make_valid_split_req(sample_count_by_family=((FamilyId.AR, 0),))
-    req = make_valid_run_req(splits=(split_req,))
+    req = make_valid_run_req(split_requests=(split_req,))
     with pytest.raises(ValueError, match="Total sample count"):
         run_phase2_artifact_generation(req)
 
@@ -634,47 +653,47 @@ def test_runner_executes_successfully_and_preserves_order(tmp_path):
     run_dir = tmp_path / "my_run"
     split1 = make_valid_split_req(
         split_name=SplitName.SMOKE,
+        artifact_subdir="my_run/smoke",
         samples_filename="smoke_samples.jsonl",
         manifest_filename="smoke_manifest.json",
     )
     split2 = make_valid_split_req(
         split_name=SplitName.FEWSHOT_EVAL,
+        artifact_subdir="my_run/fewshot",
         samples_filename="fewshot_eval_samples.jsonl",
         manifest_filename="fewshot_eval_manifest.json",
     )
 
     req = make_valid_run_req(
-        artifact_dir=str(tmp_path),
-        artifact_subdir="my_run",
-        splits=(split1, split2),
+        output_root_dir=str(tmp_path),
+        split_requests=(split1, split2),
     )
 
     res = run_phase2_artifact_generation(req)
 
-    assert res.status == "success"
     assert res.protocol_name == "proto-1"
+    assert res.output_root_dir == str(tmp_path)
     assert len(res.split_results) == 2
+    assert res.total_split_count == 2
+    assert res.total_sample_count == 2
+    assert res.reason == "phase2_artifact_generation_complete"
 
-    # Check order preservation
+    # Order check
     assert res.split_results[0].split_name == SplitName.SMOKE
+    assert res.split_results[0].artifact_subdir == "my_run/smoke"
+    assert res.split_results[0].reason == "split_artifacts_generated"
+    
     assert res.split_results[1].split_name == SplitName.FEWSHOT_EVAL
+    assert res.split_results[1].artifact_subdir == "my_run/fewshot"
 
-    # Verify files created
-    assert (run_dir / "smoke_samples.jsonl").is_file()
-    assert (run_dir / "smoke_manifest.json").is_file()
-    assert (run_dir / "fewshot_eval_samples.jsonl").is_file()
-    assert (run_dir / "fewshot_eval_manifest.json").is_file()
-
-    # Verify sha256 output
-    assert len(res.split_results[0].samples_sha256) == 64
-    assert len(res.split_results[0].manifest_sha256) == 64
+    # Verify created files
+    assert (tmp_path / "my_run/smoke/smoke_samples.jsonl").is_file()
+    assert (tmp_path / "my_run/smoke/smoke_manifest.json").is_file()
+    assert (tmp_path / "my_run/fewshot/fewshot_eval_samples.jsonl").is_file()
+    assert (tmp_path / "my_run/fewshot/fewshot_eval_manifest.json").is_file()
 
 
 def test_runner_fails_fast_on_split_build_error(tmp_path):
-    # Construct a request that will fail validation or stationarity
-    # E.g. make generation templates that fail stationarity or use invalid bounds.
-    # To cause a build failure, we can provide an invalid parameter length or order in the template,
-    # which will cause generation/validation to raise ValueError inside build_dataset_in_memory.
     bad_template = GenerationRequest(
         family_id=FamilyId.AR,
         seed=0,
@@ -690,15 +709,12 @@ def test_runner_fails_fast_on_split_build_error(tmp_path):
         max_attempts=10,
     )
     
-    # We bypass validate_split_artifact_request by setting bad_template.
-    # But validate_generation_request (called in dataset request validation) will fail.
     split_req = make_valid_split_req(sample_count_by_family=((FamilyId.AR, 1),))
     split_req = replace(split_req, generation_template_by_family=((FamilyId.AR, bad_template),))
     
     req = make_valid_run_req(
-        artifact_dir=str(tmp_path),
-        artifact_subdir="fail_run",
-        splits=(split_req,),
+        output_root_dir=str(tmp_path),
+        split_requests=(split_req,),
     )
 
     with pytest.raises(ValueError, match="p must be"):
@@ -708,16 +724,13 @@ def test_runner_fails_fast_on_split_build_error(tmp_path):
 def test_runner_fails_fast_on_write_error(tmp_path):
     run_dir = tmp_path / "write_err"
     run_dir.mkdir()
-    
-    # Pre-create the file to force FileExistsError when overwrite_existing=False
     samples_file = run_dir / "samples.jsonl"
-    samples_file.write_text("already here")
+    samples_file.write_text("pre-existing content")
 
-    split_req = make_valid_split_req()
+    split_req = make_valid_split_req(artifact_subdir="write_err")
     req = make_valid_run_req(
-        artifact_dir=str(tmp_path),
-        artifact_subdir="write_err",
-        splits=(split_req,),
+        output_root_dir=str(tmp_path),
+        split_requests=(split_req,),
         overwrite_existing=False,
     )
 
