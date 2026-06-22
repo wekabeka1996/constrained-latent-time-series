@@ -76,8 +76,12 @@ None.
 
 ## 14. Post-Commit/Push Evidence
 - **Branch Name**: `phase2/p11-artifact-backed-split-generation-runner`
-- **Commit Hash**: [Pending stage and commit]
-- **Remote Branch Check**: [Pending push]
+- **Commit Hash**: `3d2b64881da94dbea9abf7e76750d3b18a65d4cf`
+- **Remote Branch Check**:
+  ```
+  git ls-remote origin phase2/p11-artifact-backed-split-generation-runner
+  3d2b64881da94dbea9abf7e76750d3b18a65d4cf	refs/heads/phase2/p11-artifact-backed-split-generation-runner
+  ```
 
 ## 15. Final Verdict
 P11_READY_FOR_REVIEW
