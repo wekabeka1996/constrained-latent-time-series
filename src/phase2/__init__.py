@@ -60,6 +60,14 @@ from .dataset import (
     build_dataset_in_memory,
 )
 
+from .artifacts import (
+    ArtifactWriteRequest,
+    ArtifactWriteResult,
+    validate_artifact_write_request,
+    write_dataset_artifacts,
+    sha256_file,
+)
+
 __all__ = [
     "APPROVED_MAX_P",
     "APPROVED_MAX_Q",
@@ -106,5 +114,10 @@ __all__ = [
     "make_sample_id",
     "validate_dataset_build_request",
     "build_dataset_in_memory",
+    "ArtifactWriteRequest",
+    "ArtifactWriteResult",
+    "validate_artifact_write_request",
+    "write_dataset_artifacts",
+    "sha256_file",
 ]
 
