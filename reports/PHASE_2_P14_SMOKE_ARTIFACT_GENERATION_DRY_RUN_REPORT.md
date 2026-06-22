@@ -100,7 +100,8 @@ Stdout JSON result:
 None.
 
 ## 21. Post-Commit/Push Evidence
-Evidence is generated and logged upon committing and pushing.
+- Branch: `phase2/p14-smoke-artifact-generation-dry-run`
+- Commit: `7753c8cb840357778fea9525e8a8e06beb4bd03f`
 
 ## 22. Final Verdict
 **P14_READY_FOR_REVIEW**
