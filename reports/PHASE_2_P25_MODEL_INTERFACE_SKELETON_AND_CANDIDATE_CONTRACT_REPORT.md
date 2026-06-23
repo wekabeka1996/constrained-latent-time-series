@@ -99,9 +99,9 @@ This execution represents a contract definition and mock smoke run only. No scie
 None.
 
 ## 21. Post-Commit/Push Evidence
-- **Branch**: `phase2/p25-model-interface-skeleton-candidate-contract`
-- **Commit Hash**: 1a09b7b8b03e18c8cffb74a7890fb84adc4afa3b
-- **git ls-remote Hash**: 1a09b7b8b03e18c8cffb74a7890fb84adc4afa3b
+- **Branch**: `phase2/p25-fix-scope-p24-test-immutability`
+- **Commit Hash**: d5dc98161ab8a43e191cbff0c01d4bf6e9851d15
+- **git ls-remote Hash**: d5dc98161ab8a43e191cbff0c01d4bf6e9851d15
 
 ## 22. Final Verdict
 ```text id="p25_verdict"
