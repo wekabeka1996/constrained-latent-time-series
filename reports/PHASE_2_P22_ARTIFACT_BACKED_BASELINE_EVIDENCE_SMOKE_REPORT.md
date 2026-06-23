@@ -63,5 +63,5 @@ Executing `python -m tools.phase2.run_p22_artifact_backed_baseline_smoke` produc
 
 ## 8. Canonical Post-Push Evidence
 ```text id="p22_git_remote_evidence"
-[REPLACE_WITH_GIT_EVIDENCE]
+661b22bf0a4c3b3b1bbbfc56a5ad698d553dc1a6	refs/heads/phase2/p22-artifact-backed-baseline-evidence-smoke
 ```
