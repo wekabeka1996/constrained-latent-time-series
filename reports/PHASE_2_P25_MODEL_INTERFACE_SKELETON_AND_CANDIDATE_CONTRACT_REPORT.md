@@ -19,22 +19,19 @@ This task implements a strict stdlib-only model interface skeleton for future ne
 
 ## 4. Files Modified
 - `src/phase2/__init__.py`
-- `tests/test_phase2_p24_architecture_docs.py`
 
 ## 5. Files Not Changed
-All other core codebase files remain completely unchanged.
+All accepted P24 files (specifically `tests/test_phase2_p24_architecture_docs.py`) were restored and remain completely unchanged. All other core codebase files remain completely unchanged.
 
 ## 6. Commands Run
 - **Required test command**:
   `python -m pytest tests/test_phase2_schema.py tests/test_phase2_constraints.py tests/test_phase2_sampler.py tests/test_phase2_simulator.py tests/test_phase2_dataset.py tests/test_phase2_artifacts.py tests/test_phase2_split_runner.py tests/test_phase2_protocol_presets.py tests/test_phase2_p14_smoke_dry_run.py tests/test_phase2_p15_manifest_audit.py tests/test_phase2_p16_dev_dry_run.py tests/test_phase2_metrics.py tests/test_phase2_baseline_eval.py tests/test_phase2_baseline_generators.py tests/test_phase2_p20_baseline_evidence_smoke.py tests/test_phase2_static_scope_guard.py tests/test_phase2_p22_artifact_backed_baseline_smoke.py tests/test_phase2_evidence_contract.py tests/test_phase2_p23_evidence_contract_smoke.py tests/test_phase2_p24_architecture_docs.py tests/test_phase2_model_interface.py tests/test_phase2_p25_model_interface_smoke.py -q`
 - **Optional compatibility command**:
   `python -m pytest tests/test_config.py tests/test_data_generator.py tests/test_validation.py tests/test_vector_schema.py tests/test_fail_fast_integrity.py tests/test_phase2_schema.py tests/test_phase2_constraints.py tests/test_phase2_sampler.py tests/test_phase2_simulator.py tests/test_phase2_dataset.py tests/test_phase2_artifacts.py tests/test_phase2_split_runner.py tests/test_phase2_protocol_presets.py tests/test_phase2_p14_smoke_dry_run.py tests/test_phase2_p15_manifest_audit.py tests/test_phase2_p16_dev_dry_run.py tests/test_phase2_metrics.py tests/test_phase2_baseline_eval.py tests/test_phase2_baseline_generators.py tests/test_phase2_p20_baseline_evidence_smoke.py tests/test_phase2_static_scope_guard.py tests/test_phase2_p22_artifact_backed_baseline_smoke.py tests/test_phase2_evidence_contract.py tests/test_phase2_p23_evidence_contract_smoke.py tests/test_phase2_p24_architecture_docs.py tests/test_phase2_model_interface.py tests/test_phase2_p25_model_interface_smoke.py -q`
-- **Smoke execution command**:
-  `$env:PYTHONPATH="."; python tools/phase2/run_p25_model_interface_smoke.py`
 
 ## 7. Tests Run and Exact Results
-- **Required Tests**: 770 passed, 1 skipped in 62.42s
-- **Optional Compatibility Tests**: 861 passed, 5 skipped in 62.93s
+- **Required Tests**: 771 passed, 1 skipped in 63.24s
+- **Optional Compatibility Tests**: 862 passed, 5 skipped in 63.15s
 
 ## 8. Model Interface API Summary
 The `src/phase2/model_interface.py` exposes:

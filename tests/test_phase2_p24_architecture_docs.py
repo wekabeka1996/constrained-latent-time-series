@@ -143,23 +143,8 @@ def test_p24_10_no_forbidden_files_modified():
         ["git", "diff", "--name-only", "phase2/p23-evidence-contract-normalized-baseline-bundle"],
         capture_output=True, text=True, check=True
     )
-    branch_res = subprocess.run(
-        ["git", "rev-parse", "--abbrev-ref", "HEAD"],
-        capture_output=True, text=True, check=True
-    )
-    current_branch = branch_res.stdout.strip()
-    if "p25" in current_branch:
-        allowed.update({
-            "src/phase2/model_interface.py",
-            "tests/test_phase2_model_interface.py",
-            "tools/phase2/run_p25_model_interface_smoke.py",
-            "tests/test_phase2_p25_model_interface_smoke.py",
-            "reports/PHASE_2_P25_MODEL_INTERFACE_SKELETON_AND_CANDIDATE_CONTRACT_REPORT.md",
-            "src/phase2/__init__.py",
-        })
     modified = [line.strip() for line in res.stdout.splitlines() if line.strip()]
     for f in modified:
         # Ignore slash normalization variances
         f_norm = f.replace("\\", "/")
         assert f_norm in allowed, f"Forbidden file modification detected: {f_norm}"
-

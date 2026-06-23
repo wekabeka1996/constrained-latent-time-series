@@ -447,3 +447,26 @@ def test_p25_42_evidence_script_does_not_call_forbidden():
     ]
     for c in forbidden_calls:
         assert c not in p
+
+
+def test_p25_43_no_forbidden_files_modified():
+    import subprocess
+    allowed = {
+        "src/phase2/model_interface.py",
+        "src/phase2/__init__.py",
+        "tests/test_phase2_model_interface.py",
+        "tools/phase2/run_p25_model_interface_smoke.py",
+        "tests/test_phase2_p25_model_interface_smoke.py",
+        "reports/PHASE_2_P25_MODEL_INTERFACE_SKELETON_AND_CANDIDATE_CONTRACT_REPORT.md",
+    }
+    # Run git diff against the base P24 branch
+    res = subprocess.run(
+        ["git", "diff", "--name-only", "phase2/p24-factorised-constrained-vae-architecture-spec"],
+        capture_output=True, text=True, check=True
+    )
+    modified = [line.strip() for line in res.stdout.splitlines() if line.strip()]
+    for f in modified:
+        # Ignore slash normalization variances
+        f_norm = f.replace("\\", "/")
+        assert f_norm in allowed, f"Forbidden file modification detected in P25: {f_norm}"
+
