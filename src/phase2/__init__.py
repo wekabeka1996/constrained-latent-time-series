@@ -250,6 +250,32 @@ from .model_interface import (
     compact_model_candidate_summary_json,
 )
 
+from .torch_boundary import (
+    TORCH_BOUNDARY_CONTRACT_VERSION,
+    TORCH_BACKEND_NAME,
+    TORCH_POLICY_OPTIONAL,
+    TORCH_POLICY_REQUIRED_FOR_MODEL_IMPLEMENTATION,
+    TORCH_POLICY_FORBIDDEN_IN_CORE,
+    SUPPORTED_TORCH_POLICIES,
+    FC_VAE_FUTURE_MODULE_NAME,
+    FC_VAE_FUTURE_ARCHITECTURE_ID,
+    TorchDependencyStatus,
+    FutureModelBoundarySpec,
+    TorchBoundarySmokeResult,
+    detect_torch_available,
+    build_torch_dependency_status,
+    validate_torch_dependency_status,
+    require_torch_available_for_future_model,
+    build_future_model_boundary_spec,
+    validate_future_model_boundary_spec,
+    build_torch_boundary_smoke_result,
+    validate_torch_boundary_smoke_result,
+    torch_dependency_status_to_json_dict,
+    future_model_boundary_spec_to_json_dict,
+    torch_boundary_smoke_result_to_json_dict,
+    compact_torch_boundary_json,
+)
+
 __all__ = [
     "BASELINE_GENERATOR_CONTRACT_VERSION",
     "SUPPORTED_BASELINE_GENERATOR_NAMES",
@@ -463,7 +489,27 @@ __all__ = [
     "summarize_model_candidate_batch",
     "model_candidate_summary_to_json_dict",
     "compact_model_candidate_summary_json",
+    "TORCH_BOUNDARY_CONTRACT_VERSION",
+    "TORCH_BACKEND_NAME",
+    "TORCH_POLICY_OPTIONAL",
+    "TORCH_POLICY_REQUIRED_FOR_MODEL_IMPLEMENTATION",
+    "TORCH_POLICY_FORBIDDEN_IN_CORE",
+    "SUPPORTED_TORCH_POLICIES",
+    "FC_VAE_FUTURE_MODULE_NAME",
+    "FC_VAE_FUTURE_ARCHITECTURE_ID",
+    "TorchDependencyStatus",
+    "FutureModelBoundarySpec",
+    "TorchBoundarySmokeResult",
+    "detect_torch_available",
+    "build_torch_dependency_status",
+    "validate_torch_dependency_status",
+    "require_torch_available_for_future_model",
+    "build_future_model_boundary_spec",
+    "validate_future_model_boundary_spec",
+    "build_torch_boundary_smoke_result",
+    "validate_torch_boundary_smoke_result",
+    "torch_dependency_status_to_json_dict",
+    "future_model_boundary_spec_to_json_dict",
+    "torch_boundary_smoke_result_to_json_dict",
+    "compact_torch_boundary_json",
 ]
-
-
-
