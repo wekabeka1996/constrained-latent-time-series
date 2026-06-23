@@ -144,7 +144,34 @@ from .metrics import (
     build_metric_bundle,
 )
 
+from .baseline_eval import (
+    BASELINE_EVAL_CONTRACT_VERSION,
+    APPROVED_BASELINE_NAMES,
+    BaselineEvaluationRequest,
+    CandidateMetricRecord,
+    BaselineEvaluationResult,
+    validate_baseline_name,
+    validate_baseline_evaluation_request,
+    composition_pass_rate,
+    novelty_pass_rate,
+    evaluate_candidate_record,
+    evaluate_baseline_request,
+    build_baseline_metric_bundle,
+)
+
 __all__ = [
+    "BASELINE_EVAL_CONTRACT_VERSION",
+    "APPROVED_BASELINE_NAMES",
+    "BaselineEvaluationRequest",
+    "CandidateMetricRecord",
+    "BaselineEvaluationResult",
+    "validate_baseline_name",
+    "validate_baseline_evaluation_request",
+    "composition_pass_rate",
+    "novelty_pass_rate",
+    "evaluate_candidate_record",
+    "evaluate_baseline_request",
+    "build_baseline_metric_bundle",
     "APPROVED_MAX_P",
     "APPROVED_MAX_Q",
     "APPROVED_MAX_R",
