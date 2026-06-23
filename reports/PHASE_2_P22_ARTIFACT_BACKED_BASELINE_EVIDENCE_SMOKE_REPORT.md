@@ -30,8 +30,8 @@ Following reviewer feedback (FIX2), we have:
   `python -m tools.phase2.run_p22_artifact_backed_baseline_smoke`
 
 ## 7. Tests Run and Exact Results
-- **Required Tests:** 582 passed, 1 skipped in 1.48s.
-- **Optional Compatibility Tests:** 713 passed, 4 skipped in 1.62s.
+- **Required Tests:** 653 passed, 1 skipped in 1.50s.
+- **Optional Compatibility Tests:** 740 passed, 5 skipped in 61.97s.
 
 ## 8. Smoke Execution Command
 ```bash
