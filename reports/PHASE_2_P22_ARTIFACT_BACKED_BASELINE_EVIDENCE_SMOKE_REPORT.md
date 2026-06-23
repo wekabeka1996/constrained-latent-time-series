@@ -81,8 +81,8 @@ None.
 
 ## 19. Post-Commit/Push Evidence
 - **Branch:** `phase2/p22-artifact-backed-baseline-evidence-smoke`
-- **Commit Hash:** `[COMMIT_HASH_PLACEHOLDER]`
-- **git ls-remote Hash:** `[GIT_HASH_PLACEHOLDER]`
+- **Commit Hash:** `447debd0b38763ce738f6f4d9302aca54b22e7ad`
+- **git ls-remote Hash:** `447debd0b38763ce738f6f4d9302aca54b22e7ad`
 
 ## 20. Final Verdict
 ```text id="p22_verdict"
