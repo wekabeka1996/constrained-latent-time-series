@@ -1,9 +1,8 @@
 # tools/phase2/run_p20_baseline_evidence_smoke.py
 
 import json
-import math
 import sys
-from typing import Tuple, Dict, Any, Optional
+from typing import Tuple, Any
 
 from src.phase2.schema import FamilyId, MeanFamily, VolatilityFamily, ModelSpec, validate_model_spec
 from src.phase2.constraints import require_math_valid

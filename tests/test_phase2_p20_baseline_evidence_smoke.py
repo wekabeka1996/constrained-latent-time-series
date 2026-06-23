@@ -252,35 +252,48 @@ def test_p20_34_no_forbidden_imports():
 
 
 def test_p20_35_does_not_call_simulate_time_series():
-    # Checked statically: code only imports ModelSpec, sampler, generators, eval
-    pass
+    from tools.phase2.static_scope_guard import check_static_scope
+    res = check_static_scope("tools/phase2/run_p20_baseline_evidence_smoke.py")
+    assert "simulate_time_series" not in res.forbidden_call_hits
 
 
 def test_p20_36_does_not_call_build_dataset():
-    # Checked statically.
-    pass
+    from tools.phase2.static_scope_guard import check_static_scope
+    res = check_static_scope("tools/phase2/run_p20_baseline_evidence_smoke.py")
+    assert "build_dataset_in_memory" not in res.forbidden_call_hits
 
 
 def test_p20_37_does_not_call_write_artifacts():
-    # Checked statically.
-    pass
+    from tools.phase2.static_scope_guard import check_static_scope
+    res = check_static_scope("tools/phase2/run_p20_baseline_evidence_smoke.py")
+    assert "write_dataset_artifacts" not in res.forbidden_call_hits
 
 
 def test_p20_38_does_not_call_run_generation():
-    # Checked statically.
-    pass
+    from tools.phase2.static_scope_guard import check_static_scope
+    res = check_static_scope("tools/phase2/run_p20_baseline_evidence_smoke.py")
+    assert "run_phase2_artifact_generation" not in res.forbidden_call_hits
 
 
 def test_p20_39_does_not_read_phase2_artifacts():
-    # Checked statically.
-    pass
+    from tools.phase2.static_scope_guard import check_static_scope
+    res = check_static_scope("tools/phase2/run_p20_baseline_evidence_smoke.py")
+    assert ("phase2" + "_artifacts") not in res.forbidden_path_token_hits
 
 
 def test_p20_40_tests_do_not_read_artifacts():
-    # Checked statically: tests run purely in-memory.
-    pass
+    import ast
+    from tools.phase2.static_scope_guard import read_text_file, parse_python_source
+    source = read_text_file("tests/test_phase2_p20_baseline_evidence_smoke.py")
+    tree = parse_python_source(source)
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Constant) and isinstance(node.value, str):
+            for tok in [("phase2" + "_artifacts"), ("P" + "14"), ("P" + "16")]:
+                assert tok not in node.value
 
 
 def test_p20_41_no_cli_or_config():
-    # Checked statically.
-    pass
+    from tools.phase2.static_scope_guard import check_static_scope, require_static_scope_pass
+    res = check_static_scope("tools/phase2/run_p20_baseline_evidence_smoke.py")
+    require_static_scope_pass(res)
+
