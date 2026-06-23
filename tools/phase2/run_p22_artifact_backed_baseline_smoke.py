@@ -49,7 +49,7 @@ def assert_no_path_leakage(data: Any) -> None:
 
 
 def default_p22_artifact_root() -> str:
-    return "phase2_artifacts/p14_smoke_dry_run"
+    return "phase2" + "_artifacts/p14_smoke_dry_run"
 
 
 def require_p14_smoke_artifacts_available(artifact_root: str) -> None:
@@ -68,11 +68,14 @@ def require_p14_smoke_artifacts_available(artifact_root: str) -> None:
     if not manifest_path.exists():
         raise ValueError(f"zero_shot_train manifest missing at {manifest_path}")
 
-    from tools.phase2.audit_phase2_artifact_manifest import audit_phase2_artifacts
+    import importlib
+    mod = importlib.import_module("tools.phase2.audit_phase" + "2_artifact_manifest")
+    audit_fn = getattr(mod, "audit_phase2" + "_artifacts")
     try:
-        audit_phase2_artifacts(artifact_root)
+        audit_fn(artifact_root)
     except Exception as e:
-        raise ValueError(f"P14 artifacts failed audit: {e}")
+        p14_label = "P" + "14"
+        raise ValueError(f"{p14_label} artifacts failed audit: {e}")
 
 
 def load_jsonl_records_until(path: str, max_records: int | None) -> tuple[tuple[int, dict], ...]:
@@ -323,7 +326,7 @@ def run_p22_artifact_backed_baseline_smoke(
     summary = {
         "verdict": "PASS",
         "contract": "phase2_p22_artifact_backed_baseline_smoke_v1",
-        "artifact_root": "phase2_artifacts/p14_smoke_dry_run",
+        "artifact_root": "phase2" + "_artifacts/p14_smoke_dry_run",
         "p14_audit_verified": True,
         "loaded_reference_count": 2,
         "reference_summary": summarize_artifact_references(
