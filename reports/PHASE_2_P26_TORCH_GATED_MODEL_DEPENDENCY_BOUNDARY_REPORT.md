@@ -240,7 +240,11 @@ P14/P16 artifacts
 
 `phase2/p26-torch-gated-model-dependency-boundary`
 
-## 18. Conclusion
+## 18. Final Commit Hash
+
+`c1ef46404e522678a0cc03dcfe1828add7ce06e6`
+
+## 19. Conclusion
 
 P26 defines a strict, stdlib-only optional dependency boundary for future torch-based model implementation.
 No neural model code exists. No training loop exists. No torch import exists.
