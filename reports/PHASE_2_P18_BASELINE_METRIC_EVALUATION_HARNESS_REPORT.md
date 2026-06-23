@@ -71,8 +71,8 @@ None.
 
 ## 17. Post-Commit/Push Evidence
 - Branch: `phase2/p18-baseline-metric-evaluation-harness`
-- Commit: `9b5ce117ad93594c2522ab6d40391a5065af1a61`
-- git ls-remote hash: `9b5ce117ad93594c2522ab6d40391a5065af1a61`
+- Commit: `831aeac04455330e60edc4f0600ecd57b48f1fbd`
+- git ls-remote hash: `831aeac04455330e60edc4f0600ecd57b48f1fbd`
 
 ## 18. Final Verdict
 **P18_READY_FOR_REVIEW**
