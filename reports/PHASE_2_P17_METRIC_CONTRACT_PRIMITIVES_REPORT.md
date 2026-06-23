@@ -37,8 +37,8 @@ The metrics layer is divided into key modules:
 
 ## 9. Post-Commit/Push Evidence
 - Branch: `phase2/p17-metric-contract-primitives`
-- Commit: `9e8c00da559feee23649cbefa042df762dfa67bc`
-- git ls-remote hash: `9e8c00da559feee23649cbefa042df762dfa67bc`
+- Commit: `2cacaaf5ca002129b7a1420320094f190cf83225`
+- git ls-remote hash: `2cacaaf5ca002129b7a1420320094f190cf83225`
 
 ## 10. Final Verdict
 **P17_READY_FOR_REVIEW**
