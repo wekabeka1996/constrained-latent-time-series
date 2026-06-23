@@ -34,8 +34,8 @@ All other files, including the accepted P22 runner `tools/phase2/run_p22_artifac
   `$env:PYTHONPATH="."; python tools/phase2/run_p23_evidence_contract_smoke.py`
 
 ## 7. Tests Run and Exact Results
-- **Required Tests:** 702 passed, 2 skipped in 1.95s.
-- **Optional Compatibility Tests:** 793 passed, 6 skipped in 61.12s.
+- **Required Tests:** 702 passed, 1 skipped.
+- **Optional Compatibility Tests:** 793 passed, 5 skipped.
 
 ## 8. Evidence Contract API Summary
 The `src/phase2/evidence.py` module defines:
@@ -108,8 +108,8 @@ None.
 
 ## 20. Post-Commit/Push Evidence
 - **Branch:** `phase2/p23-evidence-contract-normalized-baseline-bundle`
-- **Commit Hash:** `[COMMIT_HASH_PLACEHOLDER]`
-- **git ls-remote Hash:** `[GIT_HASH_PLACEHOLDER]`
+- **Commit Hash:** `5e3d6ea2c9c5fdc15bd5fef42739c8b172b626b1`
+- **git ls-remote Hash:** `5e3d6ea2c9c5fdc15bd5fef42739c8b172b626b1`
 
 ## 21. Final Verdict
 ```text id="p23_verdict"
