@@ -118,8 +118,8 @@ None.
 
 ## 16. Post-Commit/Push Evidence
 - **Branch**: `phase2/p21-scope-process-hardening`
-- **Commit Hash**: `[COMMIT_HASH]`
-- **git ls-remote Hash**: `[REMOTE_HASH]`
+- **Commit Hash**: `a396ff31df53a89478dd0ea67d266a0ff960ec19`
+- **git ls-remote Hash**: `a396ff31df53a89478dd0ea67d266a0ff960ec19`
 
 ## 17. Final Verdict
 `P21_READY_FOR_REVIEW`
