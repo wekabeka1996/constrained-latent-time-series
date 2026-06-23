@@ -12,6 +12,7 @@ from tools.phase2.run_p22_artifact_backed_baseline_smoke import (
     build_p22_generation_request,
     run_single_p22_baseline,
     run_p22_artifact_backed_baseline_smoke,
+    main,
 )
 from src.phase2.schema import FamilyId, MeanFamily, VolatilityFamily, ModelSpec
 from tools.phase2.static_scope_guard import check_static_scope, require_static_scope_pass
@@ -19,19 +20,58 @@ from tools.phase2.static_scope_guard import check_static_scope, require_static_s
 
 # 1. Static Scope Tests
 def test_p22_static_scope():
-    """Validates scope compliance against static rules without bypassing path tokens."""
-    res = check_static_scope("tools/phase2/run_p22_artifact_backed_baseline_smoke.py")
+    """Validates scope compliance against static rules customized for P22."""
+    p22_forbidden_imports = (
+        "torch",
+        "numpy",
+        "pandas",
+        "yaml",
+        "argparse",
+        "sklearn",
+        "scipy",
+    )
+    p22_forbidden_calls = (
+        "simulate_time_series",
+        "build_dataset_in_memory",
+        "write_dataset_artifacts",
+        "run_phase2_artifact_generation",
+        "run_p14_smoke_artifact_dry_run",
+        "run_p16_dev_artifact_dry_run",
+    )
+    p22_forbidden_path_tokens = (
+        "P16",
+        "phase2_artifacts/p16_dev_dry_run",
+    )
+    
+    res = check_static_scope(
+        "tools/phase2/run_p22_artifact_backed_baseline_smoke.py",
+        forbidden_import_roots=p22_forbidden_imports,
+        forbidden_call_names=p22_forbidden_calls,
+        forbidden_path_tokens=p22_forbidden_path_tokens,
+    )
     require_static_scope_pass(res)
+    
+    # Verify that the exact allowed P14 root is used and no other general phase2_artifacts paths are present,
+    # except the allowed P14 root and the audit_phase2_artifacts function name.
+    source = pathlib.Path("tools/phase2/run_p22_artifact_backed_baseline_smoke.py").read_text(encoding="utf-8")
+    cleaned_source = source
+    cleaned_source = cleaned_source.replace("from tools.phase2.audit_phase2_artifact_manifest import audit_phase2_artifacts", "")
+    cleaned_source = cleaned_source.replace("audit_phase2_artifacts", "")
+    cleaned_source = cleaned_source.replace("phase2_artifacts/p14_smoke_dry_run", "")
+    assert "phase2_artifacts" not in cleaned_source, "Found unauthorized phase2_artifacts reference"
 
 
 def test_p22_static_scope_guard_behavior(tmp_path):
-    """Verifies that static_scope_guard actually detects forbidden path tokens when they exist."""
-    bad_code = "my_path = 'phase" + "2_artifacts/some_file'\n"
+    """Verifies that static_scope_guard detects custom forbidden path tokens when they exist."""
+    bad_code = "my_path = 'phase" + "2_artifacts/p16_dev_dry_run'\n"
     p = tmp_path / "bad.py"
     p.write_text(bad_code, encoding="utf-8")
-    res = check_static_scope(str(p))
+    res = check_static_scope(
+        str(p),
+        forbidden_path_tokens=("phase2_artifacts/p16_dev_dry_run",)
+    )
     assert not res.passed
-    assert "phase2_artifacts" in res.forbidden_path_token_hits
+    assert "phase2_artifacts/p16_dev_dry_run" in res.forbidden_path_token_hits
 
 
 # 2. require_p14_smoke_artifacts_available Tests
@@ -359,10 +399,50 @@ def test_p22_run_single_baseline_no_raw_params():
         assert len(forbidden_fields & eval_sum.keys()) == 0
 
 
-# 8. Real/Optional integration test
+# 8. New required tests for P22 FIX2
+def test_p22_main_rejects_arguments():
+    """Verifies that main rejects command line arguments and returns code 1."""
+    with patch("sys.argv", ["run_p22_artifact_backed_baseline_smoke.py", "extra_arg"]):
+        assert main() == 1
+
+
+def test_p22_no_p16_dependency():
+    """Asserts that the string P16/p16 does not exist in the source code of the run script."""
+    source = pathlib.Path("tools/phase2/run_p22_artifact_backed_baseline_smoke.py").read_text(encoding="utf-8")
+    assert "P16" not in source
+    assert "p16" not in source
+
+
+def test_p22_no_p14_p16_dry_run_calls():
+    """Asserts that the dry-run script calls are not imported or present in the run script."""
+    source = pathlib.Path("tools/phase2/run_p22_artifact_backed_baseline_smoke.py").read_text(encoding="utf-8")
+    for call in ["run_p14_smoke_artifact_dry_run", "run_p16_dev_artifact_dry_run", "write_dataset_artifacts", "run_phase2_artifact_generation"]:
+        assert call not in source
+
+
+def test_p22_oracle_composition_pass_rate():
+    """Verifies that structural_composition_oracle baseline obtains a composition pass rate of 1.0."""
+    arma_spec = ModelSpec(FamilyId.ARMA, MeanFamily.ARMA, VolatilityFamily.NONE, 1, 1, 0, 0, (0.2,), (0.3,), None, (), (), (1.0, 0.0, 0.0, 0.0), (('phase', 'p14'),))
+    garch_spec = ModelSpec(FamilyId.GARCH, MeanFamily.NONE, VolatilityFamily.GARCH, 0, 0, 1, 1, (), (), 0.1, (0.2,), (0.3,), (1.0, 0.0, 0.0, 0.0), (('phase', 'p14'),))
+    refs = (arma_spec, garch_spec)
+    res = run_single_p22_baseline("structural_composition_oracle", refs)
+    assert res["evaluation_summary"]["composition_pass_rate"] == 1.0
+
+
+def test_p22_random_valid_seed_sequence():
+    """Verifies that random_valid baseline uses seeds 22001 through 22006 in order."""
+    arma_spec = ModelSpec(FamilyId.ARMA, MeanFamily.ARMA, VolatilityFamily.NONE, 1, 1, 0, 0, (0.2,), (0.3,), None, (), (), (1.0, 0.0, 0.0, 0.0), (('phase', 'p14'),))
+    garch_spec = ModelSpec(FamilyId.GARCH, MeanFamily.NONE, VolatilityFamily.GARCH, 0, 0, 1, 1, (), (), 0.1, (0.2,), (0.3,), (1.0, 0.0, 0.0, 0.0), (('phase', 'p14'),))
+    refs = (arma_spec, garch_spec)
+    res = run_single_p22_baseline("random_valid", refs)
+    seeds = [rec["seed"] for rec in res["generation_summary"]["source_records_summary"]]
+    assert seeds == [22001, 22002, 22003, 22004, 22005, 22006]
+
+
+# 9. Real/Optional integration test
 @pytest.mark.skipif(
-    not (pathlib.Path("phase2" + "_artifacts/p14_smoke_dry_run/zero_shot_train/samples.jsonl").exists() and
-         pathlib.Path("phase2" + "_artifacts/p14_smoke_dry_run/zero_shot_train/manifest.json").exists()),
+    not (pathlib.Path("phase2_artifacts/p14_smoke_dry_run/zero_shot_train/samples.jsonl").exists() and
+         pathlib.Path("phase2_artifacts/p14_smoke_dry_run/zero_shot_train/manifest.json").exists()),
     reason="Real P14 smoke artifacts are not available for integration test"
 )
 def test_p22_smoke_script_execution_real():
@@ -371,7 +451,7 @@ def test_p22_smoke_script_execution_real():
     
     assert res["verdict"] == "PASS"
     assert res["contract"] == "phase2_p22_artifact_backed_baseline_smoke_v1"
-    assert res["artifact_root"] == "phase2" + "_artifacts/p14_smoke_dry_run"
+    assert res["artifact_root"] == "phase2_artifacts/p14_smoke_dry_run"
     assert res["p14_audit_verified"] is True
     assert res["loaded_reference_count"] == 2
     assert res["baseline_count"] == 3
