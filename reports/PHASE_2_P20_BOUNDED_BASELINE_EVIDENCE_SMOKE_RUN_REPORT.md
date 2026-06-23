@@ -72,8 +72,8 @@ None.
 
 ## 19. Post-Commit/Push Evidence
 - Branch: `phase2/p20-bounded-baseline-evidence-smoke-run`
-- Commit: `3041b511d587367b706322234b0228d8dea827e7`
-- git ls-remote hash: `3041b511d587367b706322234b0228d8dea827e7`
+- Commit: `543e4d39da1d3290d4d9409046c8e6782d5e9f12`
+- git ls-remote hash: `543e4d39da1d3290d4d9409046c8e6782d5e9f12`
 
 ## 20. Final Verdict
 **P20_READY_FOR_REVIEW**
