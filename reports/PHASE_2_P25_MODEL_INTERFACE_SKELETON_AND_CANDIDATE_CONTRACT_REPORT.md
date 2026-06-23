@@ -101,8 +101,8 @@ The unmodified P24 test file `tests/test_phase2_p24_architecture_docs.py` has be
 
 ## 21. Post-Commit/Push Evidence
 - **Branch**: `phase2/p25-fix-remove-subprocess-monkeypatch`
-- **Commit Hash**: [COMMIT_HASH_PLACEHOLDER]
-- **git ls-remote Hash**: [GIT_HASH_PLACEHOLDER]
+- **Commit Hash**: 07d0df4e11c33dd4b773dc073712138467984553
+- **git ls-remote Hash**: 07d0df4e11c33dd4b773dc073712138467984553
 
 ## 22. Final Verdict
 ```text id="p25_verdict"
