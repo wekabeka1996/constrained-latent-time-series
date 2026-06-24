@@ -208,8 +208,8 @@ None.
 ## 22. Post-commit/push evidence
 
 * **Branch name**: `phase2/p28-optional-torch-fc-vae-shell-handle`
-* **Commit hash**: `[PENDING_COMMIT_HASH]`
-* **Git ls-remote hash**: `[PENDING_REMOTE_HASH]`
+* **Commit hash**: `edb2ea6d33e4bb305e2bf452eebb4bd5e988d265`
+* **Git ls-remote hash**: `edb2ea6d33e4bb305e2bf452eebb4bd5e988d265`
 
 ## 23. Final verdict
 
