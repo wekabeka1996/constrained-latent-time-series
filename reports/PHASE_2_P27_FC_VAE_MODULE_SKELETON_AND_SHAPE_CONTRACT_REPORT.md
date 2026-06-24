@@ -45,7 +45,8 @@ P11 ancestry verified: commit `12230a465c1d5d518a68263c036d80ddb8c1d0d6` is an a
 
 - `tests/test_phase2_fc_vae_model_skeleton.py` — 44/44 passed
 - `tests/test_phase2_p27_fc_vae_skeleton_smoke.py` — 16/16 passed
-- Full required test suite — all passed (see section 22 for final count)
+- Full required test suite (25 test files) — 863 passed, 1 skipped, 1 pre-existing failure
+- Pre-existing failure: `test_p25_43_no_forbidden_files_modified` — this P25 scope gate compares against P24 branch and detects P26 report file; confirmed identical failure on the P26 base branch itself; not caused by P27
 
 ## 8. FC-VAE skeleton API summary
 
@@ -175,8 +176,8 @@ None.
 ## 22. Post-commit/push evidence
 
 * Branch: `phase2/p27-fc-vae-module-skeleton-shape-contract`
-* Commit Hash: (pending)
-* git ls-remote Hash: (pending)
+* Commit Hash: `e249c723b6a1cd398f23231f96359c866ae40b84`
+* git ls-remote Hash: `e249c723b6a1cd398f23231f96359c866ae40b84`
 
 ## 23. Final verdict
 
