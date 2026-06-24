@@ -151,8 +151,8 @@ This phase is a boundary contract and dependency hardening phase only. No scient
 ## 20. Remaining blockers
 
 * Branch: `phase2/p26-torch-gated-model-dependency-boundary`
-* Commit Hash: `6521f6d927b1748d61107394b2870858980b629e`
-* git ls-remote Hash: `6521f6d927b1748d61107394b2870858980b629e`
+* Commit Hash: `0afe363e65ba3fc067c1206e67cf837ff40c122a`
+* git ls-remote Hash: `0afe363e65ba3fc067c1206e67cf837ff40c122a`
 
 No blockers remain.
 
