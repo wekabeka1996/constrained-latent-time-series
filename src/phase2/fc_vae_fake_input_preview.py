@@ -662,7 +662,6 @@ def fake_input_preview_result_to_json_dict(result: FCVAEFakeInputPreviewResult) 
         "preview": fake_input_scalar_preview_to_json_dict(result.preview),
         "metadata": fake_input_preview_metadata_to_json_dict(result.metadata),
         "status": result.status,
-        "preview_available_in_p34: bool": result.preview_available_in_p34,  # Wait, field name has to be exactly preview_available_in_p34? Let's check dataclass definition: it is preview_available_in_p34 without any type annotation in key name. Oh, it was a typo in dict key! Good catch! Let's check result class: preview_available_in_p34: bool. In dict it should be just "preview_available_in_p34".
         "preview_available_in_p34": result.preview_available_in_p34,
         "full_batch_available_in_p34": result.full_batch_available_in_p34,
         "rng_execution_available_in_p34": result.rng_execution_available_in_p34,
@@ -684,9 +683,6 @@ def fake_input_preview_result_to_json_dict(result: FCVAEFakeInputPreviewResult) 
         "no_scientific_conclusion": result.no_scientific_conclusion,
         "reason": result.reason,
     }
-    # Wait, let's remove the duplicated/incorrect key "preview_available_in_p34: bool" from the dict!
-    if "preview_available_in_p34: bool" in d:
-        del d["preview_available_in_p34: bool"]
     assert_no_local_path_leakage(d)
     assert_no_forbidden_claims(d)
     return d

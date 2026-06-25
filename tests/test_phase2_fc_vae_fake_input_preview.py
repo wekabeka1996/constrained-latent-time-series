@@ -844,3 +844,43 @@ def test_p34_86_scope_gate():
     for f in modified:
         f_norm = f.replace("\\", "/")
         assert f_norm in allowed, f"Forbidden file modification detected in P34: {f_norm}"
+
+
+# 87. serialized result must not contain any key with ": bool" in it
+def test_p34_87_serialized_keys_no_bool_suffix():
+    res = run_fake_input_preview_probe()
+    js = compact_fake_input_preview_json(res)
+    d = json.loads(js)
+    def check_keys(obj):
+        if isinstance(obj, dict):
+            for k, v in obj.items():
+                assert ": bool" not in k, f"Key '{k}' contains forbidden ': bool' suffix"
+                check_keys(v)
+        elif isinstance(obj, list):
+            for item in obj:
+                check_keys(item)
+    check_keys(d)
+
+
+# 88. serialized result must contain exactly preview_available_in_p34
+def test_p34_88_serialized_keys_exact_preview_available():
+    res = run_fake_input_preview_probe()
+    js = compact_fake_input_preview_json(res)
+    d = json.loads(js)
+    assert "preview_available_in_p34" in d
+    assert d["preview_available_in_p34"] is True
+    assert "preview_available_in_p34: bool" not in d
+
+
+# 89. source file must not contain "preview_available_in_p34: bool"
+def test_p34_89_source_no_bool_annotation():
+    content = pathlib.Path("src/phase2/fc_vae_fake_input_preview.py").read_text(encoding="utf-8")
+    assert '"preview_available_in_p34: bool"' not in content
+    assert "'preview_available_in_p34: bool'" not in content
+
+
+# 90. source file must not contain self-review text such as "Wait,", "Good catch", or "Let's"
+def test_p34_90_source_no_self_review_text():
+    content = pathlib.Path("src/phase2/fc_vae_fake_input_preview.py").read_text(encoding="utf-8")
+    for word in ("Wait,", "Good catch", "Let's"):
+        assert word.lower() not in content.lower(), f"Source code contains self-review/commentary text: {word}"
