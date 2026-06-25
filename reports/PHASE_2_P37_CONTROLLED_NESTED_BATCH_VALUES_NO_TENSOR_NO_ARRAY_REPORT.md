@@ -384,8 +384,8 @@ None.
 ## 24. Post-commit/push evidence
 
 * **Branch name**: `phase2/p37-controlled-nested-batch-values-no-tensor-no-array`
-* **Commit hash**: `[PENDING]`
-* **Git ls-remote hash**: `[PENDING]`
+* **Commit hash**: `1b8fdb05dadac8ce09df673961ebf88dd2227656`
+* **Git ls-remote hash**: `1b8fdb05dadac8ce09df673961ebf88dd2227656`
 
 ## 25. Final verdict
 
