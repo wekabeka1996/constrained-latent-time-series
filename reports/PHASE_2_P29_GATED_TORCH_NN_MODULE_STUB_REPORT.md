@@ -224,8 +224,8 @@ None.
 ## 23. Post-commit/push evidence
 
 * **Branch name**: `phase2/p29-gated-torch-nn-module-stub`
-* **Commit hash**: `[PENDING_COMMIT_HASH]`
-* **Git ls-remote hash**: `[PENDING_REMOTE_HASH]`
+* **Commit hash**: `9523c5b8de3fee349df0daf1951f18bea84f0d73`
+* **Git ls-remote hash**: `9523c5b8de3fee349df0daf1951f18bea84f0d73`
 
 ## 24. Final verdict
 
