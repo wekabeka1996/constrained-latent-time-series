@@ -291,8 +291,8 @@ None.
 ## 24. Post-commit/push evidence
 
 * **Branch name**: `phase2/p36-flat-vector-2d-batch-view-contract-no-nested-values`
-* **Commit hash**: `[PENDING]`
-* **Git ls-remote hash**: `[PENDING]`
+* **Commit hash**: `6029782dc5d1c82aff4f8b6943a999926a313257`
+* **Git ls-remote hash**: `6029782dc5d1c82aff4f8b6943a999926a313257`
 
 ## 25. Final verdict
 
