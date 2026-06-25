@@ -267,8 +267,8 @@ None.
 ## 24. Post-commit/push evidence
 
 * **Branch name**: `phase2/p31-noop-forward-boundary-contract`
-* **Commit hash**: `_PENDING_COMMIT_HASH_`
-* **Git ls-remote hash**: `_PENDING_COMMIT_HASH_`
+* **Commit hash**: `94cf86c7672cd3341ba14adb34ca00164628c73d`
+* **Git ls-remote hash**: `94cf86c7672cd3341ba14adb34ca00164628c73d`
 
 ## 25. Final verdict
 
