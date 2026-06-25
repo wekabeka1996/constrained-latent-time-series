@@ -136,9 +136,8 @@ None.
 
 ## 24. Post-commit/push evidence.
 - Branch name: `phase2/p39-optional-torch-tensor-materialization-no-forward-no-training`
-- Implementation commit hash: `<to_be_filled_after_commit>`
-- Git remote status hash: `<to_be_filled_after_push>`
-(Note: Commit and remote status hashes will be updated as a report-only fix note if needed, or referenced in the final response).
+- Implementation commit hash: `27f66c3d22a54ab7589452f1f9000570816eb680`
+- Git remote status hash: `27f66c3d22a54ab7589452f1f9000570816eb680`
 
 ## 25. Final verdict.
 `P39_BLOCKED_BY_TORCH_UNAVAILABLE`
