@@ -291,8 +291,8 @@ None.
 ## 24. Post-commit/push evidence
 
 * **Branch name**: `phase2/p34-deterministic-fake-input-scalar-preview-no-tensor`
-* **Commit hash**: `a03c8510a9e01c95757a5717d6276acd3d461e23`
-* **Git ls-remote hash**: `a03c8510a9e01c95757a5717d6276acd3d461e23`
+* **Commit hash**: `0fca851bd82c09a43f944be9049c703885c7c472`
+* **Git ls-remote hash**: `0fca851bd82c09a43f944be9049c703885c7c472`
 
 ## 25. Final verdict
 
