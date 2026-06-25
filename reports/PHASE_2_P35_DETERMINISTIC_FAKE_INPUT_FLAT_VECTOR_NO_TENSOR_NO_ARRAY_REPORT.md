@@ -416,8 +416,8 @@ None.
 ## 24. Post-commit/push evidence
 
 * **Branch name**: `phase2/p35-deterministic-fake-input-flat-vector-no-tensor`
-* **Commit hash**: `7302dee29a8fbc827acf8938d4076a200859ec99`
-* **Git ls-remote hash**: `7302dee29a8fbc827acf8938d4076a200859ec99`
+* **Commit hash**: `db79196703193fb8937f8bfb78942e7f94107c69`
+* **Git ls-remote hash**: `db79196703193fb8937f8bfb78942e7f94107c69`
 
 ## 25. Final verdict
 
