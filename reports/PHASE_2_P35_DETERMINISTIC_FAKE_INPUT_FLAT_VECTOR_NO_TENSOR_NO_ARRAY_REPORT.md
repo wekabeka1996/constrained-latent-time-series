@@ -7,7 +7,7 @@ Create a deterministic fake input flat vector materialization contract for the f
 ## 2. Base commit verification
 
 * **Base branch**: `phase2/p34-deterministic-fake-input-scalar-preview-no-tensor`
-* **Base commit**: `1872164f9bf4ad7ff51c247493a7fae7100bfe22` (verified)
+* **Base commit**: `187216489b8e0bc97dc9e134a6754eac7afeb962` (verified)
 * **Accepted P34 status**: `P34_ACCEPTED_AFTER_FIX`
 * **P26-P34 files verification**: All files and shape contracts from prior phases are intact.
 * **Imports verification**: No top-level or local torch, numpy, random, or secrets imports exist in any of the P35 source or test files.
@@ -116,9 +116,9 @@ To derive flat vector values without importing `random` or `secrets`, a pure-Pyt
 \[\text{value} = \text{min\_value} + (\text{max\_value} - \text{min\_value}) \times \text{unit}\]
 This yields highly uniform float values bounded within `[min_value, max_value]` depending only on the seed.
 
-## 15. No RNG/value/array/tensor materialization behavior summary
+## 15. Flat vector materialization behavior summary
 
-No RNG execution occurs, no random streams are opened, and no lists, arrays, or tensors are allocated. The status resolves to `"blocked_torch_unavailable"` under this environment, but would resolve to `"flat_vector_only_no_2d_batch_in_p35"` if torch were available.
+No RNG stream, nested 2D batch, numpy array, torch tensor, forward, output, or training behavior occurs. P35 intentionally materializes a flat pure-Python vector of 64 scalar floats. The flat vector is not a 2D batch and is not a tensor/array.
 
 ## 16. P35 smoke command and result
 
@@ -384,7 +384,7 @@ No RNG execution occurs, no random streams are opened, and no lists, arrays, or 
 }
 ```
 
-## 18. Scope confirmation: no RNG/value/array/tensor materialization/forward/output/training/final comparison/artifact/config/CLI/new dependencies
+## 18. Scope confirmation: no RNG stream, nested 2D batch, numpy array, torch tensor, forward, output, training, final comparison, artifact, config, CLI, or new dependencies
 
 * No RNG execution or random streams are opened.
 * No numpy arrays or torch tensors are allocated.
@@ -397,9 +397,9 @@ No RNG execution occurs, no random streams are opened, and no lists, arrays, or 
 
 P35 has no dependency on any split or artifact data generated during P16 or any other generation phase.
 
-## 20. No torch/numpy/random/secrets import confirmation
+## 20. No torch/numpy/random/secrets/array import confirmation
 
-No imports of `torch`, `numpy`, `random`, or `secrets` (neither top-level nor local) exist in any P35 source or test files.
+No imports of `torch`, `numpy`, `random`, `secrets`, or `array` (neither top-level nor local) exist in any P35 source or test files.
 
 ## 21. No subprocess monkeypatch confirmation
 
@@ -416,8 +416,8 @@ None.
 ## 24. Post-commit/push evidence
 
 * **Branch name**: `phase2/p35-deterministic-fake-input-flat-vector-no-tensor`
-* **Commit hash**: `8e37afe42b1e5cd8e36292ef38b79a854acaad68`
-* **Git ls-remote hash**: `8e37afe42b1e5cd8e36292ef38b79a854acaad68`
+* **Commit hash**: `7302dee29a8fbc827acf8938d4076a200859ec99`
+* **Git ls-remote hash**: `7302dee29a8fbc827acf8938d4076a200859ec99`
 
 ## 25. Final verdict
 
