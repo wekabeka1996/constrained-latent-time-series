@@ -4,6 +4,17 @@
 
 Create a deterministic fake input scalar preview contract for the future FC-VAE input pipeline. P34 is the first phase that creates a tiny bounded pure-Python scalar preview (value count defaults to 4, max 8) derived from the P33 fake input descriptor. The preview values are represented as a flat list/tuple of scalar floats. This contract ensures that no torch, numpy, random, secrets, RNG streams, array allocation, tensor materialization, model forward, output generation, training, optimizer, or checkpointing are used.
 
+### Review Fix Summary
+
+* Cleaned up contract pollution in `fake_input_preview_result_to_json_dict()` by removing the incorrect key `"preview_available_in_p34: bool"` and its inline review commentary.
+* Removed the trailing cleanup block that deleted `"preview_available_in_p34: bool"` from the dictionary.
+* Retained the correct key `"preview_available_in_p34": result.preview_available_in_p34`.
+* Added regression unit tests to verify:
+  * No keys in the serialized output contain the `": bool"` suffix.
+  * The serialized dictionary contains exactly `"preview_available_in_p34"`.
+  * The source file does not contain `"preview_available_in_p34: bool"` as a string literal/key.
+  * The source file does not contain any self-review text (`Wait,`, `Good catch`, `Let's`).
+
 ## 2. Base commit verification
 
 * **Base branch**: `phase2/p33-deterministic-fake-input-descriptor-no-values`
@@ -38,11 +49,11 @@ All other files in the repository remain unchanged.
 
 ## 7. Tests run and exact results
 
-* `tests/test_phase2_fc_vae_fake_input_preview.py` — 86/86 passed
+* `tests/test_phase2_fc_vae_fake_input_preview.py` — 90/90 passed
 * `tests/test_phase2_p34_fake_input_preview_smoke.py` — 38/38 passed
 * **Full test suite results**:
-  * Total test cases: 1076
-  * Passed: 1074
+  * Total test cases: 1080
+  * Passed: 1078
   * Skipped: 1 (`tests/test_phase2_static_scope_guard.py::test_no_unapproved_files_modified` is skipped by design on local runs)
   * Deselected: 1 (`tests/test_phase2_fc_vae_fake_input_descriptor.py::test_p33_79_scope_gate` is deselected because it asserts against P32 base branch diffs, which now include P34 preview files by design)
   * Failed: 0
@@ -291,8 +302,8 @@ None.
 ## 24. Post-commit/push evidence
 
 * **Branch name**: `phase2/p34-deterministic-fake-input-scalar-preview-no-tensor`
-* **Commit hash**: `0fca851bd82c09a43f944be9049c703885c7c472`
-* **Git ls-remote hash**: `0fca851bd82c09a43f944be9049c703885c7c472`
+* **Commit hash**: `cde9eba401027f0f44cbf357f16fb49b9b4af280`
+* **Git ls-remote hash**: `cde9eba401027f0f44cbf357f16fb49b9b4af280`
 
 ## 25. Final verdict
 
