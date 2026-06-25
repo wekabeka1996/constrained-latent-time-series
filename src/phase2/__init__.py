@@ -366,6 +366,32 @@ from .fc_vae_torch_module_stub import (
     compact_stub_json,
 )
 
+from .fc_vae_constructor_binding import (
+    FC_VAE_CONSTRUCTOR_BINDING_CONTRACT_VERSION,
+    FC_VAE_CONSTRUCTOR_BINDING_KIND,
+    FC_VAE_CONSTRUCTOR_BINDING_MODULE_NAME,
+    FC_VAE_CONSTRUCTOR_BINDING_STATUS_TORCH_UNAVAILABLE,
+    FC_VAE_CONSTRUCTOR_BINDING_STATUS_BOUND_TO_STUB,
+    FC_VAE_CONSTRUCTOR_BINDING_STATUS_STUB_DEFERRED,
+    SUPPORTED_FC_VAE_CONSTRUCTOR_BINDING_STATUSES,
+    FCVAEConstructorBindingRequest,
+    FCVAEConstructorBindingMetadata,
+    FCVAEConstructorBindingResult,
+    validate_binding_status,
+    validate_constructor_binding_request,
+    validate_constructor_binding_metadata,
+    validate_constructor_binding_result,
+    build_constructor_binding_request_from_p27_smoke_contracts,
+    build_constructor_binding_metadata,
+    build_constructor_binding_result,
+    run_constructor_binding_probe,
+    constructor_binding_request_to_json_dict,
+    constructor_binding_metadata_to_json_dict,
+    constructor_binding_result_to_json_dict,
+    compact_constructor_binding_json,
+)
+
+
 
 
 __all__ = [
@@ -685,5 +711,27 @@ __all__ = [
     "stub_metadata_to_json_dict",
     "stub_result_to_json_dict",
     "compact_stub_json",
+    "FC_VAE_CONSTRUCTOR_BINDING_CONTRACT_VERSION",
+    "FC_VAE_CONSTRUCTOR_BINDING_KIND",
+    "FC_VAE_CONSTRUCTOR_BINDING_MODULE_NAME",
+    "FC_VAE_CONSTRUCTOR_BINDING_STATUS_TORCH_UNAVAILABLE",
+    "FC_VAE_CONSTRUCTOR_BINDING_STATUS_BOUND_TO_STUB",
+    "FC_VAE_CONSTRUCTOR_BINDING_STATUS_STUB_DEFERRED",
+    "SUPPORTED_FC_VAE_CONSTRUCTOR_BINDING_STATUSES",
+    "FCVAEConstructorBindingRequest",
+    "FCVAEConstructorBindingMetadata",
+    "FCVAEConstructorBindingResult",
+    "validate_binding_status",
+    "validate_constructor_binding_request",
+    "validate_constructor_binding_metadata",
+    "validate_constructor_binding_result",
+    "build_constructor_binding_request_from_p27_smoke_contracts",
+    "build_constructor_binding_metadata",
+    "build_constructor_binding_result",
+    "run_constructor_binding_probe",
+    "constructor_binding_request_to_json_dict",
+    "constructor_binding_metadata_to_json_dict",
+    "constructor_binding_result_to_json_dict",
+    "compact_constructor_binding_json",
 ]
 
