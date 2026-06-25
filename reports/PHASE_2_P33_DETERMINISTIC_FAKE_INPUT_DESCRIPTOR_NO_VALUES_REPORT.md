@@ -291,8 +291,8 @@ None.
 ## 24. Post-commit/push evidence
 
 * **Branch name**: `phase2/p33-deterministic-fake-input-descriptor-no-values`
-* **Commit hash**: `_PENDING_COMMIT_HASH_`
-* **Git ls-remote hash**: `_PENDING_COMMIT_HASH_`
+* **Commit hash**: `1ee5ad54a34c434cbc80a5911d13f8fc07ef8975`
+* **Git ls-remote hash**: `1ee5ad54a34c434cbc80a5911d13f8fc07ef8975`
 
 ## 25. Final verdict
 
