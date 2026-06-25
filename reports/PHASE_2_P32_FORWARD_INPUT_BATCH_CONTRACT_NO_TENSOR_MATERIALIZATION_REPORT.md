@@ -252,8 +252,8 @@ None.
 ## 23. Post-commit/push evidence
 
 * **Branch name**: `phase2/p32-forward-input-batch-contract-no-tensor`
-* **Commit hash**: `_PENDING_COMMIT_HASH_`
-* **Git ls-remote hash**: `_PENDING_COMMIT_HASH_`
+* **Commit hash**: `9e477518c2e3268a1157718dfb111b04f89ad0d5`
+* **Git ls-remote hash**: `9e477518c2e3268a1157718dfb111b04f89ad0d5`
 
 ## 24. Final verdict
 
