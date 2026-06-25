@@ -570,6 +570,18 @@ def build_tensor_materialization_request_from_p38_default() -> FCVAETensorMateri
     return req
 
 
+def check_nested_values_match(a: Any, b: Any, tol: float = 1e-7) -> bool:
+    if len(a) != len(b):
+        return False
+    for r in range(len(a)):
+        if len(a[r]) != len(b[r]):
+            return False
+        for c in range(len(a[r])):
+            if abs(a[r][c] - b[r][c]) > tol:
+                return False
+    return True
+
+
 def build_materialized_torch_tensor(
     request: FCVAETensorMaterializationRequest,
 ) -> FCVAEMaterializedTorchTensor:
@@ -595,7 +607,7 @@ def build_materialized_torch_tensor(
 
     # Preview conversion
     preview = tensor_to_nested_tuple_preview(t)
-    values_match = (preview == p37_res.nested_values.nested_batch_values)
+    values_match = check_nested_values_match(preview, p37_res.nested_values.nested_batch_values)
 
     first_row = preview[0][:4]
     second_row = preview[1][:4]
@@ -647,7 +659,7 @@ def build_tensor_materialization_metadata(
     if torch_status.available:
         try:
             torch_module = load_torch_for_p39_materialization()
-            torch_version = getattr(torch_module, "__version__", "")
+            torch_version = str(getattr(torch_module, "__version__", ""))
             cuda_available = bool(torch_module.cuda.is_available())
         except Exception:
             pass

@@ -286,8 +286,11 @@ def test_p39_043_request_builder_source_torch_boundary_contract():
 
 
 # 44: torch loader raises if unavailable
-def test_p39_044_torch_loader_raises_if_unavailable():
-    # Since torch is unavailable in this environment, this should raise
+def test_p39_044_torch_loader_raises_if_unavailable(monkeypatch):
+    from src.phase2.torch_boundary import TorchDependencyStatus
+    monkeypatch.setattr("src.phase2.fc_vae_tensor_materialization.build_torch_dependency_status", lambda policy: TorchDependencyStatus(
+        contract_version="phase2_p26_torch_boundary_contract_v1", backend_name="torch", available=False, policy="optional", import_safe=False, top_level_import_required=False, reason="mocked"
+    ))
     with pytest.raises(RuntimeError):
         load_torch_for_p39_materialization()
 
@@ -475,13 +478,21 @@ def test_p39_073_validate_p39_result_invalid_contract():
     with pytest.raises(ValueError):
         validate_p39_result(bad)
 
-def test_p39_074_validate_p39_result_invalid_status():
+def test_p39_074_validate_p39_result_invalid_status(monkeypatch):
+    from src.phase2.torch_boundary import TorchDependencyStatus
+    monkeypatch.setattr("src.phase2.fc_vae_tensor_materialization.build_torch_dependency_status", lambda policy: TorchDependencyStatus(
+        contract_version="phase2_p26_torch_boundary_contract_v1", backend_name="torch", available=False, policy="optional", import_safe=False, top_level_import_required=False, reason="mocked"
+    ))
     res = run_tensor_materialization_probe()
     bad = dataclasses.replace(res, status="torch_tensor_materialized_no_forward_no_training_in_p39")
     with pytest.raises(ValueError):
         validate_p39_result(bad)
 
-def test_p39_075_validate_p39_result_invalid_flags():
+def test_p39_075_validate_p39_result_invalid_flags(monkeypatch):
+    from src.phase2.torch_boundary import TorchDependencyStatus
+    monkeypatch.setattr("src.phase2.fc_vae_tensor_materialization.build_torch_dependency_status", lambda policy: TorchDependencyStatus(
+        contract_version="phase2_p26_torch_boundary_contract_v1", backend_name="torch", available=False, policy="optional", import_safe=False, top_level_import_required=False, reason="mocked"
+    ))
     res = run_tensor_materialization_probe()
     bad = dataclasses.replace(res, tensor_materialized_in_p39=True)
     with pytest.raises(ValueError):
@@ -506,8 +517,11 @@ def test_p39_078_build_tensor_materialization_result_valid():
     validate_p39_result(res)
 
 
-# 79: result status if torch unavailable
-def test_p39_079_result_status_if_torch_unavailable():
+def test_p39_079_result_status_if_torch_unavailable(monkeypatch):
+    from src.phase2.torch_boundary import TorchDependencyStatus
+    monkeypatch.setattr("src.phase2.fc_vae_tensor_materialization.build_torch_dependency_status", lambda policy: TorchDependencyStatus(
+        contract_version="phase2_p26_torch_boundary_contract_v1", backend_name="torch", available=False, policy="optional", import_safe=False, top_level_import_required=False, reason="mocked"
+    ))
     res = run_tensor_materialization_probe()
     assert res.status == "blocked_torch_unavailable"
     assert res.materialized_tensor is None
@@ -582,20 +596,32 @@ def test_p39_089_serializer_request_to_json_dict():
     assert isinstance(d, dict)
     assert d["materialization_kind"] == FC_VAE_TENSOR_MATERIALIZATION_KIND
 
-def test_p39_090_serializer_metadata_to_json_dict():
+def test_p39_090_serializer_metadata_to_json_dict(monkeypatch):
+    from src.phase2.torch_boundary import TorchDependencyStatus
+    monkeypatch.setattr("src.phase2.fc_vae_tensor_materialization.build_torch_dependency_status", lambda policy: TorchDependencyStatus(
+        contract_version="phase2_p26_torch_boundary_contract_v1", backend_name="torch", available=False, policy="optional", import_safe=False, top_level_import_required=False, reason="mocked"
+    ))
     req = build_tensor_materialization_request_from_p38_default()
     meta = build_tensor_materialization_metadata_p39(req, None)
     d = p39_tensor_materialization_metadata_to_json_dict(meta)
     assert isinstance(d, dict)
     assert d["torch_available"] is False
 
-def test_p39_091_serializer_result_to_json_dict():
+def test_p39_091_serializer_result_to_json_dict(monkeypatch):
+    from src.phase2.torch_boundary import TorchDependencyStatus
+    monkeypatch.setattr("src.phase2.fc_vae_tensor_materialization.build_torch_dependency_status", lambda policy: TorchDependencyStatus(
+        contract_version="phase2_p26_torch_boundary_contract_v1", backend_name="torch", available=False, policy="optional", import_safe=False, top_level_import_required=False, reason="mocked"
+    ))
     res = run_tensor_materialization_probe()
     d = p39_tensor_materialization_result_to_json_dict(res)
     assert isinstance(d, dict)
     assert d["status"] == "blocked_torch_unavailable"
 
-def test_p39_092_serializer_compact_p39_tensor_materialization_json():
+def test_p39_092_serializer_compact_p39_tensor_materialization_json(monkeypatch):
+    from src.phase2.torch_boundary import TorchDependencyStatus
+    monkeypatch.setattr("src.phase2.fc_vae_tensor_materialization.build_torch_dependency_status", lambda policy: TorchDependencyStatus(
+        contract_version="phase2_p26_torch_boundary_contract_v1", backend_name="torch", available=False, policy="optional", import_safe=False, top_level_import_required=False, reason="mocked"
+    ))
     res = run_tensor_materialization_probe()
     js = compact_p39_tensor_materialization_json(res)
     assert isinstance(js, str)

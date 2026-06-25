@@ -71,22 +71,38 @@ def test_p39_smoke_02_main_rejects_args():
         sys.argv = orig
 
 # 3. smoke returns BLOCKED if torch unavailable
-def test_p39_smoke_03_verdict_blocked_if_torch_unavailable():
+def test_p39_smoke_03_verdict_blocked_if_torch_unavailable(monkeypatch):
+    from src.phase2.torch_boundary import TorchDependencyStatus
+    monkeypatch.setattr("src.phase2.fc_vae_tensor_materialization.build_torch_dependency_status", lambda policy: TorchDependencyStatus(
+        contract_version="phase2_p26_torch_boundary_contract_v1", backend_name="torch", available=False, policy="optional", import_safe=False, top_level_import_required=False, reason="mocked"
+    ))
     res = run_p39_tensor_materialization_smoke()
     assert res["verdict"] == "BLOCKED"
 
 # 4. status blocked if torch unavailable
-def test_p39_smoke_04_status_blocked_if_torch_unavailable():
+def test_p39_smoke_04_status_blocked_if_torch_unavailable(monkeypatch):
+    from src.phase2.torch_boundary import TorchDependencyStatus
+    monkeypatch.setattr("src.phase2.fc_vae_tensor_materialization.build_torch_dependency_status", lambda policy: TorchDependencyStatus(
+        contract_version="phase2_p26_torch_boundary_contract_v1", backend_name="torch", available=False, policy="optional", import_safe=False, top_level_import_required=False, reason="mocked"
+    ))
     res = run_p39_tensor_materialization_smoke()
     assert res["status"] == "blocked_torch_unavailable"
 
 # 5. torch_available false if torch unavailable
-def test_p39_smoke_05_torch_available_false_if_torch_unavailable():
+def test_p39_smoke_05_torch_available_false_if_torch_unavailable(monkeypatch):
+    from src.phase2.torch_boundary import TorchDependencyStatus
+    monkeypatch.setattr("src.phase2.fc_vae_tensor_materialization.build_torch_dependency_status", lambda policy: TorchDependencyStatus(
+        contract_version="phase2_p26_torch_boundary_contract_v1", backend_name="torch", available=False, policy="optional", import_safe=False, top_level_import_required=False, reason="mocked"
+    ))
     res = run_p39_tensor_materialization_smoke()
     assert res["torch_available"] is False
 
 # 6. tensor_materialized_in_p39 false if torch unavailable
-def test_p39_smoke_06_tensor_materialized_in_p39_false_if_torch_unavailable():
+def test_p39_smoke_06_tensor_materialized_in_p39_false_if_torch_unavailable(monkeypatch):
+    from src.phase2.torch_boundary import TorchDependencyStatus
+    monkeypatch.setattr("src.phase2.fc_vae_tensor_materialization.build_torch_dependency_status", lambda policy: TorchDependencyStatus(
+        contract_version="phase2_p26_torch_boundary_contract_v1", backend_name="torch", available=False, policy="optional", import_safe=False, top_level_import_required=False, reason="mocked"
+    ))
     res = run_p39_tensor_materialization_smoke()
     assert res["tensor_materialized_in_p39"] is False
 
@@ -181,14 +197,22 @@ def test_p39_smoke_24_no_scientific_conclusion():
     assert res["no_scientific_conclusion"] is True
 
 # 25. JSON parseable
-def test_p39_smoke_25_json_parseable():
+def test_p39_smoke_25_json_parseable(monkeypatch):
+    from src.phase2.torch_boundary import TorchDependencyStatus
+    monkeypatch.setattr("src.phase2.fc_vae_tensor_materialization.build_torch_dependency_status", lambda policy: TorchDependencyStatus(
+        contract_version="phase2_p26_torch_boundary_contract_v1", backend_name="torch", available=False, policy="optional", import_safe=False, top_level_import_required=False, reason="mocked"
+    ))
     res = run_p39_tensor_materialization_smoke()
     js = compact_json(res)
     parsed = json.loads(js)
     assert parsed["verdict"] == "BLOCKED"
 
 # 26. smoke output has no raw tensor object
-def test_p39_smoke_26_no_raw_tensor_object():
+def test_p39_smoke_26_no_raw_tensor_object(monkeypatch):
+    from src.phase2.torch_boundary import TorchDependencyStatus
+    monkeypatch.setattr("src.phase2.fc_vae_tensor_materialization.build_torch_dependency_status", lambda policy: TorchDependencyStatus(
+        contract_version="phase2_p26_torch_boundary_contract_v1", backend_name="torch", available=False, policy="optional", import_safe=False, top_level_import_required=False, reason="mocked"
+    ))
     res = run_p39_tensor_materialization_smoke()
     js = compact_json(res)
     assert "MockTensor" not in js
