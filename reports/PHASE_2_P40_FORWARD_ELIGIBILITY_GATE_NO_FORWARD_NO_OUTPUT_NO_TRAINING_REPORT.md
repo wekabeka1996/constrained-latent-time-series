@@ -106,9 +106,13 @@ The gate checks for CUDA availability only as metadata (`cuda_available = False`
 None.
 
 ## 16. Post-commit/push evidence.
-- P40 branch: `phase2/p40-forward-eligibility-gate-no-forward-no-output-no-training`
-- Local commit hash: `b0cc23cfd52d6c0fa56805225603787f91b8de46`
-- Remote branch commit hash: `b0cc23cfd52d6c0fa56805225603787f91b8de46` (verified via git ls-remote after push)
+
+* P40 branch: `phase2/p40-forward-eligibility-gate-no-forward-no-output-no-training`
+* Base P39R commit/head: `c8846fd283db3422dfc5a6340f25b8f52ff09ab6`
+* P40 implementation commit: `b0cc23cfd52d6c0fa56805225603787f91b8de46`
+* Final report/head commit: `<commit produced by this report-only repair>`
+* git ls-remote hash: `<same as final report/head commit after push>`
+* Hash note: `b0cc23cfd52d6c0fa56805225603787f91b8de46 was the originally reported local P40 commit, but the final reviewed remote branch head is <commit produced by this report-only repair>. This repair updates report evidence only and does not change P40 source, tests, or smoke logic.`
 
 ## 17. Final verdict.
 `P40_READY_FOR_REVIEW`
