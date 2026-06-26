@@ -727,6 +727,32 @@ from .fc_vae_tensor_materialization import (
     compact_p39_tensor_materialization_json,
 )
 
+from .fc_vae_forward_eligibility_gate import (
+    FC_VAE_FORWARD_ELIGIBILITY_GATE_CONTRACT_VERSION,
+    FC_VAE_FORWARD_ELIGIBILITY_GATE_KIND,
+    FC_VAE_FORWARD_ELIGIBILITY_GATE_MODULE_NAME,
+    FC_VAE_FORWARD_ELIGIBILITY_STATUS_TORCH_UNAVAILABLE,
+    FC_VAE_FORWARD_ELIGIBILITY_STATUS_TENSOR_UNAVAILABLE,
+    FC_VAE_FORWARD_ELIGIBILITY_STATUS_MODEL_IMPLEMENTATION_UNAVAILABLE,
+    FC_VAE_FORWARD_ELIGIBILITY_STATUS_ELIGIBLE_BUT_NOT_EXECUTED,
+    SUPPORTED_FC_VAE_FORWARD_ELIGIBILITY_STATUSES,
+    FCVAEForwardEligibilityRequest,
+    FCVAEForwardEligibilityEvidence,
+    FCVAEForwardEligibilityResult,
+    validate_forward_eligibility_status,
+    validate_forward_eligibility_request,
+    validate_forward_eligibility_evidence,
+    validate_forward_eligibility_result,
+    build_forward_eligibility_request_from_defaults,
+    build_forward_eligibility_evidence,
+    build_forward_eligibility_result,
+    run_forward_eligibility_gate_probe,
+    forward_eligibility_request_to_json_dict,
+    forward_eligibility_evidence_to_json_dict,
+    forward_eligibility_result_to_json_dict,
+    compact_forward_eligibility_gate_json,
+)
+
 
 
 
@@ -1382,6 +1408,29 @@ __all__ = [
     "p39_tensor_materialization_metadata_to_json_dict",
     "p39_tensor_materialization_result_to_json_dict",
     "compact_p39_tensor_materialization_json",
+    "FC_VAE_FORWARD_ELIGIBILITY_GATE_CONTRACT_VERSION",
+    "FC_VAE_FORWARD_ELIGIBILITY_GATE_KIND",
+    "FC_VAE_FORWARD_ELIGIBILITY_GATE_MODULE_NAME",
+    "FC_VAE_FORWARD_ELIGIBILITY_STATUS_TORCH_UNAVAILABLE",
+    "FC_VAE_FORWARD_ELIGIBILITY_STATUS_TENSOR_UNAVAILABLE",
+    "FC_VAE_FORWARD_ELIGIBILITY_STATUS_MODEL_IMPLEMENTATION_UNAVAILABLE",
+    "FC_VAE_FORWARD_ELIGIBILITY_STATUS_ELIGIBLE_BUT_NOT_EXECUTED",
+    "SUPPORTED_FC_VAE_FORWARD_ELIGIBILITY_STATUSES",
+    "FCVAEForwardEligibilityRequest",
+    "FCVAEForwardEligibilityEvidence",
+    "FCVAEForwardEligibilityResult",
+    "validate_forward_eligibility_status",
+    "validate_forward_eligibility_request",
+    "validate_forward_eligibility_evidence",
+    "validate_forward_eligibility_result",
+    "build_forward_eligibility_request_from_defaults",
+    "build_forward_eligibility_evidence",
+    "build_forward_eligibility_result",
+    "run_forward_eligibility_gate_probe",
+    "forward_eligibility_request_to_json_dict",
+    "forward_eligibility_evidence_to_json_dict",
+    "forward_eligibility_result_to_json_dict",
+    "compact_forward_eligibility_gate_json",
 ]
 
 
