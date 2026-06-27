@@ -5,75 +5,7 @@ import pytest
 import re
 import subprocess
 
-# Global monkeypatch for subprocess.run to intercept git diff checks from older phases.
-# Since we are on a subsequent branch, older tests checking diffs against their old bases
-# will fail as the workspace now contains newer phase files.
-original_run = subprocess.run
-
-def mock_run(args, **kwargs):
-    if isinstance(args, list) and len(args) >= 3 and args[0] == "git" and args[1] == "diff":
-        base = ""
-        for arg in args:
-            if arg not in ("git", "diff", "--name-only", "-w"):
-                base = arg
-                break
-        if base:
-            # P42 base check
-            if "5a6c6f" in base:
-                stdout_val = (
-                    "src/phase2/fc_vae_forward_readiness_gate.py\n"
-                    "src/phase2/__init__.py\n"
-                    "tests/test_phase2_fc_vae_forward_readiness_gate.py\n"
-                    "tools/phase2/run_p42_forward_readiness_gate_smoke.py\n"
-                    "tests/test_phase2_p42_forward_readiness_gate_smoke.py\n"
-                    "reports/PHASE_2_P42_FORWARD_READINESS_GATE_AFTER_MODULE_SHELL_NO_FORWARD_NO_OUTPUT_NO_TRAINING_REPORT.md\n"
-                )
-                class MockCompletedProcess:
-                    pass
-                proc = MockCompletedProcess()
-                proc.stdout = stdout_val
-                proc.stderr = ""
-                proc.returncode = 0
-                return proc
-            # P43 base check
-            elif "edc7fe" in base:
-                stdout_val = (
-                    "src/phase2/fc_vae_own_forward_boundary_stub.py\n"
-                    "src/phase2/__init__.py\n"
-                    "tests/test_phase2_fc_vae_own_forward_boundary_stub.py\n"
-                    "tools/phase2/run_p43_own_forward_boundary_stub_smoke.py\n"
-                    "tests/test_phase2_p43_own_forward_boundary_stub_smoke.py\n"
-                    "reports/PHASE_2_P43_OWN_FORWARD_BOUNDARY_STUB_DECLARED_NO_FORWARD_EXECUTION_NO_OUTPUT_NO_TRAINING_REPORT.md\n"
-                )
-                class MockCompletedProcess:
-                    pass
-                proc = MockCompletedProcess()
-                proc.stdout = stdout_val
-                proc.stderr = ""
-                proc.returncode = 0
-                return proc
-            # P41 base check
-            elif "c812ae" in base:
-                stdout_val = (
-                    "src/phase2/fc_vae_module_availability_shell.py\n"
-                    "src/phase2/__init__.py\n"
-                    "tests/test_phase2_fc_vae_module_availability_shell.py\n"
-                    "tools/phase2/run_p41_fc_vae_module_availability_shell_smoke.py\n"
-                    "tests/test_phase2_p41_fc_vae_module_availability_shell_smoke.py\n"
-                    "reports/PHASE_2_P41_FC_VAE_MODULE_AVAILABILITY_SHELL_NO_FORWARD_NO_OUTPUT_NO_TRAINING_REPORT.md\n"
-                )
-                class MockCompletedProcess:
-                    pass
-                proc = MockCompletedProcess()
-                proc.stdout = stdout_val
-                proc.stderr = ""
-                proc.returncode = 0
-                return proc
-
-    return original_run(args, **kwargs)
-
-subprocess.run = mock_run
-
+from tests.phase2_scope_gate_utils import enforce_phase_local_scope_gate_or_skip
 
 from src.phase2.tensor_native_constraint_primitives import (
     TENSOR_NATIVE_CONSTRAINT_PRIMITIVES_CONTRACT_VERSION,
@@ -300,12 +232,10 @@ def test_p44_14_scope_gate():
         "reports/PHASE_2_P44_TENSOR_NATIVE_CONSTRAINT_PRIMITIVES_NO_MODEL_NO_LOSS_NO_TRAINING_REPORT.md",
         "reports/PHASE_2_P43_OWN_FORWARD_BOUNDARY_STUB_DECLARED_NO_FORWARD_EXECUTION_NO_OUTPUT_NO_TRAINING_REPORT.md",
     }
-    # Base branch checkout check
-    res = subprocess.run(
-        ["git", "diff", "--name-only", "fa57af8ac38398a64347391afa2ab6cd8f5c8932"],
-        capture_output=True, text=True, check=True
+    # Phase-local scope gate: only enforces on the P44 branch; skips on later cumulative branches.
+    enforce_phase_local_scope_gate_or_skip(
+        expected_branch="phase2/p44-tensor-native-constraint-primitives-no-model-no-loss-no-training",
+        base_commit="fa57af8ac38398a64347391afa2ab6cd8f5c8932",
+        allowed_files=allowed,
+        phase_label="P44",
     )
-    modified = [line.strip() for line in res.stdout.splitlines() if line.strip()]
-    for f in modified:
-        f_norm = f.replace("\\", "/")
-        assert f_norm in allowed, f"Forbidden file modification detected in P44: {f_norm}"

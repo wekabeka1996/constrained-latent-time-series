@@ -5,6 +5,8 @@ import pytest
 import re
 import subprocess
 
+from tests.phase2_scope_gate_utils import enforce_phase_local_scope_gate_or_skip
+
 from src.phase2.analytic_moment_spectral_signatures import (
     ANALYTIC_MOMENT_SPECTRAL_SIGNATURES_CONTRACT_VERSION,
     ANALYTIC_MOMENT_SPECTRAL_SIGNATURES_KIND,
@@ -276,12 +278,10 @@ def test_p45_14_scope_gate():
         "tests/test_phase2_p45_analytic_moment_spectral_signatures_smoke.py",
         "reports/PHASE_2_P45_ANALYTIC_MOMENT_SPECTRAL_SIGNATURES_NO_LOSS_NO_MODEL_NO_TRAINING_REPORT.md",
     }
-    # Base branch checkout check (against P44 base HEAD: a64297edf97eaffe3fb0d84ef2bcedc58d543276)
-    res = subprocess.run(
-        ["git", "diff", "--name-only", "a64297edf97eaffe3fb0d84ef2bcedc58d543276"],
-        capture_output=True, text=True, check=True
+    # Phase-local scope gate: only enforces on the P45 branch; skips on later cumulative branches.
+    enforce_phase_local_scope_gate_or_skip(
+        expected_branch="phase2/p45-analytic-moment-spectral-signatures-no-loss-no-model-no-training",
+        base_commit="a64297edf97eaffe3fb0d84ef2bcedc58d543276",
+        allowed_files=allowed,
+        phase_label="P45",
     )
-    modified = [line.strip() for line in res.stdout.splitlines() if line.strip()]
-    for f in modified:
-        f_norm = f.replace("\\", "/")
-        assert f_norm in allowed, f"Forbidden file modification detected in P45: {f_norm}"
