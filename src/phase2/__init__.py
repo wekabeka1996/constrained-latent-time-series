@@ -872,10 +872,31 @@ from .analytic_moment_spectral_signatures import (
     ar_spectral_signature,
     garch_moment_persistence_signature,
     combined_ar_garch_signature,
-    run_analytic_moment_spectral_signatures_probe,
-    analytic_moment_spectral_signatures_probe_to_json_dict,
-    compact_analytic_moment_spectral_signatures_json,
 )
+
+from .moment_spectral_matching_loss import (
+    MOMENT_SPECTRAL_MATCHING_LOSS_CONTRACT_VERSION,
+    MOMENT_SPECTRAL_MATCHING_LOSS_KIND,
+    MOMENT_SPECTRAL_MATCHING_LOSS_MODULE_NAME,
+    P46_DEFAULT_EPS,
+    P46_DEFAULT_AR_LOG_SPECTRUM_WEIGHT,
+    P46_DEFAULT_AR_SUMMARY_WEIGHT,
+    P46_DEFAULT_GARCH_MOMENT_WEIGHT,
+    P46_DEFAULT_GARCH_DECAY_WEIGHT,
+    FC_VAE_LOSS_STATUS_TORCH_UNAVAILABLE,
+    FC_VAE_LOSS_STATUS_AVAILABLE,
+    FC_VAE_LOSS_STATUS_CONTRACT_MISMATCH,
+    SUPPORTED_FC_VAE_LOSS_STATUSES,
+    load_torch_for_p46_loss,
+    safe_tensor_mse,
+    ar_spectral_matching_loss,
+    garch_moment_matching_loss,
+    combined_moment_spectral_matching_loss,
+    run_moment_spectral_matching_loss_probe,
+    moment_spectral_matching_loss_probe_to_json_dict,
+    compact_moment_spectral_matching_loss_json,
+)
+
 
 
 
@@ -1670,6 +1691,26 @@ __all__ = [
     "run_analytic_moment_spectral_signatures_probe",
     "analytic_moment_spectral_signatures_probe_to_json_dict",
     "compact_analytic_moment_spectral_signatures_json",
+    "MOMENT_SPECTRAL_MATCHING_LOSS_CONTRACT_VERSION",
+    "MOMENT_SPECTRAL_MATCHING_LOSS_KIND",
+    "MOMENT_SPECTRAL_MATCHING_LOSS_MODULE_NAME",
+    "P46_DEFAULT_EPS",
+    "P46_DEFAULT_AR_LOG_SPECTRUM_WEIGHT",
+    "P46_DEFAULT_AR_SUMMARY_WEIGHT",
+    "P46_DEFAULT_GARCH_MOMENT_WEIGHT",
+    "P46_DEFAULT_GARCH_DECAY_WEIGHT",
+    "FC_VAE_LOSS_STATUS_TORCH_UNAVAILABLE",
+    "FC_VAE_LOSS_STATUS_AVAILABLE",
+    "FC_VAE_LOSS_STATUS_CONTRACT_MISMATCH",
+    "SUPPORTED_FC_VAE_LOSS_STATUSES",
+    "load_torch_for_p46_loss",
+    "safe_tensor_mse",
+    "ar_spectral_matching_loss",
+    "garch_moment_matching_loss",
+    "combined_moment_spectral_matching_loss",
+    "run_moment_spectral_matching_loss_probe",
+    "moment_spectral_matching_loss_probe_to_json_dict",
+    "compact_moment_spectral_matching_loss_json",
 ]
 
 
