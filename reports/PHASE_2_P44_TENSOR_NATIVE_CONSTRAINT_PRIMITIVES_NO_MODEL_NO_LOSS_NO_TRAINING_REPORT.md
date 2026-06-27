@@ -117,7 +117,7 @@ The following 6 files are changed:
 
 ## 12. Full curated tests.
 - Curated tests completed: 1712 passed, 1 skipped.
-- Final head commit: `<NEW_COMMIT_HASH_AFTER_THIS_FIX>`
+- Final head commit: `8c56500bbb8bd2ed4a8000461b66d6509020756d`
 
 ---
 
