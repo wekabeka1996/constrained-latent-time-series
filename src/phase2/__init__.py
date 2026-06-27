@@ -753,6 +753,35 @@ from .fc_vae_forward_eligibility_gate import (
     compact_forward_eligibility_gate_json,
 )
 
+from .fc_vae_module_availability_shell import (
+    FC_VAE_MODULE_AVAILABILITY_SHELL_CONTRACT_VERSION,
+    FC_VAE_MODULE_AVAILABILITY_SHELL_KIND,
+    FC_VAE_MODULE_AVAILABILITY_SHELL_MODULE_NAME,
+    FC_VAE_MODULE_AVAILABILITY_SHELL_CLASS_NAME,
+    FC_VAE_MODULE_AVAILABILITY_STATUS_TORCH_UNAVAILABLE,
+    FC_VAE_MODULE_AVAILABILITY_STATUS_SHELL_CREATED,
+    FC_VAE_MODULE_AVAILABILITY_STATUS_CONTRACT_MISMATCH,
+    SUPPORTED_FC_VAE_MODULE_AVAILABILITY_STATUSES,
+    FCVAEModuleAvailabilityShellRequest,
+    FCVAEModuleAvailabilityShellMetadata,
+    FCVAEModuleAvailabilityShellResult,
+    validate_module_availability_status,
+    validate_module_availability_request,
+    validate_module_availability_metadata,
+    validate_module_availability_result,
+    load_torch_for_p41_module_shell,
+    get_module_shell_class,
+    materialize_p41_module_shell_metadata,
+    build_module_availability_shell_request_from_defaults,
+    build_module_availability_shell_metadata,
+    build_module_availability_shell_result,
+    run_module_availability_shell_probe,
+    module_availability_shell_request_to_json_dict,
+    module_availability_shell_metadata_to_json_dict,
+    module_availability_shell_result_to_json_dict,
+    compact_module_availability_shell_json,
+)
+
 
 
 
