@@ -95,7 +95,7 @@
 - P42 branch: `phase2/p42-forward-readiness-gate-after-module-shell-no-forward-no-output-no-training`
 - Base P41 HEAD commit: `5a6c6fcf0ec966981ecf53e1b87b712fd46b4190`
 - P42 implementation commit: `9cebbce48a0853c2020dd82b9702700206da5146`
-- Final report/head commit: `<FINAL_REPORT_COMMIT_HASH>`
-- git ls-remote hash: `<FINAL_REPORT_COMMIT_HASH>`
+- Final report/head commit: `2a5afdfab64c08d83632ad54da6b574c67e38290`
+- git ls-remote hash: `2a5afdfab64c08d83632ad54da6b574c67e38290`
 - Hash note: `b0cc23cfd52d6c0fa56805225603787f91b8de46 is P40, c812ae8 is P41, 5a6c6fcf is P41R, and this P42 implementation and report commits are recorded sequentially.`
 - Verdict: `P42_READY_FOR_REVIEW`
