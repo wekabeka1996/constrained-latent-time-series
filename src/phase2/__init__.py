@@ -809,6 +809,37 @@ from .fc_vae_forward_readiness_gate import (
     compact_forward_readiness_gate_json,
 )
 
+from .fc_vae_own_forward_boundary_stub import (
+    FC_VAE_OWN_FORWARD_BOUNDARY_STUB_CONTRACT_VERSION,
+    FC_VAE_OWN_FORWARD_BOUNDARY_STUB_KIND,
+    FC_VAE_OWN_FORWARD_BOUNDARY_STUB_MODULE_NAME,
+    FC_VAE_OWN_FORWARD_BOUNDARY_STUB_CLASS_NAME,
+    FC_VAE_OWN_FORWARD_BOUNDARY_STUB_STATUS_TORCH_UNAVAILABLE,
+    FC_VAE_OWN_FORWARD_BOUNDARY_STUB_STATUS_MODULE_SHELL_UNAVAILABLE,
+    FC_VAE_OWN_FORWARD_BOUNDARY_STUB_STATUS_READINESS_UNAVAILABLE,
+    FC_VAE_OWN_FORWARD_BOUNDARY_STUB_STATUS_DECLARED,
+    FC_VAE_OWN_FORWARD_BOUNDARY_STUB_STATUS_CONTRACT_MISMATCH,
+    SUPPORTED_FC_VAE_OWN_FORWARD_BOUNDARY_STUB_STATUSES,
+    FCVAEOwnForwardBoundaryStubRequest,
+    FCVAEOwnForwardBoundaryStubMetadata,
+    FCVAEOwnForwardBoundaryStubResult,
+    validate_own_forward_boundary_stub_status,
+    validate_own_forward_boundary_stub_request,
+    validate_own_forward_boundary_stub_metadata,
+    validate_own_forward_boundary_stub_result,
+    load_torch_for_p43_forward_boundary_stub,
+    get_p43_own_forward_boundary_stub_class,
+    build_own_forward_boundary_stub_request_from_defaults,
+    build_own_forward_boundary_stub_metadata,
+    build_own_forward_boundary_stub_result,
+    run_own_forward_boundary_stub_probe,
+    own_forward_boundary_stub_request_to_json_dict,
+    own_forward_boundary_stub_metadata_to_json_dict,
+    own_forward_boundary_stub_result_to_json_dict,
+    compact_own_forward_boundary_stub_json,
+)
+
+
 
 
 
@@ -1538,6 +1569,33 @@ __all__ = [
     "forward_readiness_evidence_to_json_dict",
     "forward_readiness_result_to_json_dict",
     "compact_forward_readiness_gate_json",
+    "FC_VAE_OWN_FORWARD_BOUNDARY_STUB_CONTRACT_VERSION",
+    "FC_VAE_OWN_FORWARD_BOUNDARY_STUB_KIND",
+    "FC_VAE_OWN_FORWARD_BOUNDARY_STUB_MODULE_NAME",
+    "FC_VAE_OWN_FORWARD_BOUNDARY_STUB_CLASS_NAME",
+    "FC_VAE_OWN_FORWARD_BOUNDARY_STUB_STATUS_TORCH_UNAVAILABLE",
+    "FC_VAE_OWN_FORWARD_BOUNDARY_STUB_STATUS_MODULE_SHELL_UNAVAILABLE",
+    "FC_VAE_OWN_FORWARD_BOUNDARY_STUB_STATUS_READINESS_UNAVAILABLE",
+    "FC_VAE_OWN_FORWARD_BOUNDARY_STUB_STATUS_DECLARED",
+    "FC_VAE_OWN_FORWARD_BOUNDARY_STUB_STATUS_CONTRACT_MISMATCH",
+    "SUPPORTED_FC_VAE_OWN_FORWARD_BOUNDARY_STUB_STATUSES",
+    "FCVAEOwnForwardBoundaryStubRequest",
+    "FCVAEOwnForwardBoundaryStubMetadata",
+    "FCVAEOwnForwardBoundaryStubResult",
+    "validate_own_forward_boundary_stub_status",
+    "validate_own_forward_boundary_stub_request",
+    "validate_own_forward_boundary_stub_metadata",
+    "validate_own_forward_boundary_stub_result",
+    "load_torch_for_p43_forward_boundary_stub",
+    "get_p43_own_forward_boundary_stub_class",
+    "build_own_forward_boundary_stub_request_from_defaults",
+    "build_own_forward_boundary_stub_metadata",
+    "build_own_forward_boundary_stub_result",
+    "run_own_forward_boundary_stub_probe",
+    "own_forward_boundary_stub_request_to_json_dict",
+    "own_forward_boundary_stub_metadata_to_json_dict",
+    "own_forward_boundary_stub_result_to_json_dict",
+    "compact_own_forward_boundary_stub_json",
 ]
 
 
