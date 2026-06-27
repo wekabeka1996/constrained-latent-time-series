@@ -119,7 +119,7 @@ Computes the weighted sum of AR component loss and GARCH component loss, produci
 
 ## 13. Full curated tests.
 - Curated tests completed: 1740 passed, 1 skipped.
-- Final head commit: `<NEW_COMMIT_HASH_AFTER_THIS_FIX>`
+- Final head commit: `becb0d2999c2c1b197b50d9857b6b3fc0d9a0d79`
 
 ---
 
