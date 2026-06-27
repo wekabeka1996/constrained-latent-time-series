@@ -854,8 +854,29 @@ from .tensor_native_constraint_primitives import (
     default_garch_allocation_bias,
     run_tensor_native_constraint_primitives_probe,
     tensor_native_constraint_primitives_probe_to_json_dict,
-    compact_tensor_native_constraint_primitives_json,
 )
+
+from .analytic_moment_spectral_signatures import (
+    ANALYTIC_MOMENT_SPECTRAL_SIGNATURES_CONTRACT_VERSION,
+    ANALYTIC_MOMENT_SPECTRAL_SIGNATURES_KIND,
+    ANALYTIC_MOMENT_SPECTRAL_SIGNATURES_MODULE_NAME,
+    P45_DEFAULT_FREQ_COUNT,
+    P45_DEFAULT_GARCH_LAG_COUNT,
+    P45_DEFAULT_EPS,
+    FC_VAE_SIGNATURES_STATUS_TORCH_UNAVAILABLE,
+    FC_VAE_SIGNATURES_STATUS_AVAILABLE,
+    FC_VAE_SIGNATURES_STATUS_CONTRACT_MISMATCH,
+    SUPPORTED_FC_VAE_SIGNATURES_STATUSES,
+    load_torch_for_p45_signatures,
+    build_frequency_grid,
+    ar_spectral_signature,
+    garch_moment_persistence_signature,
+    combined_ar_garch_signature,
+    run_analytic_moment_spectral_signatures_probe,
+    analytic_moment_spectral_signatures_probe_to_json_dict,
+    compact_analytic_moment_spectral_signatures_json,
+)
+
 
 
 
@@ -1631,6 +1652,24 @@ __all__ = [
     "run_tensor_native_constraint_primitives_probe",
     "tensor_native_constraint_primitives_probe_to_json_dict",
     "compact_tensor_native_constraint_primitives_json",
+    "ANALYTIC_MOMENT_SPECTRAL_SIGNATURES_CONTRACT_VERSION",
+    "ANALYTIC_MOMENT_SPECTRAL_SIGNATURES_KIND",
+    "ANALYTIC_MOMENT_SPECTRAL_SIGNATURES_MODULE_NAME",
+    "P45_DEFAULT_FREQ_COUNT",
+    "P45_DEFAULT_GARCH_LAG_COUNT",
+    "P45_DEFAULT_EPS",
+    "FC_VAE_SIGNATURES_STATUS_TORCH_UNAVAILABLE",
+    "FC_VAE_SIGNATURES_STATUS_AVAILABLE",
+    "FC_VAE_SIGNATURES_STATUS_CONTRACT_MISMATCH",
+    "SUPPORTED_FC_VAE_SIGNATURES_STATUSES",
+    "load_torch_for_p45_signatures",
+    "build_frequency_grid",
+    "ar_spectral_signature",
+    "garch_moment_persistence_signature",
+    "combined_ar_garch_signature",
+    "run_analytic_moment_spectral_signatures_probe",
+    "analytic_moment_spectral_signatures_probe_to_json_dict",
+    "compact_analytic_moment_spectral_signatures_json",
 ]
 
 
