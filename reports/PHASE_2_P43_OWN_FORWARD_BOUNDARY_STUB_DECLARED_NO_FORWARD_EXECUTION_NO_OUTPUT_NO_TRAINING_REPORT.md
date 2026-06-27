@@ -186,9 +186,9 @@ No old P1–P42 source or test files were modified.
 ## 17. Post-commit/push evidence.
 - P43 branch: `phase2/p43-own-forward-boundary-stub-declared-no-forward-execution-no-output-no-training`
 - Base P42 commit/head: `edc7fee6a2f66b5264cc05d9ca26f150e37beeb0`
-- P43 implementation commit: `<COMMIT_HASH_AFTER_PUSH>`
-- git ls-remote hash: `<COMMIT_HASH_AFTER_PUSH>`
-- Hash note: These hashes will be filled after the git push completes.
+- P43 implementation commit: `f572fa6569ef26ec0bb2bdf6154f2d72588b52c2`
+- git ls-remote hash: `f572fa6569ef26ec0bb2bdf6154f2d72588b52c2`
+- Hash note: Local HEAD and remote branch head are identical. No force push was used.
 
 ---
 
