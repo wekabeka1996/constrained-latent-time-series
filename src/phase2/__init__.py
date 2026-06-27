@@ -836,8 +836,27 @@ from .fc_vae_own_forward_boundary_stub import (
     own_forward_boundary_stub_request_to_json_dict,
     own_forward_boundary_stub_metadata_to_json_dict,
     own_forward_boundary_stub_result_to_json_dict,
-    compact_own_forward_boundary_stub_json,
 )
+
+from .tensor_native_constraint_primitives import (
+    TENSOR_NATIVE_CONSTRAINT_PRIMITIVES_CONTRACT_VERSION,
+    TENSOR_NATIVE_CONSTRAINT_PRIMITIVES_KIND,
+    TENSOR_NATIVE_CONSTRAINT_PRIMITIVES_MODULE_NAME,
+    P44_MAX_AR_ORDER,
+    P44_DEFAULT_EPS,
+    FC_VAE_PRIMITIVES_STATUS_TORCH_UNAVAILABLE,
+    FC_VAE_PRIMITIVES_STATUS_AVAILABLE,
+    FC_VAE_PRIMITIVES_STATUS_CONTRACT_MISMATCH,
+    SUPPORTED_FC_VAE_PRIMITIVES_STATUSES,
+    load_torch_for_p44_tensor_primitives,
+    pacf_to_stable_ar_coefficients,
+    garch_mass_allocation_from_logits,
+    default_garch_allocation_bias,
+    run_tensor_native_constraint_primitives_probe,
+    tensor_native_constraint_primitives_probe_to_json_dict,
+    compact_tensor_native_constraint_primitives_json,
+)
+
 
 
 
@@ -1596,6 +1615,22 @@ __all__ = [
     "own_forward_boundary_stub_metadata_to_json_dict",
     "own_forward_boundary_stub_result_to_json_dict",
     "compact_own_forward_boundary_stub_json",
+    "TENSOR_NATIVE_CONSTRAINT_PRIMITIVES_CONTRACT_VERSION",
+    "TENSOR_NATIVE_CONSTRAINT_PRIMITIVES_KIND",
+    "TENSOR_NATIVE_CONSTRAINT_PRIMITIVES_MODULE_NAME",
+    "P44_MAX_AR_ORDER",
+    "P44_DEFAULT_EPS",
+    "FC_VAE_PRIMITIVES_STATUS_TORCH_UNAVAILABLE",
+    "FC_VAE_PRIMITIVES_STATUS_AVAILABLE",
+    "FC_VAE_PRIMITIVES_STATUS_CONTRACT_MISMATCH",
+    "SUPPORTED_FC_VAE_PRIMITIVES_STATUSES",
+    "load_torch_for_p44_tensor_primitives",
+    "pacf_to_stable_ar_coefficients",
+    "garch_mass_allocation_from_logits",
+    "default_garch_allocation_bias",
+    "run_tensor_native_constraint_primitives_probe",
+    "tensor_native_constraint_primitives_probe_to_json_dict",
+    "compact_tensor_native_constraint_primitives_json",
 ]
 
 
