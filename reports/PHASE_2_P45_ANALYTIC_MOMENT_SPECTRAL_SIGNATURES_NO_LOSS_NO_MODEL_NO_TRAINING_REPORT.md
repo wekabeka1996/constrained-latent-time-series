@@ -117,7 +117,7 @@ Binds AR spectral summary stats (`mean`, `std`, `ar_low_high_ratio`) and GARCH s
 
 ## 12. Full curated tests.
 - Curated tests completed: 1728 passed, 1 skipped.
-- Final head commit: `<NEW_COMMIT_HASH_AFTER_THIS_FIX>`
+- Final head commit: `2752f717752e2832b2732dda4954111d2ef2c17f`
 
 ---
 
