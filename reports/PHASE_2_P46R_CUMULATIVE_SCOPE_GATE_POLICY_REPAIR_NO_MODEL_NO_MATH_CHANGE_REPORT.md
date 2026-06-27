@@ -95,17 +95,17 @@ Result: empty output — no math source files were changed.
 ---
 
 ## 10. Focused tests.
-- Files: `tests/test_phase2_p46r_cumulative_scope_gate_policy.py` + modified scope tests
-- Total: 45 collected
-- Results: **42 passed, 3 skipped** (the 3 skips are P44/P45/P46 phase-local scope gates on the P46R branch — by design)
+- Files: `tests/test_phase2_p46r_cumulative_scope_gate_policy.py` + all modified scope gate tests
+- Total: 11 collected
+- Results: **6 passed, 5 skipped** (the 5 skips are P42/P43/P44/P45/P46 phase-local scope gates on the P46R branch — by design)
 - Failures: 0
 
 ---
 
 ## 11. Full curated tests.
-- Curated tests completed: TBD after commit.
-- Expected: all non-skipped pass, skips are only the 3 phase-local scope gates.
-- Final head commit: `<NEW_COMMIT_HASH_AFTER_P46R>`
+- Curated tests completed: **1742 passed, 6 skipped, 0 failed**.
+- All 6 skips are the expected phase-local scope gates (P42/P43/P44/P45/P46) correctly skipping on the P46R cumulative branch.
+- Final head commit: `f008d1687a7a8009aac8223c3a0663755e666102`
 
 ---
 
