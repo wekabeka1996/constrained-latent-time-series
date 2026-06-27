@@ -187,7 +187,8 @@ No old P1–P42 source or test files were modified.
 - P43 branch: `phase2/p43-own-forward-boundary-stub-declared-no-forward-execution-no-output-no-training`
 - Base P42 commit/head: `edc7fee6a2f66b5264cc05d9ca26f150e37beeb0`
 - P43 implementation commit: `f572fa6569ef26ec0bb2bdf6154f2d72588b52c2`
-- git ls-remote hash: `f572fa6569ef26ec0bb2bdf6154f2d72588b52c2`
+- P43 final report/head commit: `fa57af8ac38398a64347391afa2ab6cd8f5c8932`
+- git ls-remote hash: `fa57af8ac38398a64347391afa2ab6cd8f5c8932`
 - Hash note: Local HEAD and remote branch head are identical. No force push was used.
 
 ---
