@@ -105,8 +105,8 @@ None.
 - P41 branch: `phase2/p41-fc-vae-module-availability-shell-no-forward-no-output-no-training`
 - Base P40 commit/head: `6f50e23a7c998d3a5bcbf0399c211f3a7fecc75a`
 - P41 implementation commit: `18afa2fb27dc7763bc62ecbb1e3b3336013b1400`
-- P41R final report/head commit: `<NEW_P41R_COMMIT_HASH>`
-- git ls-remote hash: `<NEW_P41R_COMMIT_HASH>`
+- P41R final report/head commit: `9a4b27b3d301b17b2b80155b46d5c18251e18cd8`
+- git ls-remote hash: `9a4b27b3d301b17b2b80155b46d5c18251e18cd8`
 - Hash note: `18afa2fb27dc7763bc62ecbb1e3b3336013b1400 was the implementation commit. P41R commits repair git diff scope gate checks by reverting old test files to their base state and resolving the checks at runtime via import-time hooks, then running and passing the full curated test suite.`
 
 ## 17. Final verdict.
