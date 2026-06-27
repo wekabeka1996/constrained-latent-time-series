@@ -105,8 +105,8 @@ None.
 - P41 branch: `phase2/p41-fc-vae-module-availability-shell-no-forward-no-output-no-training`
 - Base P40 commit/head: `6f50e23a7c998d3a5bcbf0399c211f3a7fecc75a`
 - P41 implementation commit: `18afa2fb27dc7763bc62ecbb1e3b3336013b1400`
-- Final report/head commit: `<NEW_COMMIT_HASH_AFTER_THIS_REPORT>`
-- git ls-remote hash: `<NEW_COMMIT_HASH_AFTER_THIS_REPORT>`
+- Final report/head commit: `c812ae855fed5e6eedc0bc69a862cb5b58cdecde`
+- git ls-remote hash: `c812ae855fed5e6eedc0bc69a862cb5b58cdecde`
 - Hash note: `18afa2fb27dc7763bc62ecbb1e3b3336013b1400 was the implementation commit. The final commit will add this report and push.`
 
 ## 17. Final verdict.
