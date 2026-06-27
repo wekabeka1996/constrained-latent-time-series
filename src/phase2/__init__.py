@@ -897,6 +897,25 @@ from .moment_spectral_matching_loss import (
     compact_moment_spectral_matching_loss_json,
 )
 
+from .direct_raw_parameter_fit_smoke import (
+    DIRECT_RAW_PARAMETER_FIT_CONTRACT_VERSION,
+    DIRECT_RAW_PARAMETER_FIT_KIND,
+    DIRECT_RAW_PARAMETER_FIT_MODULE_NAME,
+    P47_STEP_COUNT,
+    P47_LEARNING_RATE,
+    P47_STATUS_AVAILABLE,
+    P47_STATUS_TORCH_UNAVAILABLE,
+    load_torch_for_p47_direct_fit,
+    build_p47_fixed_target_raw_tensors,
+    build_p47_candidate_raw_tensors,
+    build_combined_signature_from_raw,
+    compute_p47_loss,
+    run_direct_raw_parameter_fit_probe,
+    direct_raw_parameter_fit_probe_to_json_dict,
+    compact_direct_raw_parameter_fit_json,
+)
+
+
 
 
 
@@ -1711,6 +1730,21 @@ __all__ = [
     "run_moment_spectral_matching_loss_probe",
     "moment_spectral_matching_loss_probe_to_json_dict",
     "compact_moment_spectral_matching_loss_json",
+    "DIRECT_RAW_PARAMETER_FIT_CONTRACT_VERSION",
+    "DIRECT_RAW_PARAMETER_FIT_KIND",
+    "DIRECT_RAW_PARAMETER_FIT_MODULE_NAME",
+    "P47_STEP_COUNT",
+    "P47_LEARNING_RATE",
+    "P47_STATUS_AVAILABLE",
+    "P47_STATUS_TORCH_UNAVAILABLE",
+    "load_torch_for_p47_direct_fit",
+    "build_p47_fixed_target_raw_tensors",
+    "build_p47_candidate_raw_tensors",
+    "build_combined_signature_from_raw",
+    "compute_p47_loss",
+    "run_direct_raw_parameter_fit_probe",
+    "direct_raw_parameter_fit_probe_to_json_dict",
+    "compact_direct_raw_parameter_fit_json",
 ]
 
 
