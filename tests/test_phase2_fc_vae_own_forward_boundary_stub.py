@@ -6,6 +6,8 @@ import pytest
 import subprocess
 from typing import Any, Tuple
 
+from tests.phase2_scope_gate_utils import enforce_phase_local_scope_gate_or_skip
+
 from src.phase2.torch_boundary import TorchDependencyStatus
 from src.phase2.fc_vae_model import FC_VAE_REQUIRED_LATENT_NAMES
 from src.phase2.fc_vae_own_forward_boundary_stub import (
@@ -427,12 +429,10 @@ def test_p43_141_scope_gate():
         "tests/test_phase2_p43_own_forward_boundary_stub_smoke.py",
         "reports/PHASE_2_P43_OWN_FORWARD_BOUNDARY_STUB_DECLARED_NO_FORWARD_EXECUTION_NO_OUTPUT_NO_TRAINING_REPORT.md",
     }
-    # Base branch checkout: edc7fee6a2f66b5264cc05d9ca26f150e37beeb0
-    res = subprocess.run(
-        ["git", "diff", "--name-only", "edc7fee6a2f66b5264cc05d9ca26f150e37beeb0"],
-        capture_output=True, text=True, check=True
+    # Phase-local scope gate: only enforces on the P43 branch; skips on later cumulative branches.
+    enforce_phase_local_scope_gate_or_skip(
+        expected_branch="phase2/p43-own-forward-boundary-stub-declared-no-forward-execution-no-output-no-training",
+        base_commit="edc7fee6a2f66b5264cc05d9ca26f150e37beeb0",
+        allowed_files=allowed,
+        phase_label="P43",
     )
-    modified = [line.strip() for line in res.stdout.splitlines() if line.strip()]
-    for f in modified:
-        f_norm = f.replace("\\", "/")
-        assert f_norm in allowed, f"Forbidden file modification detected in P43: {f_norm}"

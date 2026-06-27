@@ -43,13 +43,15 @@ On later cumulative branches, a phase-local scope gate must skip explicitly with
 ---
 
 ## 5. Changed files.
-The following 6 files are changed/created:
+The following 8 files are changed/created:
 1. `tests/phase2_scope_gate_utils.py` [NEW]
 2. `tests/test_phase2_p46r_cumulative_scope_gate_policy.py` [NEW]
 3. `tests/test_phase2_tensor_native_constraint_primitives.py` [MODIFIED]
 4. `tests/test_phase2_analytic_moment_spectral_signatures.py` [MODIFIED]
 5. `tests/test_phase2_moment_spectral_matching_loss.py` [MODIFIED]
-6. `reports/PHASE_2_P46R_CUMULATIVE_SCOPE_GATE_POLICY_REPAIR_NO_MODEL_NO_MATH_CHANGE_REPORT.md` [NEW]
+6. `tests/test_phase2_fc_vae_forward_readiness_gate.py` [MODIFIED]
+7. `tests/test_phase2_fc_vae_own_forward_boundary_stub.py` [MODIFIED]
+8. `reports/PHASE_2_P46R_CUMULATIVE_SCOPE_GATE_POLICY_REPAIR_NO_MODEL_NO_MATH_CHANGE_REPORT.md` [NEW]
 
 No math source files were modified. `src/phase2/__init__.py` was not modified.
 
@@ -59,6 +61,8 @@ No math source files were modified. `src/phase2/__init__.py` was not modified.
 
 | Test | Branch | Behavior on P46R |
 |---|---|---|
+| `test_p42_141_scope_gate` | P42 branch only | SKIPPED (explicit) |
+| `test_p43_141_scope_gate` | P43 branch only | SKIPPED (explicit) |
 | `test_p44_14_scope_gate` | P44 branch only | SKIPPED (explicit) |
 | `test_p45_14_scope_gate` | P45 branch only | SKIPPED (explicit) |
 | `test_p46_11_scope_gate` | P46 branch only | SKIPPED (explicit) |

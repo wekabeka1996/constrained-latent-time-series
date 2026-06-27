@@ -27,6 +27,8 @@ P46R_ALLOWED_FILES = {
     "tests/test_phase2_tensor_native_constraint_primitives.py",
     "tests/test_phase2_analytic_moment_spectral_signatures.py",
     "tests/test_phase2_moment_spectral_matching_loss.py",
+    "tests/test_phase2_fc_vae_forward_readiness_gate.py",
+    "tests/test_phase2_fc_vae_own_forward_boundary_stub.py",
     "reports/PHASE_2_P46R_CUMULATIVE_SCOPE_GATE_POLICY_REPAIR_NO_MODEL_NO_MATH_CHANGE_REPORT.md",
 }
 
@@ -38,6 +40,8 @@ MATH_SOURCE_FILES = [
 ]
 
 TEST_FILES_TO_AUDIT = [
+    "tests/test_phase2_fc_vae_forward_readiness_gate.py",
+    "tests/test_phase2_fc_vae_own_forward_boundary_stub.py",
     "tests/test_phase2_tensor_native_constraint_primitives.py",
     "tests/test_phase2_analytic_moment_spectral_signatures.py",
     "tests/test_phase2_moment_spectral_matching_loss.py",
