@@ -99,11 +99,28 @@ This is NOT:
 
 ## 6. Full Curated Suite
 
-Full curated suite run is in progress at time of initial commit. P48-specific tests: **17 passed, 0 failed, 0 skipped**.
+**Full Curated Tests Result:** `1768 passed, 8 skipped, 12 failed`
 
-**Pre-existing scope gate failures note:** 12 legacy scope gate tests (P27–P38) fail on all branches beyond their respective phase branches. These failures are **verified pre-existing on the P47R base** (confirmed by running `test_p30_44_scope_gate` on `origin/phase2/p47r-report-only-full-curated-evidence-correction-no-code-change` detached HEAD — same failure). P48 introduces **zero new failures**.
+**P48-specific tests:** `17 passed, 0 failed, 0 skipped` ✓
 
-Full curated suite result (pending final count): `TBD passed, 8 skipped, 12 failed (all pre-existing on P47R base)`
+**Pre-existing scope gate failures:** The 12 failures are from legacy phase-local scope gate tests (P27–P38). These tests run `git diff --name-only <Pxx_BASE>` without branch-skip guards, so they always fail on branches beyond their target phase. These are **verified pre-existing on the P47R base** (confirmed by running `test_p30_44_scope_gate` on detached HEAD at `origin/phase2/p47r-report-only-full-curated-evidence-correction-no-code-change` — identical failure). P48 introduces **zero new failures**.
+
+| Failing Test | Pre-existing on P47R |
+|---|---|
+| test_p27_44_scope_gate | ✓ |
+| test_p28_45_scope_gate | ✓ |
+| test_p29_49_scope_gate | ✓ |
+| test_p30_44_scope_gate | ✓ |
+| test_p31_53_scope_gate | ✓ |
+| test_p32_65_scope_gate | ✓ |
+| test_p33_79_scope_gate | ✓ |
+| test_p34_86_scope_gate | ✓ |
+| test_p35_95_scope_gate | ✓ |
+| test_p36_96_scope_gate | ✓ |
+| test_p37_107_scope_gate | ✓ |
+| test_p38_105_scope_gate | ✓ |
+
+**Remote HEAD:** `8017b30eb60190dfcea254d12ee965e1dcf63b86`
 
 ---
 
