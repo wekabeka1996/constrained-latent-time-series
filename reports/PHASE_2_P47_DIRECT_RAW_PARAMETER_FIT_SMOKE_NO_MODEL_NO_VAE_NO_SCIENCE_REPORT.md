@@ -22,13 +22,14 @@ Verify that the existing P44/P45/P46 constraint-signature-loss stack operates co
 ---
 
 ## 4. Changed files
-The following 6 files are changed/created:
+The following 7 files are changed/created:
 1. `src/phase2/direct_raw_parameter_fit_smoke.py` [NEW]
 2. `tools/phase2/run_p47_direct_raw_parameter_fit_smoke.py` [NEW]
 3. `tests/test_phase2_direct_raw_parameter_fit_smoke.py` [NEW]
 4. `tests/test_phase2_p47_direct_raw_parameter_fit_smoke.py` [NEW]
 5. `src/phase2/__init__.py` [MODIFIED]
-6. `reports/PHASE_2_P47_DIRECT_RAW_PARAMETER_FIT_SMOKE_NO_MODEL_NO_VAE_NO_SCIENCE_REPORT.md` [NEW]
+6. `tests/test_phase2_p46r_cumulative_scope_gate_policy.py` [MODIFIED]
+7. `reports/PHASE_2_P47_DIRECT_RAW_PARAMETER_FIT_SMOKE_NO_MODEL_NO_VAE_NO_SCIENCE_REPORT.md` [NEW]
 
 ---
 

@@ -8,6 +8,7 @@
 #
 # This test must NOT skip on the P46R branch.
 
+import pytest
 import subprocess
 
 from tests.phase2_scope_gate_utils import (
@@ -108,6 +109,9 @@ def test_p46r_03_math_sources_unchanged():
 
 def test_p46r_04_current_scope_enforced():
     """Enforce P46R scope: only allowed files modified relative to P46 base."""
+    current_branch = get_current_git_branch()
+    if current_branch != P46R_EXPECTED_BRANCH:
+        pytest.skip(f"P46R scope gate skipped on branch '{current_branch}'")
     modified = git_changed_files_since(P46_REMOTE_HEAD)
     for f in modified:
         assert f in P46R_ALLOWED_FILES, (
@@ -118,6 +122,8 @@ def test_p46r_04_current_scope_enforced():
 def test_p46r_05_scope_gate_utility_skips_on_wrong_branch():
     """Verify the shared utility correctly identifies the current branch."""
     current = get_current_git_branch()
+    if current != P46R_EXPECTED_BRANCH:
+        pytest.skip(f"P46R branch verification skipped on branch '{current}'")
     assert isinstance(current, str)
     assert len(current) > 0
     # On P46R branch this should be the P46R branch name

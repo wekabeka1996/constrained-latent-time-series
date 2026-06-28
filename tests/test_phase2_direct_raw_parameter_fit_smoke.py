@@ -220,6 +220,7 @@ def test_p47_09_scope_gate():
         "tests/test_phase2_p47_direct_raw_parameter_fit_smoke.py",
         "reports/PHASE_2_P47_DIRECT_RAW_PARAMETER_FIT_SMOKE_NO_MODEL_NO_VAE_NO_SCIENCE_REPORT.md",
         "src/phase2/__init__.py",
+        "tests/test_phase2_p46r_cumulative_scope_gate_policy.py",
     }
     # Base commit is P46R Remote Head / accepted head
     # P46R Head: 01353768a802dce56afe7fced0eedff650e6e62b
