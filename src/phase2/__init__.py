@@ -915,6 +915,25 @@ from .direct_raw_parameter_fit_smoke import (
     compact_direct_raw_parameter_fit_json,
 )
 
+from .direct_raw_parameter_fit_robustness_smoke import (
+    DIRECT_FIT_ROBUSTNESS_CONTRACT_VERSION,
+    DIRECT_FIT_ROBUSTNESS_KIND,
+    DIRECT_FIT_ROBUSTNESS_MODULE_NAME,
+    P48_DEFAULT_STEP_COUNT,
+    P48_DEFAULT_LEARNING_RATE,
+    P48_SCENARIO_COUNT,
+    P48_STATUS_AVAILABLE,
+    P48_STATUS_TORCH_UNAVAILABLE,
+    load_torch_for_p48_direct_fit_robustness,
+    freeze_signature,
+    compute_combined_loss,
+    build_p48_scenarios,
+    run_single_p48_scenario,
+    run_direct_fit_robustness_probe,
+    direct_fit_robustness_probe_to_json_dict,
+    compact_direct_fit_robustness_json,
+)
+
 
 
 
@@ -1745,6 +1764,22 @@ __all__ = [
     "run_direct_raw_parameter_fit_probe",
     "direct_raw_parameter_fit_probe_to_json_dict",
     "compact_direct_raw_parameter_fit_json",
+    "DIRECT_FIT_ROBUSTNESS_CONTRACT_VERSION",
+    "DIRECT_FIT_ROBUSTNESS_KIND",
+    "DIRECT_FIT_ROBUSTNESS_MODULE_NAME",
+    "P48_DEFAULT_STEP_COUNT",
+    "P48_DEFAULT_LEARNING_RATE",
+    "P48_SCENARIO_COUNT",
+    "P48_STATUS_AVAILABLE",
+    "P48_STATUS_TORCH_UNAVAILABLE",
+    "load_torch_for_p48_direct_fit_robustness",
+    "freeze_signature",
+    "compute_combined_loss",
+    "build_p48_scenarios",
+    "run_single_p48_scenario",
+    "run_direct_fit_robustness_probe",
+    "direct_fit_robustness_probe_to_json_dict",
+    "compact_direct_fit_robustness_json",
 ]
 
 
