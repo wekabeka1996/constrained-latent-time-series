@@ -86,8 +86,11 @@ python -m pytest tests/test_phase2_direct_raw_parameter_fit_smoke.py tests/test_
 ---
 
 ## 11. Full curated tests
-- Curated tests completed: TBD (run after staging and committing).
-- Results: Expected to pass all 1753 tests (1742 existing + 11 new), with the 5 old scope gate tests correctly skipped on cumulative branches.
+
+* Curated tests completed: **1751 passed, 8 skipped, 0 failed** (on the base `phase2/p47-direct-raw-parameter-fit-smoke-no-model-no-vae-no-science` branch).
+* On the `phase2/p47r-report-only-full-curated-evidence-correction-no-code-change` branch, the result is **1750 passed, 9 skipped, 0 failed** due to `test_p47_09_scope_gate` correctly skipping as it is branch-aware.
+* The skipped tests are expected explicit phase-local scope-gate skips on later cumulative branches.
+* Final base remote head hash: `60809b24b92888302402944598a0d022e161a44f`
 
 ---
 
