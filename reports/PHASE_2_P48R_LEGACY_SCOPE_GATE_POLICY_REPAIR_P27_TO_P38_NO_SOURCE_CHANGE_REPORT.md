@@ -195,9 +195,13 @@ python -m pytest \
 python -m pytest tests/test_phase2_schema.py ... tests/test_phase2_p48r_legacy_scope_gate_policy_repair.py -q
 ```
 
-**Result: TBD (running)**
+**Result: `1773 passed, 10 skipped, 0 failed` in 3:30** ✅
 
-Expected: `0 failed`, 15 scope gates skip explicitly.
+- 15 repaired scope gates (P24–P38) skip explicitly on P48R branch ✓
+- All existing skips from P46R policy tests also skip as designed ✓
+- Zero failures — clean full curated suite ✓
+
+**Remote HEAD:** `6f13dabc4dfac4562bef9bc88742baa84ad01b6d`
 
 ---
 
