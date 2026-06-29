@@ -4,6 +4,7 @@ import dataclasses
 import json
 import pathlib
 import subprocess
+from tests.phase2_scope_gate_utils import enforce_phase_local_scope_gate_or_skip
 import pytest
 from dataclasses import is_dataclass
 
@@ -827,6 +828,7 @@ def test_p34_85_init_no_monkeypatch():
 
 # 86. P34-owned scope gate compares against accepted P33 branch
 def test_p34_86_scope_gate():
+    """Phase-local scope gate for P34. Skips on non-P34 branches."""
     allowed = {
         "src/phase2/fc_vae_fake_input_preview.py",
         "src/phase2/__init__.py",
@@ -835,18 +837,12 @@ def test_p34_86_scope_gate():
         "tests/test_phase2_p34_fake_input_preview_smoke.py",
         "reports/PHASE_2_P34_DETERMINISTIC_FAKE_INPUT_SCALAR_PREVIEW_NO_TENSOR_NO_ARRAY_REPORT.md",
     }
-    # Base branch check
-    res = subprocess.run(
-        ["git", "diff", "--name-only", "phase2/p33-deterministic-fake-input-descriptor-no-values"],
-        capture_output=True, text=True, check=True
+    enforce_phase_local_scope_gate_or_skip(
+        expected_branch="phase2/p34-deterministic-fake-input-scalar-preview-no-tensor",
+        base_commit="phase2/p33-deterministic-fake-input-descriptor-no-values",
+        allowed_files=allowed,
+        phase_label="P34",
     )
-    modified = [line.strip() for line in res.stdout.splitlines() if line.strip()]
-    for f in modified:
-        f_norm = f.replace("\\", "/")
-        assert f_norm in allowed, f"Forbidden file modification detected in P34: {f_norm}"
-
-
-# 87. serialized result must not contain any key with ": bool" in it
 def test_p34_87_serialized_keys_no_bool_suffix():
     res = run_fake_input_preview_probe()
     js = compact_fake_input_preview_json(res)

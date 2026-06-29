@@ -4,6 +4,7 @@ import dataclasses
 import json
 import pathlib
 import subprocess
+from tests.phase2_scope_gate_utils import enforce_phase_local_scope_gate_or_skip
 import pytest
 from dataclasses import is_dataclass
 
@@ -785,6 +786,7 @@ def test_p33_78_init_no_monkeypatch():
 
 # 79. P33-owned scope gate compares against accepted P32 branch
 def test_p33_79_scope_gate():
+    """Phase-local scope gate for P33. Skips on non-P33 branches."""
     allowed = {
         "src/phase2/fc_vae_fake_input_descriptor.py",
         "src/phase2/__init__.py",
@@ -793,12 +795,9 @@ def test_p33_79_scope_gate():
         "tests/test_phase2_p33_fake_input_descriptor_smoke.py",
         "reports/PHASE_2_P33_DETERMINISTIC_FAKE_INPUT_DESCRIPTOR_NO_VALUES_REPORT.md",
     }
-    # Base branch check
-    res = subprocess.run(
-        ["git", "diff", "--name-only", "phase2/p32-forward-input-batch-contract-no-tensor"],
-        capture_output=True, text=True, check=True
+    enforce_phase_local_scope_gate_or_skip(
+        expected_branch="phase2/p33-deterministic-fake-input-descriptor-no-values",
+        base_commit="phase2/p32-forward-input-batch-contract-no-tensor",
+        allowed_files=allowed,
+        phase_label="P33",
     )
-    modified = [line.strip() for line in res.stdout.splitlines() if line.strip()]
-    for f in modified:
-        f_norm = f.replace("\\", "/")
-        assert f_norm in allowed, f"Forbidden file modification detected in P33: {f_norm}"

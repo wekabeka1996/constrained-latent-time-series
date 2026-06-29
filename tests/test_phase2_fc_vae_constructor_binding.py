@@ -4,6 +4,7 @@ import dataclasses
 import json
 import pathlib
 import subprocess
+from tests.phase2_scope_gate_utils import enforce_phase_local_scope_gate_or_skip
 import re
 import pytest
 from dataclasses import is_dataclass
@@ -440,6 +441,7 @@ def test_p30_43_init_no_subprocess_monkeypatch():
 
 
 def test_p30_44_scope_gate():
+    """Phase-local scope gate for P30. Skips on non-P30 branches."""
     allowed = {
         "src/phase2/fc_vae_constructor_binding.py",
         "src/phase2/__init__.py",
@@ -448,12 +450,9 @@ def test_p30_44_scope_gate():
         "tests/test_phase2_p30_constructor_binding_smoke.py",
         "reports/PHASE_2_P30_TORCH_MODULE_CONSTRUCTOR_SPEC_BINDING_REPORT.md",
     }
-    # Compare against P29 base branch
-    res = subprocess.run(
-        ["git", "diff", "--name-only", "phase2/p29-gated-torch-nn-module-stub"],
-        capture_output=True, text=True, check=True
+    enforce_phase_local_scope_gate_or_skip(
+        expected_branch="phase2/p30-torch-module-constructor-spec-binding",
+        base_commit="phase2/p29-gated-torch-nn-module-stub",
+        allowed_files=allowed,
+        phase_label="P30",
     )
-    modified = [line.strip() for line in res.stdout.splitlines() if line.strip()]
-    for f in modified:
-        f_norm = f.replace("\\", "/")
-        assert f_norm in allowed, f"Forbidden file modification detected in P30: {f_norm}"

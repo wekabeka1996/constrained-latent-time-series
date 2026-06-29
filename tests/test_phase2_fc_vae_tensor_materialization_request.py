@@ -4,6 +4,7 @@ import dataclasses
 import json
 import pathlib
 import subprocess
+from tests.phase2_scope_gate_utils import enforce_phase_local_scope_gate_or_skip
 import pytest
 from typing import Tuple
 
@@ -625,6 +626,7 @@ def test_p38_104_no_training_methods():
 
 # 105: P38 scope gate test
 def test_p38_105_scope_gate():
+    """Phase-local scope gate for P38. Skips on non-P38 branches."""
     allowed = {
         "src/phase2/fc_vae_tensor_materialization_request.py",
         "src/phase2/__init__.py",
@@ -633,11 +635,9 @@ def test_p38_105_scope_gate():
         "tests/test_phase2_p38_tensor_materialization_request_smoke.py",
         "reports/PHASE_2_P38_TENSOR_MATERIALIZATION_REQUEST_CONTRACT_NO_TENSOR_ALLOCATION_REPORT.md",
     }
-    res = subprocess.run(
-        ["git", "diff", "--name-only", "phase2/p37-controlled-nested-batch-values-no-tensor-no-array"],
-        capture_output=True, text=True, check=True
+    enforce_phase_local_scope_gate_or_skip(
+        expected_branch="phase2/p38-tensor-materialization-request-contract-no-tensor-allocation",
+        base_commit="phase2/p37-controlled-nested-batch-values-no-tensor-no-array",
+        allowed_files=allowed,
+        phase_label="P38",
     )
-    modified = [line.strip() for line in res.stdout.splitlines() if line.strip()]
-    for f in modified:
-        f_norm = f.replace("\\", "/")
-        assert f_norm in allowed, f"Forbidden file modification detected in P38: {f_norm}"

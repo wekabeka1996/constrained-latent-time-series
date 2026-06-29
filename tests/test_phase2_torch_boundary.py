@@ -4,6 +4,7 @@ import dataclasses
 import json
 import pathlib
 import subprocess
+from tests.phase2_scope_gate_utils import enforce_phase_local_scope_gate_or_skip
 import pytest
 from dataclasses import is_dataclass
 
@@ -313,6 +314,7 @@ def test_p26_32_init_no_subprocess_monkeypatch():
 
 
 def test_p26_33_no_forbidden_files_modified():
+    """Phase-local scope gate for P26. Skips on non-P26 branches."""
     allowed = {
         "src/phase2/torch_boundary.py",
         "src/phase2/__init__.py",
@@ -321,11 +323,9 @@ def test_p26_33_no_forbidden_files_modified():
         "tests/test_phase2_p26_torch_boundary_smoke.py",
         "reports/PHASE_2_P26_TORCH_GATED_MODEL_DEPENDENCY_BOUNDARY_REPORT.md",
     }
-    res = subprocess.run(
-        ["git", "diff", "--name-only", "phase2/p25-fix-remove-subprocess-monkeypatch"],
-        capture_output=True, text=True, check=True
+    enforce_phase_local_scope_gate_or_skip(
+        expected_branch="phase2/p26-torch-gated-model-dependency-boundary",
+        base_commit="phase2/p25-fix-remove-subprocess-monkeypatch",
+        allowed_files=allowed,
+        phase_label="P26",
     )
-    modified = [line.strip() for line in res.stdout.splitlines() if line.strip()]
-    for f in modified:
-        f_norm = f.replace("\\", "/")
-        assert f_norm in allowed, f"Forbidden file modification detected in P26: {f_norm}"

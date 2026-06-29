@@ -2,6 +2,7 @@
 
 import pathlib
 import subprocess
+from tests.phase2_scope_gate_utils import enforce_phase_local_scope_gate_or_skip
 import pytest
 
 # Define paths
@@ -129,7 +130,7 @@ def test_p24_09_no_final_comparison_claims():
 
 
 def test_p24_10_no_forbidden_files_modified():
-    """Verify that no files outside the approved list are modified or untracked in git."""
+    """Phase-local scope gate for P24. Skips on non-P24 branches."""
     allowed = {
         "docs/PHASE_2_FACTORISED_CONSTRAINED_VAE_ARCHITECTURE.md",
         "docs/PHASE_2_MODEL_BOUNDARY_CONTRACT.md",
@@ -138,13 +139,9 @@ def test_p24_10_no_forbidden_files_modified():
         "tests/test_phase2_p24_architecture_docs.py",
         "reports/PHASE_2_P24_FACTORISED_CONSTRAINED_VAE_ARCHITECTURE_SPEC_REPORT.md",
     }
-    # Run git diff against the base P23 branch
-    res = subprocess.run(
-        ["git", "diff", "--name-only", "phase2/p23-evidence-contract-normalized-baseline-bundle"],
-        capture_output=True, text=True, check=True
+    enforce_phase_local_scope_gate_or_skip(
+        expected_branch="phase2/p24-factorised-constrained-vae-architecture-spec",
+        base_commit="phase2/p23-evidence-contract-normalized-baseline-bundle",
+        allowed_files=allowed,
+        phase_label="P24",
     )
-    modified = [line.strip() for line in res.stdout.splitlines() if line.strip()]
-    for f in modified:
-        # Ignore slash normalization variances
-        f_norm = f.replace("\\", "/")
-        assert f_norm in allowed, f"Forbidden file modification detected: {f_norm}"

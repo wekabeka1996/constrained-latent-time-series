@@ -4,6 +4,7 @@ import dataclasses
 import json
 import pathlib
 import subprocess
+from tests.phase2_scope_gate_utils import enforce_phase_local_scope_gate_or_skip
 import pytest
 from dataclasses import is_dataclass
 
@@ -859,6 +860,7 @@ def test_p36_95_module_import_boundary():
 
 # 96. P36-owned scope gate compares against accepted P35 branch
 def test_p36_96_scope_gate():
+    """Phase-local scope gate for P36. Skips on non-P36 branches."""
     allowed = {
         "src/phase2/fc_vae_flat_vector_batch_view.py",
         "src/phase2/__init__.py",
@@ -867,12 +869,9 @@ def test_p36_96_scope_gate():
         "tests/test_phase2_p36_flat_vector_batch_view_smoke.py",
         "reports/PHASE_2_P36_FLAT_VECTOR_2D_BATCH_VIEW_CONTRACT_NO_NESTED_VALUES_NO_TENSOR_NO_ARRAY_REPORT.md",
     }
-    # Base branch check
-    res = subprocess.run(
-        ["git", "diff", "--name-only", "phase2/p35-deterministic-fake-input-flat-vector-no-tensor"],
-        capture_output=True, text=True, check=True
+    enforce_phase_local_scope_gate_or_skip(
+        expected_branch="phase2/p36-flat-vector-2d-batch-view-contract-no-nested-values",
+        base_commit="phase2/p35-deterministic-fake-input-flat-vector-no-tensor",
+        allowed_files=allowed,
+        phase_label="P36",
     )
-    modified = [line.strip() for line in res.stdout.splitlines() if line.strip()]
-    for f in modified:
-        f_norm = f.replace("\\", "/")
-        assert f_norm in allowed, f"Forbidden file modification detected in P36: {f_norm}"

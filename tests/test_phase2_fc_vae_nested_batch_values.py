@@ -4,6 +4,7 @@ import dataclasses
 import json
 import pathlib
 import subprocess
+from tests.phase2_scope_gate_utils import enforce_phase_local_scope_gate_or_skip
 import pytest
 from dataclasses import is_dataclass
 from typing import Tuple
@@ -967,6 +968,7 @@ def test_p37_106_init_monkeypatch():
 
 # 107. Scope gate
 def test_p37_107_scope_gate():
+    """Phase-local scope gate for P37. Skips on non-P37 branches."""
     allowed = {
         "src/phase2/fc_vae_nested_batch_values.py",
         "src/phase2/__init__.py",
@@ -975,12 +977,9 @@ def test_p37_107_scope_gate():
         "tests/test_phase2_p37_nested_batch_values_smoke.py",
         "reports/PHASE_2_P37_CONTROLLED_NESTED_BATCH_VALUES_NO_TENSOR_NO_ARRAY_REPORT.md",
     }
-    # Base branch check
-    res = subprocess.run(
-        ["git", "diff", "--name-only", "phase2/p36-flat-vector-2d-batch-view-contract-no-nested-values"],
-        capture_output=True, text=True, check=True
+    enforce_phase_local_scope_gate_or_skip(
+        expected_branch="phase2/p37-controlled-nested-batch-values-no-tensor-no-array",
+        base_commit="phase2/p36-flat-vector-2d-batch-view-contract-no-nested-values",
+        allowed_files=allowed,
+        phase_label="P37",
     )
-    modified = [line.strip() for line in res.stdout.splitlines() if line.strip()]
-    for f in modified:
-        f_norm = f.replace("\\", "/")
-        assert f_norm in allowed, f"Forbidden file modification detected in P37: {f_norm}"

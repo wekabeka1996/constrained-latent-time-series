@@ -4,6 +4,7 @@ import dataclasses
 import json
 import pathlib
 import subprocess
+from tests.phase2_scope_gate_utils import enforce_phase_local_scope_gate_or_skip
 import re
 import pytest
 from dataclasses import is_dataclass
@@ -645,6 +646,7 @@ def test_p32_64_init_monkeypatch():
 
 # 65. P32-owned scope gate compares against accepted P31 branch
 def test_p32_65_scope_gate():
+    """Phase-local scope gate for P32. Skips on non-P32 branches."""
     allowed = {
         "src/phase2/fc_vae_forward_input_batch.py",
         "src/phase2/__init__.py",
@@ -653,11 +655,9 @@ def test_p32_65_scope_gate():
         "tests/test_phase2_p32_forward_input_batch_smoke.py",
         "reports/PHASE_2_P32_FORWARD_INPUT_BATCH_CONTRACT_NO_TENSOR_MATERIALIZATION_REPORT.md",
     }
-    res = subprocess.run(
-        ["git", "diff", "--name-only", "phase2/p31-noop-forward-boundary-contract"],
-        capture_output=True, text=True, check=True
+    enforce_phase_local_scope_gate_or_skip(
+        expected_branch="phase2/p32-forward-input-batch-contract-no-tensor",
+        base_commit="phase2/p31-noop-forward-boundary-contract",
+        allowed_files=allowed,
+        phase_label="P32",
     )
-    modified = [line.strip() for line in res.stdout.splitlines() if line.strip()]
-    for f in modified:
-        f_norm = f.replace("\\", "/")
-        assert f_norm in allowed, f"Forbidden file modification detected in P32: {f_norm}"
