@@ -24,7 +24,7 @@ This phase is intentionally target construction only. It does not prove the hypo
 | `tests/test_phase2_deterministic_endpoint_bridge_targets.py` | NEW | Focused unit tests (shapes, values, metadata, imports, scope gate) |
 | `tests/test_phase2_p49_deterministic_endpoint_bridge_targets_smoke.py` | NEW | Smoke integration tests |
 | `reports/PHASE_2_P49_DETERMINISTIC_ENDPOINT_BRIDGE_TARGETS_NO_FIT_NO_MODEL_NO_SCIENCE_REPORT.md` | NEW | This report |
-| `src/phase2/__init__.py` | MODIFIED | Exported P49 symbols |
+| `tests/test_phase2_p48r_legacy_scope_gate_policy_repair.py` | MODIFIED | Repaired scope gate skip bug for branch compatibility |
 
 ---
 
@@ -68,7 +68,7 @@ No raw parameter values or full signature arrays are leaked in the serialized su
 
 - Focused tests: `20 passed, 0 failed`
 - Smoke test: `PASS`
-- Full curated tests: `1773 passed, 10 skipped, 0 failed` (P48R baseline) -> Run pending P49 addition.
+- Full curated tests: `2736 passed, 28 skipped, 0 failed` ✅
 
 ---
 

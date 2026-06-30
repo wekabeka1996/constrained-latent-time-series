@@ -13,7 +13,10 @@ import subprocess
 
 import pytest
 
-from tests.phase2_scope_gate_utils import enforce_phase_local_scope_gate_or_skip
+from tests.phase2_scope_gate_utils import (
+    enforce_phase_local_scope_gate_or_skip,
+    get_current_git_branch,
+)
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -140,6 +143,8 @@ def test_p48r_04_scope_gate():
 
 def test_p48r_05_src_phase2_files_unchanged():
     """Verify src/phase2 source files are unchanged from P48 base."""
+    if get_current_git_branch() != P48R_EXPECTED_BRANCH:
+        pytest.skip("P48R src/phase2 check skipped on non-P48R branch")
     res = subprocess.run(
         ["git", "diff", "--name-only", P48_BASE_COMMIT, "--", "src/phase2"],
         capture_output=True, text=True, check=True,
@@ -156,6 +161,8 @@ def test_p48r_05_src_phase2_files_unchanged():
 
 def test_p48r_06_tools_phase2_files_unchanged():
     """Verify tools/phase2 scripts are unchanged from P48 base."""
+    if get_current_git_branch() != P48R_EXPECTED_BRANCH:
+        pytest.skip("P48R tools/phase2 check skipped on non-P48R branch")
     res = subprocess.run(
         ["git", "diff", "--name-only", P48_BASE_COMMIT, "--", "tools/phase2"],
         capture_output=True, text=True, check=True,

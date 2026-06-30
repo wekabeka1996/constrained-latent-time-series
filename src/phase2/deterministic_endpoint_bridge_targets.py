@@ -20,14 +20,14 @@ from src.phase2.analytic_moment_spectral_signatures import (
 
 # Constants
 ENDPOINT_BRIDGE_TARGETS_CONTRACT_VERSION = "phase2_p49_deterministic_endpoint_bridge_targets_contract_v1"
-ENDPOINT_BRIDGE_TARGETS_KIND = "deterministic_endpoint_bridge_targets_no_fi" + "t_no_model_no_science"
+ENDPOINT_BRIDGE_TARGETS_KIND = "deterministic_endpoint_bridge_targets_no_fit_no_model_no_science"
 ENDPOINT_BRIDGE_TARGETS_MODULE_NAME = "src.phase2.deterministic_endpoint_bridge_targets"
 P49_LAMBDA_VALUES = (0.25, 0.50, 0.75)
 P49_ENDPOINT_IDS = ("endpoint_A", "endpoint_B")
 
 # Statuses
-FC_VAE_BRIDGE_TARGETS_STATUS_TORCH_UNAVAILABLE = "blocked_torch_unavailable"
-FC_VAE_BRIDGE_TARGETS_STATUS_AVAILABLE = "endpoint_bridge_targets_available_no_fi" + "t_no_model_no_science"
+ENDPOINT_BRIDGE_TARGETS_STATUS_TORCH_UNAVAILABLE = "blocked_torch_unavailable"
+ENDPOINT_BRIDGE_TARGETS_STATUS_AVAILABLE = "endpoint_bridge_targets_available_no_fit_no_model_no_science"
 
 
 def validate_non_empty_str(val: str, name: str) -> None:
@@ -46,18 +46,14 @@ def assert_no_local_path_leakage(val: str, name: str = "field") -> None:
 
 
 def assert_no_forbidden_claims(val: str, name: str = "field") -> None:
-    forbidden = [
-        "scientific" + " " + "success",
-        "sol" + "ved",
-        "be" + "st",
-        "win" + "ner",
-        "production" + " " + "ready",
-        "state" + " " + "of" + " " + "the" + " " + "art"
-    ]
     val_lower = val.lower()
-    for item in forbidden:
-        if item.lower() in val_lower:
-            raise ValueError(f"Forbidden claim detected in {name}")
+    if (("scientific" in val_lower) and ("success" in val_lower)) or \
+       ("solved" in val_lower) or \
+       ("best" in val_lower) or \
+       ("winner" in val_lower) or \
+       (("production" in val_lower) and ("ready" in val_lower)) or \
+       (("state" in val_lower) and ("art" in val_lower)):
+        raise ValueError(f"Forbidden claim detected in {name}")
 
 
 def load_torch_for_p49_bridge_targets() -> Any:
@@ -178,7 +174,7 @@ def run_endpoint_bridge_targets_probe() -> dict:
     except Exception:
         return {
             "contract_version": ENDPOINT_BRIDGE_TARGETS_CONTRACT_VERSION,
-            "status": FC_VAE_BRIDGE_TARGETS_STATUS_TORCH_UNAVAILABLE,
+            "status": ENDPOINT_BRIDGE_TARGETS_STATUS_TORCH_UNAVAILABLE,
             "torch_available": False,
             "reason": "torch_unavailable",
         }
@@ -203,7 +199,7 @@ def run_endpoint_bridge_targets_probe() -> dict:
     summary = {
         "contract_version": ENDPOINT_BRIDGE_TARGETS_CONTRACT_VERSION,
         "kind": ENDPOINT_BRIDGE_TARGETS_KIND,
-        "status": FC_VAE_BRIDGE_TARGETS_STATUS_AVAILABLE,
+        "status": ENDPOINT_BRIDGE_TARGETS_STATUS_AVAILABLE,
         "torch_available": True,
         "endpoint_count": len(P49_ENDPOINT_IDS),
         "bridge_target_count": len(targets),
@@ -211,7 +207,7 @@ def run_endpoint_bridge_targets_probe() -> dict:
         "all_targets_finite": all_finite,
         "all_endpoint_tensors_no_grad": all_no_grad,
         "no_loss": True,
-        "no_fi" + "t": True,
+        "no_fit": True,
         "no_optimization": True,
         "no_model": True,
         "no_vae": True,
@@ -219,7 +215,7 @@ def run_endpoint_bridge_targets_probe() -> dict:
         "no_decoder": True,
         "no_dataset": True,
         "no_dataloader": True,
-        "no_torch_opt" + "imizer": True,
+        "no_torch_optimizer": True,
         "no_scientific_conclusion": True,
         "no_gsb_claim": True,
         "no_generation_claim": True,
@@ -263,7 +259,7 @@ def endpoint_bridge_targets_probe_to_json_dict(probe_res: dict) -> dict:
         "all_targets_finite": bool(probe_res.get("all_targets_finite", False)),
         "all_endpoint_tensors_no_grad": bool(probe_res.get("all_endpoint_tensors_no_grad", False)),
         "no_loss": bool(probe_res.get("no_loss", True)),
-        "no_fi" + "t": bool(probe_res.get("no_fi" + "t", True)),
+        "no_fit": bool(probe_res.get("no_fit", True)),
         "no_optimization": bool(probe_res.get("no_optimization", True)),
         "no_model": bool(probe_res.get("no_model", True)),
         "no_vae": bool(probe_res.get("no_vae", True)),
@@ -271,7 +267,7 @@ def endpoint_bridge_targets_probe_to_json_dict(probe_res: dict) -> dict:
         "no_decoder": bool(probe_res.get("no_decoder", True)),
         "no_dataset": bool(probe_res.get("no_dataset", True)),
         "no_dataloader": bool(probe_res.get("no_dataloader", True)),
-        "no_torch_opt" + "imizer": bool(probe_res.get("no_torch_opt" + "imizer", True)),
+        "no_torch_optimizer": bool(probe_res.get("no_torch_optimizer", True)),
         "no_scientific_conclusion": bool(probe_res.get("no_scientific_conclusion", True)),
         "no_gsb_claim": bool(probe_res.get("no_gsb_claim", True)),
         "no_generation_claim": bool(probe_res.get("no_generation_claim", True)),
