@@ -400,7 +400,7 @@ def build_p70a_pure_numeric_relation_testbed() -> dict:
     # For each relation type, cycle to another
     for idx, rel_type in enumerate(RELATION_TYPES):
         permuted_type = RELATION_TYPES[(idx + 1) % len(RELATION_TYPES)]
-        base = bases["train_style_base_states"][0]
+        base = bases["train_style_base_states"][1]
         intens = 1.0 if rel_type == "reflect_x" else 0.5
         z_b = apply_relation(base, rel_type, intens)
         
