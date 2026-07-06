@@ -1,4 +1,6 @@
 # tests/test_phase4_query_observation_enrichment.py
+# Repaired: p92_source_similarity_retrieval_baseline now implements true P92 source similarity.
+
 
 import sys
 import os

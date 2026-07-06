@@ -504,10 +504,18 @@ def build_enriched_support_context_for_query(
 
     # Baselines delegation
     if policy == "p92_source_similarity_retrieval_baseline":
-        return build_external_support_context_for_query(
-            enriched_query_record, demo_records, "observable_domain_split_retrieval", max_support,
+        candidates = []
+        for d in demo_records:
+            if d["external_demo_id"] == f"demo_{q_rec_id}":
+                continue
+            if d["domain"] == dom and d["source_split"] == sp:
+                candidates.append(d)
+        candidates = sorted(
+            candidates,
+            key=lambda d: (source_similarity_distance(enriched_query_record, d), d["external_demo_id"]),
         )
-    if policy == "p92_source_similarity_with_split_relaxation_baseline":
+        selected = candidates[:max_support]
+    elif policy == "p92_source_similarity_with_split_relaxation_baseline":
         # Simulate P92 source similarity with delegation/recreation
         # We can reconstruct P92 candidate selection
         candidates = []

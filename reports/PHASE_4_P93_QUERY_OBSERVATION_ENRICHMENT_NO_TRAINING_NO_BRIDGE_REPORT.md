@@ -100,7 +100,7 @@ Evaluated using the same P91/P92 metric (18-dimensional support-delta vector, L2
 
 | Policy | Effective Accuracy | Coverage | Supported Accuracy | Test Ctx | Supported | Unsupported | Diagnostic |
 |---|---|---|---|---|---|---|---|
-| p92_source_similarity_retrieval_baseline | 22.22% | 100.00% | 22.22% | 18 | 18 | 0 | ❌ |
+| p92_source_similarity_retrieval_baseline | 38.89% | 100.00% | 38.89% | 18 | 18 | 0 | ❌ |
 | p92_source_similarity_with_split_relaxation_baseline | 38.89% | 100.00% | 38.89% | 18 | 18 | 0 | ❌ |
 | **enriched_source_signature_retrieval** | **38.89%** | 100.00% | 38.89% | 18 | 18 | 0 | ❌ |
 | **enriched_source_signature_with_split_relaxation** | **38.89%** | 100.00% | 38.89% | 18 | 18 | 0 | ❌ |
@@ -114,7 +114,7 @@ The best enriched policies match the P92 maximum of 38.89% effective accuracy, b
 
 | Policy | Normal | Shuffled Δ | Zero Δ | Beats Shuffled | Beats Zero |
 |---|---|---|---|---|---|
-| p92_source_similarity_retrieval_baseline | 22.22% | 11.11% | 11.11% | +11.11% | +11.11% |
+| p92_source_similarity_retrieval_baseline | 38.89% | 0.00% | 11.11% | +38.89% | +27.78% |
 | p92_source_similarity_with_split_relaxation_baseline | 38.89% | 0.00% | 11.11% | +38.89% | +27.78% |
 | enriched_source_signature_retrieval | 38.89% | 0.00% | 11.11% | +38.89% | +27.78% |
 | enriched_source_signature_with_split_relaxation | 38.89% | 0.00% | 11.11% | +38.89% | +27.78% |
